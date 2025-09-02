@@ -53,18 +53,15 @@ class OverpassAPI {
         // Convert bbox to Overpass format: [south, west, north, east]
         const overpassBbox = [bbox[1], bbox[0], bbox[3], bbox[2]];
         
-        // Optimized Overpass QL query - prioritize roads with smoothness data
-        // Limited to reduce timeout issues
+        // Query ONLY for roads with smoothness data + all roads for coverage analysis
         const query = `
-[out:json][timeout:30][maxsize:67108864][bbox:${overpassBbox.join(',')}];
+[out:json][timeout:45][maxsize:134217728][bbox:${overpassBbox.join(',')}];
 (
-  // Primary focus: roads with explicit smoothness data
-  way[highway=tertiary][smoothness];
-  way[highway=unclassified][smoothness];
+  // Roads WITH smoothness data (all major types)
+  way[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$"][smoothness];
   
-  // Secondary: roads with surface data (fewer results)
-  way[highway=tertiary][surface~"^(asphalt|concrete|paved|gravel|dirt|unpaved)$"];
-  way[highway=unclassified][surface~"^(asphalt|concrete|paved|gravel|dirt|unpaved)$"];
+  // All roads WITHOUT smoothness (for coverage analysis - will be blue)
+  way[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$"][!smoothness];
 );
 out geom;
         `.trim();
@@ -262,9 +259,8 @@ out geom;
         properties.highway = tags.highway || 'unknown';
         properties.name = tags.name || tags['name:pl'] || tags['name:en'] || null;
         
-        // Road quality indicators
+        // Road quality indicators - ONLY smoothness
         properties.smoothness = this.normalizeSmoothness(tags.smoothness);
-        properties.surface = tags.surface || null;
         
         // Additional road properties
         properties.maxspeed = tags.maxspeed || null;
@@ -272,23 +268,11 @@ out geom;
         properties.width = tags.width || null;
         properties.oneway = tags.oneway === 'yes';
         
-        // Access restrictions
-        properties.access = tags.access || null;
-        properties.bicycle = tags.bicycle || null;
-        properties.motor_vehicle = tags['motor_vehicle'] || null;
-        
-        // Surface condition
-        properties.tracktype = tags.tracktype || null;
-        properties.grade = tags.grade || null;
-        
         // Administrative info
         properties.ref = tags.ref || null;
         properties.operator = tags.operator || null;
         
-        // If no smoothness but we have surface, try to infer quality
-        if (!properties.smoothness && properties.surface) {
-            properties.smoothness = this.inferSmoothnessFromSurface(properties.surface);
-        }
+        // NO surface inference - only explicit smoothness data
         
         return properties;
     }

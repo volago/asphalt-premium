@@ -272,24 +272,18 @@ class AsphaltPremiumApp {
         ).length;
         
         // Calculate counts and percentages
-        const unknownRoads = totalRoads - roadsWithSmoothness;
-        const unknownPercent = totalRoads > 0 ? (unknownRoads / totalRoads) * 100 : 0;
         const excellentPercent = totalRoads > 0 ? (roadCounts.excellent / totalRoads) * 100 : 0;
         const goodPercent = totalRoads > 0 ? (roadCounts.good / totalRoads) * 100 : 0;
         const poorPercent = totalRoads > 0 ? (roadCounts.poor / totalRoads) * 100 : 0;
+        const unknownPercent = totalRoads > 0 ? (roadCounts.unknown / totalRoads) * 100 : 0;
         
         // Update UI elements
         const unknownElement = document.getElementById('unknown-roads');
-        unknownElement.textContent = `${unknownRoads} (${unknownPercent.toFixed(1)}%)`;
+        unknownElement.textContent = `${roadCounts.unknown} (${unknownPercent.toFixed(1)}%)`;
         
-        // Set color based on percentage of unknown roads
-        unknownElement.className = 'stat-value';
-        if (unknownPercent <= 10) {
-            unknownElement.classList.add('low-unknown');
-        } else if (unknownPercent <= 30) {
-            unknownElement.classList.add('medium-unknown');
-        }
-        // Default red color for > 30%
+        // Set blue color to match map lines
+        unknownElement.className = 'stat-value stat-unknown';
+        unknownElement.style.color = '#2563eb';
         
         document.getElementById('excellent-percent').textContent = `${excellentPercent.toFixed(1)}%`;
         document.getElementById('good-percent').textContent = `${goodPercent.toFixed(1)}%`;
@@ -301,7 +295,6 @@ class AsphaltPremiumApp {
         console.log('Road statistics:', {
             totalRoads,
             roadsWithSmoothness,
-            unknownRoads,
             unknownPercent: unknownPercent.toFixed(1) + '%',
             breakdown: {
                 excellent: excellentPercent.toFixed(1) + '%',
@@ -329,19 +322,21 @@ class AsphaltPremiumApp {
 
     
     showLoading(show) {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = show ? 'flex' : 'none';
-        }
+        // Loading state is now handled by setRefreshButtonState
+        // This method kept for compatibility but does nothing
     }
     
     setRefreshButtonState(enabled) {
         const refreshBtn = document.getElementById('refresh-btn');
         if (refreshBtn) {
             refreshBtn.disabled = !enabled;
-            refreshBtn.innerHTML = enabled ? 
-                '<span class="btn-icon">🔄</span>Odśwież' : 
-                '<span class="btn-icon">⏳</span>Ładowanie...';
+            if (enabled) {
+                refreshBtn.innerHTML = '<span class="btn-icon">🔄</span>Odśwież';
+                refreshBtn.classList.remove('loading');
+            } else {
+                refreshBtn.innerHTML = '<div class="btn-spinner"></div>Ładowanie...';
+                refreshBtn.classList.add('loading');
+            }
         }
     }
     

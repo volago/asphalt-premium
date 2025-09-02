@@ -117,6 +117,7 @@ class MapManager {
             excellent: 0,
             good: 0,
             poor: 0,
+            unknown: 0,
             total: 0
         };
         
@@ -185,7 +186,7 @@ class MapManager {
     }
     
     getRoadStyleType(smoothness) {
-        if (!smoothness) return 'poor';
+        if (!smoothness) return 'unknown';  // Blue for roads without smoothness
         return CONFIG.SMOOTHNESS_MAPPING[smoothness] || 'poor';
     }
     
@@ -200,10 +201,9 @@ class MapManager {
     
     createRoadPopup(properties) {
         const name = properties.name || 'Droga bez nazwy';
-        const smoothness = properties.smoothness || 'nieokreślona';
+        const smoothness = properties.smoothness || 'brak danych';
         const highway = properties.highway || 'nieznany typ';
         const maxspeed = properties.maxspeed || 'nieograniczona';
-        const surface = properties.surface || 'nieznana';
         
         return `
             <div class="road-popup">
@@ -211,7 +211,6 @@ class MapManager {
                 <div class="road-details">
                     <p><strong>Typ drogi:</strong> ${highway}</p>
                     <p><strong>Jakość nawierzchni:</strong> ${smoothness}</p>
-                    <p><strong>Powierzchnia:</strong> ${surface}</p>
                     <p><strong>Prędkość maksymalna:</strong> ${maxspeed}</p>
                 </div>
             </div>
@@ -220,7 +219,7 @@ class MapManager {
     
     createRoadTooltip(properties) {
         const name = properties.name || 'Droga bez nazwy';
-        const smoothness = properties.smoothness || 'nieokreślona';
+        const smoothness = properties.smoothness || 'brak danych';
         return `${name} (${smoothness})`;
     }
     

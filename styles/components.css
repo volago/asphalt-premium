@@ -114,34 +114,28 @@
 }
 
 /* ==========================================
-   LOADING INDICATOR
+   BUTTON SPINNER
    ========================================== */
 
-.loading-indicator {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-    margin: var(--spacing-md) 0;
-    background-color: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: var(--border-radius-md);
-    color: var(--primary-blue);
-    font-size: var(--font-size-sm);
-}
-
-.spinner {
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid #bae6fd;
-    border-top: 2px solid var(--primary-blue);
+.btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    margin-right: var(--spacing-xs);
 }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.btn.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
 }
 
 /* ==========================================
@@ -270,6 +264,10 @@
 
 .legend-line.poor {
     background-color: var(--red);
+}
+
+.legend-line.unknown {
+    background-color: #2563eb;
 }
 
 .legend-item span {
