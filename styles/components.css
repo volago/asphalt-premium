@@ -145,6 +145,82 @@
 }
 
 /* ==========================================
+   ROAD STATISTICS
+   ========================================== */
+
+.road-stats {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background-color: #f8fafc;
+    border-radius: var(--border-radius-md);
+    border: 1px solid #e2e8f0;
+}
+
+.road-stats h4 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.stat-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--medium-gray);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--red);
+}
+
+.stat-value.low-unknown {
+    color: var(--green);
+}
+
+.stat-value.medium-unknown {
+    color: #f59e0b;
+}
+
+.stat-breakdown {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+}
+
+.stat-item .legend-line {
+    width: 2rem;
+    height: 3px;
+}
+
+.stat-number {
+    font-size: var(--font-size-sm);
+    color: var(--dark-gray);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ==========================================
    LEGEND
    ========================================== */
 

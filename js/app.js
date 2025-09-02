@@ -107,6 +107,9 @@ class AsphaltPremiumApp {
             this.currentVoivodeship = e.target.value;
             if (this.currentVoivodeship) {
                 this.loadCachedData();
+            } else {
+                // Hide statistics when no voivodeship selected
+                this.hideStatistics();
             }
         });
     }
@@ -234,12 +237,88 @@ class AsphaltPremiumApp {
         const roadCounts = this.mapManager.displayRoads(geoJsonData);
         console.log(`Displayed roads:`, roadCounts);
         
+        // Update statistics
+        this.updateRoadStatistics(geoJsonData, roadCounts);
+        
         return roadCounts;
     }
     
     zoomToVoivodeship(voivodeshipKey) {
         if (this.mapManager) {
             this.mapManager.zoomToVoivodeship(voivodeshipKey);
+        }
+    }
+    
+    /**
+     * Update road quality statistics in sidebar
+     * @param {Object} geoJsonData - Full road data
+     * @param {Object} roadCounts - Road counts by quality
+     */
+    updateRoadStatistics(geoJsonData, roadCounts) {
+        const statsElement = document.getElementById('road-stats');
+        if (!statsElement) return;
+        
+        // Calculate statistics
+        const totalRoads = geoJsonData.features ? geoJsonData.features.length : 0;
+        
+        if (totalRoads === 0) {
+            statsElement.style.display = 'none';
+            return;
+        }
+        
+        // Count roads with smoothness data
+        const roadsWithSmoothness = geoJsonData.features.filter(feature => 
+            feature.properties && feature.properties.smoothness
+        ).length;
+        
+        // Calculate counts and percentages
+        const unknownRoads = totalRoads - roadsWithSmoothness;
+        const unknownPercent = totalRoads > 0 ? (unknownRoads / totalRoads) * 100 : 0;
+        const excellentPercent = totalRoads > 0 ? (roadCounts.excellent / totalRoads) * 100 : 0;
+        const goodPercent = totalRoads > 0 ? (roadCounts.good / totalRoads) * 100 : 0;
+        const poorPercent = totalRoads > 0 ? (roadCounts.poor / totalRoads) * 100 : 0;
+        
+        // Update UI elements
+        const unknownElement = document.getElementById('unknown-roads');
+        unknownElement.textContent = `${unknownRoads} (${unknownPercent.toFixed(1)}%)`;
+        
+        // Set color based on percentage of unknown roads
+        unknownElement.className = 'stat-value';
+        if (unknownPercent <= 10) {
+            unknownElement.classList.add('low-unknown');
+        } else if (unknownPercent <= 30) {
+            unknownElement.classList.add('medium-unknown');
+        }
+        // Default red color for > 30%
+        
+        document.getElementById('excellent-percent').textContent = `${excellentPercent.toFixed(1)}%`;
+        document.getElementById('good-percent').textContent = `${goodPercent.toFixed(1)}%`;
+        document.getElementById('poor-percent').textContent = `${poorPercent.toFixed(1)}%`;
+        
+        // Show statistics
+        statsElement.style.display = 'block';
+        
+        console.log('Road statistics:', {
+            totalRoads,
+            roadsWithSmoothness,
+            unknownRoads,
+            unknownPercent: unknownPercent.toFixed(1) + '%',
+            breakdown: {
+                excellent: excellentPercent.toFixed(1) + '%',
+                good: goodPercent.toFixed(1) + '%',
+                poor: poorPercent.toFixed(1) + '%',
+                unknown: unknownPercent.toFixed(1) + '%'
+            }
+        });
+    }
+    
+    /**
+     * Hide road statistics
+     */
+    hideStatistics() {
+        const statsElement = document.getElementById('road-stats');
+        if (statsElement) {
+            statsElement.style.display = 'none';
         }
     }
     
