@@ -106,7 +106,6 @@ class AsphaltPremiumApp {
         voivodeshipSelect.addEventListener('change', (e) => {
             this.currentVoivodeship = e.target.value;
             if (this.currentVoivodeship) {
-                this.showVoivodeshipInfo(this.currentVoivodeship);
                 this.loadCachedData();
             }
         });
@@ -134,15 +133,22 @@ class AsphaltPremiumApp {
             return;
         }
         
-        const cachedData = this.cache.get(this.currentVoivodeship);
-        
-        if (cachedData) {
-            console.log(`Loading cached data for ${this.currentVoivodeship}`);
-            this.showMessage(CONFIG.MESSAGES.CACHE_LOADED, 'success');
-            this.displayRoads(cachedData);
-            this.zoomToVoivodeship(this.currentVoivodeship);
-        } else {
-            console.log(`No cached data for ${this.currentVoivodeship}`);
+        try {
+            const cachedData = await this.cache.get(this.currentVoivodeship);
+            
+            if (cachedData) {
+                console.log(`Loading cached data for ${this.currentVoivodeship}`);
+                
+                const featureCount = cachedData.features ? cachedData.features.length : 0;
+                
+                this.showMessage(`Dane z cache IndexedDB (${featureCount} dróg)`, 'success');
+                this.displayRoads(cachedData);
+                this.zoomToVoivodeship(this.currentVoivodeship);
+            } else {
+                console.log(`No cached data for ${this.currentVoivodeship}`);
+            }
+        } catch (error) {
+            console.error('Error loading cached data:', error);
         }
     }
     
@@ -167,8 +173,11 @@ class AsphaltPremiumApp {
                 return;
             }
             
-            // Cache the data
-            this.cache.set(this.currentVoivodeship, data);
+            // Cache the data in IndexedDB
+            const cached = await this.cache.set(this.currentVoivodeship, data);
+            if (!cached) {
+                this.showMessage('Uwaga: Dane nie zostały zapisane w cache IndexedDB', 'warning');
+            }
             
             // Display on map
             this.displayRoads(data);
@@ -195,11 +204,15 @@ class AsphaltPremiumApp {
             this.showMessage(errorMessage, 'error');
             
             // Try to load cached data as fallback
-            const cachedData = this.cache.get(this.currentVoivodeship);
-            if (cachedData) {
-                this.showMessage('Załadowano dane z cache jako rezerwę', 'info');
-                this.displayRoads(cachedData);
-                this.zoomToVoivodeship(this.currentVoivodeship);
+            try {
+                const cachedData = await this.cache.get(this.currentVoivodeship);
+                if (cachedData) {
+                    this.showMessage('Załadowano dane z cache IndexedDB jako rezerwę', 'info');
+                    this.displayRoads(cachedData);
+                    this.zoomToVoivodeship(this.currentVoivodeship);
+                }
+            } catch (cacheError) {
+                console.error('Failed to load fallback cache data:', cacheError);
             }
             
         } finally {
@@ -234,21 +247,7 @@ class AsphaltPremiumApp {
        UI HELPERS
        ========================================== */
     
-    showVoivodeshipInfo(voivodeshipKey) {
-        const voivodeship = CONFIG.VOIVODESHIPS[voivodeshipKey];
-        if (!voivodeship) return;
-        
-        const messages = {
-            'small': 'Małe województwo - szybkie ładowanie ⚡',
-            'medium': 'Średnie województwo - ładowanie ok. 10-20s',
-            'large': 'Duże województwo - ładowanie może potrwać 30-60s ⏳',
-            'xlarge': 'Bardzo duże województwo - ładowanie 1-2 min ⏳',
-            'xxlarge': 'Największe województwo - ładowanie może potrwać kilka minut ⏳⏳'
-        };
-        
-        const sizeMessage = messages[voivodeship.size] || 'Ładowanie danych...';
-        this.showMessage(`Wybrano: ${voivodeship.name.split('(')[0].trim()}. ${sizeMessage}`, 'info');
-    }
+
     
     showLoading(show) {
         const loadingIndicator = document.getElementById('loading-indicator');
@@ -268,9 +267,17 @@ class AsphaltPremiumApp {
     }
     
     showMessage(message, type = 'info') {
+        // Remove any existing notifications of the same type first
+        const existingNotifications = document.querySelectorAll('.toast-notification');
+        existingNotifications.forEach(notification => {
+            if (notification.classList.contains(`alert-${type}`)) {
+                notification.remove();
+            }
+        });
+        
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type} animate-slide-in-right`;
+        notification.className = `alert alert-${type} animate-slide-in-right toast-notification`;
         notification.textContent = message;
         notification.style.position = 'fixed';
         notification.style.top = '5rem';
@@ -278,19 +285,36 @@ class AsphaltPremiumApp {
         notification.style.zIndex = '10000';
         notification.style.minWidth = '250px';
         notification.style.maxWidth = '400px';
+        notification.style.cursor = 'pointer';
         
         document.body.appendChild(notification);
         
-        // Auto remove after 5 seconds
-        setTimeout(() => {
+        // Different timeout for different types
+        const timeout = type === 'info' ? 3000 : 5000;
+        
+        // Auto remove after timeout
+        const timeoutId = setTimeout(() => {
             if (notification.parentNode) {
-                notification.remove();
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
             }
-        }, 5000);
+        }, timeout);
         
         // Allow manual close on click
         notification.addEventListener('click', () => {
-            notification.remove();
+            clearTimeout(timeoutId);
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
         });
     }
     

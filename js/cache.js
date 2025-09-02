@@ -1,15 +1,75 @@
 /* ==========================================
-   CACHE.JS - Local Storage Cache Management
+   CACHE.JS - IndexedDB Cache Management
    Asphalt Premium
    ========================================== */
 
 class CacheManager {
     constructor() {
-        this.prefix = CONFIG.CACHE_KEY_PREFIX;
-        this.durationMs = CONFIG.CACHE_DURATION_DAYS * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+        this.dbName = 'AsphaltPremiumCache';
+        this.dbVersion = 1;
+        this.storeName = 'voivodeships';
+        this.durationMs = CONFIG.CACHE_DURATION_DAYS * 24 * 60 * 60 * 1000;
+        this.db = null;
+        this.isInitialized = false;
         
-        // Clean expired entries on initialization
-        this.cleanExpired();
+        // Initialize IndexedDB
+        this.init();
+    }
+    
+    /**
+     * Initialize IndexedDB
+     */
+    async init() {
+        try {
+            this.db = await this.openDatabase();
+            this.isInitialized = true;
+            console.log('IndexedDB cache initialized successfully');
+            
+            // Clean expired entries on initialization
+            await this.cleanExpired();
+        } catch (error) {
+            console.error('Failed to initialize IndexedDB cache:', error);
+            this.isInitialized = false;
+        }
+    }
+    
+    /**
+     * Open IndexedDB database
+     */
+    openDatabase() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+            
+            request.onerror = () => {
+                reject(new Error('Failed to open IndexedDB'));
+            };
+            
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                
+                // Create object store if it doesn't exist
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    const store = db.createObjectStore(this.storeName, { keyPath: 'voivodeship' });
+                    store.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+            };
+        });
+    }
+    
+    /**
+     * Ensure database is ready
+     */
+    async ensureReady() {
+        if (!this.isInitialized) {
+            await this.init();
+        }
+        if (!this.isInitialized) {
+            throw new Error('IndexedDB cache not available');
+        }
     }
     
     /* ==========================================
@@ -17,101 +77,97 @@ class CacheManager {
        ========================================== */
     
     /**
-     * Store data in cache with timestamp
+     * Store data in IndexedDB cache with timestamp
      * @param {string} voivodeshipKey - Voivodeship identifier
      * @param {Object} data - GeoJSON data to cache
      */
-    set(voivodeshipKey, data) {
+    async set(voivodeshipKey, data) {
         try {
+            await this.ensureReady();
+            
             const cacheEntry = {
-                data: data,
-                timestamp: Date.now(),
                 voivodeship: voivodeshipKey,
-                version: '1.0'
+                data: data, // Store full data - IndexedDB can handle large objects
+                timestamp: Date.now(),
+                version: '2.0' // IndexedDB version
             };
             
-            const key = this.getCacheKey(voivodeshipKey);
-            const serializedData = JSON.stringify(cacheEntry);
+            const transaction = this.db.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
             
-            // Check storage size before saving
-            if (this.willExceedStorageQuota(serializedData)) {
-                console.warn('Cache size would exceed quota, clearing old entries');
-                this.clearOldestEntries();
-            }
+            await new Promise((resolve, reject) => {
+                const request = store.put(cacheEntry);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
             
-            localStorage.setItem(key, serializedData);
-            
-            console.log(`Cached data for ${voivodeshipKey} (${this.formatDataSize(serializedData.length)})`);
+            const dataSize = JSON.stringify(data).length;
+            console.log(`Cached data for ${voivodeshipKey} in IndexedDB (${data.features.length} features, ${this.formatDataSize(dataSize)})`);
             
             return true;
             
         } catch (error) {
-            console.error('Failed to cache data:', error);
-            
-            // If quota exceeded, try clearing some space and retry
-            if (error.name === 'QuotaExceededError') {
-                this.clearOldestEntries();
-                try {
-                    localStorage.setItem(key, serializedData);
-                    return true;
-                } catch (retryError) {
-                    console.error('Failed to cache data after cleanup:', retryError);
-                }
-            }
-            
+            console.error('Failed to cache data in IndexedDB:', error);
             return false;
         }
     }
     
     /**
-     * Retrieve data from cache if not expired
+     * Retrieve data from IndexedDB cache if not expired
      * @param {string} voivodeshipKey - Voivodeship identifier
      * @returns {Object|null} Cached data or null if not found/expired
      */
-    get(voivodeshipKey) {
+    async get(voivodeshipKey) {
         try {
-            const key = this.getCacheKey(voivodeshipKey);
-            const serializedData = localStorage.getItem(key);
+            await this.ensureReady();
             
-            if (!serializedData) {
+            const transaction = this.db.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            
+            const cacheEntry = await new Promise((resolve, reject) => {
+                const request = store.get(voivodeshipKey);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+            
+            if (!cacheEntry) {
                 return null;
             }
-            
-            const cacheEntry = JSON.parse(serializedData);
             
             // Check if data is expired
             if (this.isExpired(cacheEntry.timestamp)) {
                 console.log(`Cache expired for ${voivodeshipKey}, removing`);
-                this.remove(voivodeshipKey);
+                await this.remove(voivodeshipKey);
                 return null;
             }
             
-            // Validate data structure
-            if (!this.isValidCacheEntry(cacheEntry)) {
-                console.warn(`Invalid cache entry for ${voivodeshipKey}, removing`);
-                this.remove(voivodeshipKey);
-                return null;
-            }
-            
-            console.log(`Cache hit for ${voivodeshipKey} (age: ${this.getAgeString(cacheEntry.timestamp)})`);
+            console.log(`IndexedDB cache hit for ${voivodeshipKey} (${cacheEntry.data.features.length} features, age: ${this.getAgeString(cacheEntry.timestamp)})`);
             
             return cacheEntry.data;
             
         } catch (error) {
-            console.error('Failed to retrieve cached data:', error);
-            this.remove(voivodeshipKey); // Remove corrupted entry
+            console.error('Failed to retrieve cached data from IndexedDB:', error);
             return null;
         }
     }
     
     /**
-     * Remove specific voivodeship data from cache
+     * Remove specific voivodeship data from IndexedDB cache
      * @param {string} voivodeshipKey - Voivodeship identifier
      */
-    remove(voivodeshipKey) {
+    async remove(voivodeshipKey) {
         try {
-            const key = this.getCacheKey(voivodeshipKey);
-            localStorage.removeItem(key);
+            await this.ensureReady();
+            
+            const transaction = this.db.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            
+            await new Promise((resolve, reject) => {
+                const request = store.delete(voivodeshipKey);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+            
             console.log(`Removed cache entry for ${voivodeshipKey}`);
         } catch (error) {
             console.error('Failed to remove cache entry:', error);
@@ -119,13 +175,22 @@ class CacheManager {
     }
     
     /**
-     * Clear all cached data
+     * Clear all cached data from IndexedDB
      */
-    clear() {
+    async clear() {
         try {
-            const keys = this.getAllCacheKeys();
-            keys.forEach(key => localStorage.removeItem(key));
-            console.log(`Cleared ${keys.length} cache entries`);
+            await this.ensureReady();
+            
+            const transaction = this.db.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            
+            await new Promise((resolve, reject) => {
+                const request = store.clear();
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+            
+            console.log('Cleared all cache entries from IndexedDB');
         } catch (error) {
             console.error('Failed to clear cache:', error);
         }
@@ -136,32 +201,36 @@ class CacheManager {
        ========================================== */
     
     /**
-     * Remove expired cache entries
+     * Remove expired cache entries from IndexedDB
      */
-    cleanExpired() {
+    async cleanExpired() {
         try {
-            const keys = this.getAllCacheKeys();
-            let removedCount = 0;
+            await this.ensureReady();
             
-            keys.forEach(key => {
-                try {
-                    const data = localStorage.getItem(key);
-                    if (data) {
-                        const cacheEntry = JSON.parse(data);
-                        if (this.isExpired(cacheEntry.timestamp)) {
-                            localStorage.removeItem(key);
-                            removedCount++;
-                        }
-                    }
-                } catch (error) {
-                    // Remove corrupted entries
-                    localStorage.removeItem(key);
-                    removedCount++;
-                }
+            const transaction = this.db.transaction([this.storeName], 'readwrite');
+            const store = transaction.objectStore(this.storeName);
+            
+            const allEntries = await new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
             });
             
+            let removedCount = 0;
+            
+            for (const entry of allEntries) {
+                if (this.isExpired(entry.timestamp)) {
+                    await new Promise((resolve, reject) => {
+                        const deleteRequest = store.delete(entry.voivodeship);
+                        deleteRequest.onsuccess = () => resolve();
+                        deleteRequest.onerror = () => reject(deleteRequest.error);
+                    });
+                    removedCount++;
+                }
+            }
+            
             if (removedCount > 0) {
-                console.log(`Cleaned ${removedCount} expired cache entries`);
+                console.log(`Cleaned ${removedCount} expired cache entries from IndexedDB`);
             }
             
         } catch (error) {
@@ -170,27 +239,13 @@ class CacheManager {
     }
     
     /**
-     * Remove oldest cache entries to free up space
+     * Check if voivodeship has cached data
+     * @param {string} voivodeshipKey - Voivodeship identifier
+     * @returns {boolean} True if cached data exists and is not expired
      */
-    clearOldestEntries() {
-        try {
-            const entries = this.getAllCacheEntries();
-            
-            // Sort by timestamp (oldest first)
-            entries.sort((a, b) => a.timestamp - b.timestamp);
-            
-            // Remove oldest half
-            const toRemove = Math.ceil(entries.length / 2);
-            
-            for (let i = 0; i < toRemove && i < entries.length; i++) {
-                localStorage.removeItem(entries[i].key);
-            }
-            
-            console.log(`Removed ${toRemove} oldest cache entries`);
-            
-        } catch (error) {
-            console.error('Failed to clear oldest entries:', error);
-        }
+    async has(voivodeshipKey) {
+        const data = await this.get(voivodeshipKey);
+        return data !== null;
     }
     
     /* ==========================================
@@ -198,44 +253,47 @@ class CacheManager {
        ========================================== */
     
     /**
-     * Get cache statistics
+     * Get IndexedDB cache statistics
      * @returns {Object} Cache statistics
      */
-    getStats() {
+    async getStats() {
         try {
-            const entries = this.getAllCacheEntries();
-            let totalSize = 0;
+            await this.ensureReady();
+            
+            const transaction = this.db.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            
+            const allEntries = await new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
             
             const stats = {
-                totalEntries: entries.length,
+                totalEntries: allEntries.length,
                 voivodeships: [],
-                totalSize: 0,
                 oldestEntry: null,
                 newestEntry: null
             };
             
-            if (entries.length === 0) {
+            if (allEntries.length === 0) {
                 return stats;
             }
             
-            entries.forEach(entry => {
-                const size = new Blob([localStorage.getItem(entry.key)]).size;
-                totalSize += size;
-                
+            allEntries.forEach(entry => {
                 stats.voivodeships.push({
                     name: entry.voivodeship,
                     age: this.getAgeString(entry.timestamp),
-                    size: this.formatDataSize(size),
-                    features: entry.data && entry.data.features ? entry.data.features.length : 0
+                    features: entry.data && entry.data.features ? entry.data.features.length : 0,
+                    version: entry.version || 'unknown'
                 });
             });
             
             // Sort by timestamp
-            entries.sort((a, b) => a.timestamp - b.timestamp);
+            allEntries.sort((a, b) => a.timestamp - b.timestamp);
             
-            stats.totalSize = this.formatDataSize(totalSize);
-            stats.oldestEntry = entries[0];
-            stats.newestEntry = entries[entries.length - 1];
+            stats.oldestEntry = allEntries[0];
+            stats.newestEntry = allEntries[allEntries.length - 1];
             
             return stats;
             
@@ -244,74 +302,18 @@ class CacheManager {
             return {
                 totalEntries: 0,
                 voivodeships: [],
-                totalSize: '0 B',
                 oldestEntry: null,
                 newestEntry: null
             };
         }
     }
     
-    /**
-     * Check if voivodeship has cached data
-     * @param {string} voivodeshipKey - Voivodeship identifier
-     * @returns {boolean} True if cached data exists and is not expired
-     */
-    has(voivodeshipKey) {
-        return this.get(voivodeshipKey) !== null;
-    }
-    
     /* ==========================================
        UTILITY METHODS
        ========================================== */
     
-    getCacheKey(voivodeshipKey) {
-        return `${this.prefix}${voivodeshipKey}`;
-    }
-    
-    getAllCacheKeys() {
-        const keys = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith(this.prefix)) {
-                keys.push(key);
-            }
-        }
-        return keys;
-    }
-    
-    getAllCacheEntries() {
-        const entries = [];
-        const keys = this.getAllCacheKeys();
-        
-        keys.forEach(key => {
-            try {
-                const data = localStorage.getItem(key);
-                if (data) {
-                    const cacheEntry = JSON.parse(data);
-                    entries.push({
-                        key: key,
-                        ...cacheEntry
-                    });
-                }
-            } catch (error) {
-                // Skip corrupted entries
-                console.warn(`Corrupted cache entry: ${key}`);
-            }
-        });
-        
-        return entries;
-    }
-    
     isExpired(timestamp) {
         return (Date.now() - timestamp) > this.durationMs;
-    }
-    
-    isValidCacheEntry(entry) {
-        return entry &&
-               entry.data &&
-               entry.timestamp &&
-               entry.voivodeship &&
-               typeof entry.data === 'object';
     }
     
     getAgeString(timestamp) {
@@ -339,29 +341,17 @@ class CacheManager {
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
     }
     
-    willExceedStorageQuota(newData) {
-        try {
-            // Rough estimate - localStorage typically has 5-10MB limit
-            const currentSize = new Blob([JSON.stringify(localStorage)]).size;
-            const newDataSize = new Blob([newData]).size;
-            const estimatedQuota = 5 * 1024 * 1024; // 5MB conservative estimate
-            
-            return (currentSize + newDataSize) > estimatedQuota;
-        } catch (error) {
-            return false; // If we can't estimate, proceed
-        }
-    }
+
     
     /* ==========================================
        DEBUG METHODS
        ========================================== */
     
-    debug() {
-        const stats = this.getStats();
+    async debug() {
+        const stats = await this.getStats();
         console.table(stats.voivodeships);
-        console.log('Cache Stats:', {
+        console.log('IndexedDB Cache Stats:', {
             'Total Entries': stats.totalEntries,
-            'Total Size': stats.totalSize,
             'Oldest Entry': stats.oldestEntry ? 
                 `${stats.oldestEntry.voivodeship} (${this.getAgeString(stats.oldestEntry.timestamp)})` : 
                 'None',

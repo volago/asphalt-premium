@@ -369,6 +369,21 @@
 }
 
 /* ==========================================
+   TOAST NOTIFICATIONS
+   ========================================== */
+
+.toast-notification {
+    transition: all 0.3s ease-in-out;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+}
+
+.toast-notification:hover {
+    transform: translateX(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* ==========================================
    UTILITY CLASSES
    ========================================== */
 
