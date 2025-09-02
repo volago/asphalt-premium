@@ -256,14 +256,16 @@
 }
 
 .legend-line.good {
-    background-color: var(--black);
+    background-color: transparent;
     background-image: repeating-linear-gradient(
         90deg,
-        var(--black),
-        var(--black) 5px,
-        transparent 5px,
-        transparent 10px
+        var(--black) 0px,
+        var(--black) 6px,
+        transparent 6px,
+        transparent 12px
     );
+    background-size: 12px 3px;
+    background-repeat: repeat-x;
 }
 
 .legend-line.poor {
