@@ -26,7 +26,7 @@ class MapManager {
             zoom: CONFIG.MAP.DEFAULT_ZOOM,
             minZoom: CONFIG.MAP.MIN_ZOOM,
             maxZoom: CONFIG.MAP.MAX_ZOOM,
-            zoomControl: true,
+            zoomControl: false, // We'll add it manually in better position
             preferCanvas: true // Better performance for many features
         });
         
@@ -55,7 +55,12 @@ class MapManager {
     }
     
     addCustomControls() {
-        // Scale control
+        // Add zoom control in bottom left corner to avoid sidebar overlap
+        L.control.zoom({
+            position: 'bottomleft'
+        }).addTo(this.map);
+        
+        // Scale control next to zoom
         L.control.scale({
             position: 'bottomleft',
             metric: true,

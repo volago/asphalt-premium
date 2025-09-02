@@ -106,6 +106,7 @@ class AsphaltPremiumApp {
         voivodeshipSelect.addEventListener('change', (e) => {
             this.currentVoivodeship = e.target.value;
             if (this.currentVoivodeship) {
+                this.showVoivodeshipInfo(this.currentVoivodeship);
                 this.loadCachedData();
             }
         });
@@ -160,6 +161,12 @@ class AsphaltPremiumApp {
             const voivodeshipData = CONFIG.VOIVODESHIPS[this.currentVoivodeship];
             const data = await this.overpass.fetchRoads(voivodeshipData.bbox);
             
+            // Check if we got meaningful data
+            if (!data || !data.features || data.features.length === 0) {
+                this.showMessage(`Brak danych dla województwa ${voivodeshipData.name}. Spróbuj ponownie później.`, 'warning');
+                return;
+            }
+            
             // Cache the data
             this.cache.set(this.currentVoivodeship, data);
             
@@ -171,7 +178,30 @@ class AsphaltPremiumApp {
             
         } catch (error) {
             console.error('Error fetching data:', error);
-            this.showMessage(CONFIG.MESSAGES.ERROR_FETCH, 'error');
+            
+            // Provide more specific error messages
+            let errorMessage = CONFIG.MESSAGES.ERROR_FETCH;
+            
+            if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+                errorMessage = `Zapytanie przekroczyło limit czasu. Spróbuj wybrać mniejsze województwo lub spróbuj ponownie później.`;
+            } else if (error.message.includes('504') || error.message.includes('Gateway Timeout')) {
+                errorMessage = `Serwer OverpassAPI jest przeciążony. Spróbuj ponownie za kilka minut.`;
+            } else if (error.message.includes('429')) {
+                errorMessage = `Zbyt wiele zapytań. Poczekaj chwilę przed kolejną próbą.`;
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                errorMessage = `Problemy z połączeniem internetowym. Sprawdź połączenie i spróbuj ponownie.`;
+            }
+            
+            this.showMessage(errorMessage, 'error');
+            
+            // Try to load cached data as fallback
+            const cachedData = this.cache.get(this.currentVoivodeship);
+            if (cachedData) {
+                this.showMessage('Załadowano dane z cache jako rezerwę', 'info');
+                this.displayRoads(cachedData);
+                this.zoomToVoivodeship(this.currentVoivodeship);
+            }
+            
         } finally {
             this.showLoading(false);
             this.setRefreshButtonState(true);
@@ -203,6 +233,22 @@ class AsphaltPremiumApp {
     /* ==========================================
        UI HELPERS
        ========================================== */
+    
+    showVoivodeshipInfo(voivodeshipKey) {
+        const voivodeship = CONFIG.VOIVODESHIPS[voivodeshipKey];
+        if (!voivodeship) return;
+        
+        const messages = {
+            'small': 'Małe województwo - szybkie ładowanie ⚡',
+            'medium': 'Średnie województwo - ładowanie ok. 10-20s',
+            'large': 'Duże województwo - ładowanie może potrwać 30-60s ⏳',
+            'xlarge': 'Bardzo duże województwo - ładowanie 1-2 min ⏳',
+            'xxlarge': 'Największe województwo - ładowanie może potrwać kilka minut ⏳⏳'
+        };
+        
+        const sizeMessage = messages[voivodeship.size] || 'Ładowanie danych...';
+        this.showMessage(`Wybrano: ${voivodeship.name.split('(')[0].trim()}. ${sizeMessage}`, 'info');
+    }
     
     showLoading(show) {
         const loadingIndicator = document.getElementById('loading-indicator');

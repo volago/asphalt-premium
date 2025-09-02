@@ -5,10 +5,11 @@
 
 class OverpassAPI {
     constructor() {
-        this.baseUrl = CONFIG.OVERPASS_API_URL;
-        this.timeout = 30000; // 30 seconds timeout
-        this.retryAttempts = 3;
-        this.retryDelay = 2000; // 2 seconds
+        this.apiUrls = CONFIG.OVERPASS_API_URLS;
+        this.currentApiIndex = 0;
+        this.timeout = 45000; // 45 seconds timeout for large queries
+        this.retryAttempts = 2; // Reduce retry attempts
+        this.retryDelay = 3000; // 3 seconds delay
     }
     
     /* ==========================================
@@ -52,22 +53,18 @@ class OverpassAPI {
         // Convert bbox to Overpass format: [south, west, north, east]
         const overpassBbox = [bbox[1], bbox[0], bbox[3], bbox[2]];
         
-        // Overpass QL query for tertiary and unclassified roads with smoothness data
+        // Optimized Overpass QL query - prioritize roads with smoothness data
+        // Limited to reduce timeout issues
         const query = `
-[out:json][timeout:25][bbox:${overpassBbox.join(',')}];
+[out:json][timeout:30][maxsize:67108864][bbox:${overpassBbox.join(',')}];
 (
-  // Tertiary roads with smoothness data
+  // Primary focus: roads with explicit smoothness data
   way[highway=tertiary][smoothness];
-  way[highway=tertiary_link][smoothness];
-  
-  // Unclassified roads with smoothness data
   way[highway=unclassified][smoothness];
   
-  // Also include roads where smoothness might be on tertiary/unclassified without explicit smoothness tag
-  // but we'll prioritize those with smoothness tags
-  way[highway=tertiary][surface];
-  way[highway=tertiary_link][surface];
-  way[highway=unclassified][surface];
+  // Secondary: roads with surface data (fewer results)
+  way[highway=tertiary][surface~"^(asphalt|concrete|paved|gravel|dirt|unpaved)$"];
+  way[highway=unclassified][surface~"^(asphalt|concrete|paved|gravel|dirt|unpaved)$"];
 );
 out geom;
         `.trim();
@@ -82,33 +79,46 @@ out geom;
        ========================================== */
     
     /**
-     * Execute Overpass query with retry logic
+     * Execute Overpass query with retry logic and server fallback
      * @param {string} query - Overpass QL query
      * @returns {Promise<Object>} Raw Overpass response
      */
     async executeQuery(query) {
         let lastError;
         
-        for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
-            try {
-                console.log(`OverpassAPI attempt ${attempt}/${this.retryAttempts}`);
-                
-                const response = await this.makeRequest(query);
-                
-                if (!response.elements || response.elements.length === 0) {
-                    console.warn('OverpassAPI returned no data');
-                }
-                
-                return response;
-                
-            } catch (error) {
-                lastError = error;
-                console.warn(`OverpassAPI attempt ${attempt} failed:`, error.message);
-                
-                if (attempt < this.retryAttempts) {
-                    console.log(`Retrying in ${this.retryDelay / 1000} seconds...`);
-                    await this.delay(this.retryDelay);
-                    this.retryDelay *= 1.5; // Exponential backoff
+        // Try each API server
+        for (let serverIndex = 0; serverIndex < this.apiUrls.length; serverIndex++) {
+            this.currentApiIndex = serverIndex;
+            const currentUrl = this.apiUrls[this.currentApiIndex];
+            
+            console.log(`Trying OverpassAPI server ${serverIndex + 1}/${this.apiUrls.length}: ${currentUrl}`);
+            
+            for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
+                try {
+                    console.log(`OverpassAPI attempt ${attempt}/${this.retryAttempts} on server ${serverIndex + 1}`);
+                    
+                    const response = await this.makeRequest(query);
+                    
+                    if (!response.elements || response.elements.length === 0) {
+                        console.warn('OverpassAPI returned no data');
+                    }
+                    
+                    console.log(`Success on server ${serverIndex + 1}, attempt ${attempt}`);
+                    return response;
+                    
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`OverpassAPI server ${serverIndex + 1}, attempt ${attempt} failed:`, error.message);
+                    
+                    // If it's a server error (5xx) or timeout, try next server
+                    if (error.message.includes('50') || error.message.includes('timeout')) {
+                        break; // Try next server
+                    }
+                    
+                    if (attempt < this.retryAttempts) {
+                        console.log(`Retrying in ${this.retryDelay / 1000} seconds...`);
+                        await this.delay(this.retryDelay);
+                    }
                 }
             }
         }
@@ -125,8 +135,10 @@ out geom;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
         
+        const currentUrl = this.apiUrls[this.currentApiIndex];
+        
         try {
-            const response = await fetch(this.baseUrl, {
+            const response = await fetch(currentUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
