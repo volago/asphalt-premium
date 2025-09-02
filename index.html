@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asphalt Premium - Jakość dróg w Polsce</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Toolbar -->
+    <header class="toolbar">
+        <div class="toolbar-left">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Bike wheel -->
+                    <circle cx="20" cy="40" r="12" stroke="#2563eb" stroke-width="2" fill="none"/>
+                    <circle cx="44" cy="40" r="12" stroke="#2563eb" stroke-width="2" fill="none"/>
+                    <!-- Bike frame -->
+                    <path d="M20 40 L32 28 L44 40 L32 35 Z" stroke="#2563eb" stroke-width="2" fill="none"/>
+                    <!-- Road -->
+                    <path d="M8 52 Q32 48 56 52" stroke="#374151" stroke-width="3" fill="none"/>
+                    <path d="M8 55 Q32 51 56 55" stroke="#6b7280" stroke-width="2" fill="none" stroke-dasharray="4,2"/>
+                </svg>
+                <div class="logo-text">
+                    <span class="logo-main">Asphalt</span>
+                    <span class="logo-sub">Premium</span>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="toolbar-nav">
+            <button class="nav-btn active" data-page="map">Mapa</button>
+            <button class="nav-btn" data-page="about">O projekcie</button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Map Page -->
+        <div id="map-page" class="page active">
+            <div id="map" class="map-container"></div>
+            
+            <!-- Floating Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Kontrola mapy</h3>
+                    <button class="sidebar-toggle" id="sidebar-toggle">
+                        <span class="toggle-icon">←</span>
+                    </button>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div class="form-group">
+                        <label for="voivodeship-select">Województwo:</label>
+                        <select id="voivodeship-select" class="form-select">
+                            <option value="">Wybierz województwo</option>
+                            <option value="dolnoslaskie">Dolnośląskie</option>
+                            <option value="kujawsko-pomorskie">Kujawsko-pomorskie</option>
+                            <option value="lubelskie">Lubelskie</option>
+                            <option value="lubuskie">Lubuskie</option>
+                            <option value="lodzkie">Łódzkie</option>
+                            <option value="malopolskie">Małopolskie</option>
+                            <option value="mazowieckie">Mazowieckie</option>
+                            <option value="opolskie">Opolskie</option>
+                            <option value="podkarpackie">Podkarpackie</option>
+                            <option value="podlaskie">Podlaskie</option>
+                            <option value="pomorskie">Pomorskie</option>
+                            <option value="slaskie">Śląskie</option>
+                            <option value="swietokrzyskie">Świętokrzyskie</option>
+                            <option value="warminsko-mazurskie">Warmińsko-mazurskie</option>
+                            <option value="wielkopolskie">Wielkopolskie</option>
+                            <option value="zachodniopomorskie">Zachodniopomorskie</option>
+                        </select>
+                    </div>
+                    
+                    <button id="refresh-btn" class="btn btn-primary">
+                        <span class="btn-icon">🔄</span>
+                        Odśwież
+                    </button>
+                    
+                    <div class="loading-indicator" id="loading-indicator" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Ładowanie danych...</span>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="legend">
+                        <h4>Legenda jakości dróg</h4>
+                        <div class="legend-item">
+                            <div class="legend-line excellent"></div>
+                            <span>Doskonała (excellent)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line good"></div>
+                            <span>Dobra (good)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line poor"></div>
+                            <span>Słaba (intermediate, bad, very_bad, horrible, very_horrible, impassable)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about-page" class="page">
+            <div class="about-container">
+                <div class="about-content">
+                    <h1>O projekcie Asphalt Premium</h1>
+                    
+                    <section class="about-section">
+                        <h2>Cel projektu</h2>
+                        <p>Asphalt Premium to aplikacja webowa dedykowana cyklistom i miłośnikom dwóch kółek, która pozwala na wizualizację jakości dróg w Polsce na podstawie danych z OpenStreetMap.</p>
+                    </section>
+                    
+                    <section class="about-section">
+                        <h2>Funkcjonalności</h2>
+                        <ul>
+                            <li>Interaktywna mapa Polski z możliwością wyboru województwa</li>
+                            <li>Wizualizacja jakości dróg typu tertiary i unclassified</li>
+                            <li>System kolorów: czarny (doskonała), czarny przerywany (dobra), czerwony (słaba)</li>
+                            <li>Inteligentne cachowanie danych dla szybszego działania</li>
+                            <li>Responsywny design dostosowany do urządzeń mobilnych</li>
+                        </ul>
+                    </section>
+                    
+                    <section class="about-section">
+                        <h2>Źródło danych</h2>
+                        <p>Aplikacja wykorzystuje dane z <strong>OpenStreetMap</strong> pobierane przez <strong>OverpassAPI</strong>. Dane są automatycznie cachowane lokalnie na 3 dni dla każdego województwa osobno.</p>
+                    </section>
+                    
+                    <section class="about-section">
+                        <h2>Technologie</h2>
+                        <ul>
+                            <li>HTML5, CSS3, JavaScript (ES6+)</li>
+                            <li>Leaflet.js - biblioteka map</li>
+                            <li>OverpassAPI - pobieranie danych OSM</li>
+                            <li>LocalStorage - cachowanie danych</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/cache.js"></script>
+    <script src="js/overpass.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
