@@ -257,7 +257,6 @@ class AsphaltPremiumApp {
         }
         
         const roadCounts = this.mapManager.displayRoads(geoJsonData);
-        console.log(`Displayed roads:`, roadCounts);
         
         // Update statistics
         this.updateRoadStatistics(geoJsonData, roadCounts);
@@ -352,17 +351,6 @@ class AsphaltPremiumApp {
         // Show statistics
         statsElement.style.display = 'block';
         
-        console.log('Road statistics:', {
-            totalRoads,
-            roadsWithSmoothness,
-            unknownPercent: unknownPercent.toFixed(1) + '%',
-            breakdown: {
-                excellent: excellentPercent.toFixed(1) + '%',
-                good: goodPercent.toFixed(1) + '%',
-                poor: poorPercent.toFixed(1) + '%',
-                unknown: unknownPercent.toFixed(1) + '%'
-            }
-        });
     }
     
     /**

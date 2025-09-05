@@ -119,8 +119,6 @@ class MapManager {
             return;
         }
         
-        console.log(`displayRoads: Processing ${geoJsonData.features.length} features`);
-        
         let roadCounts = {
             excellent: 0,
             good: 0,
@@ -143,9 +141,6 @@ class MapManager {
                 }
             }
         });
-        
-        console.log('Roads processed and added to layer:', roadCounts);
-        console.log('Total layers in roadsLayer:', this.roadsLayer.getLayers().length);
         this.updateRoadVisibility();
         
         return roadCounts;
@@ -242,11 +237,8 @@ class MapManager {
         const zoom = this.map.getZoom();
         const bounds = this.map.getBounds();
         
-        console.log(`updateRoadVisibility: zoom=${zoom}, layerCount=${this.roadsLayer.getLayers().length}`);
-        
         // Hide roads at very low zoom levels for performance
         if (zoom < 7) {
-            console.log('Hiding roads due to low zoom level');
             this.roadsLayer.eachLayer(layer => {
                 if (layer.setStyle) {
                     layer.setStyle({opacity: 0});
@@ -257,14 +249,12 @@ class MapManager {
         
         // Show roads with appropriate opacity based on zoom and layer visibility
         let baseOpacity = Math.min(1, Math.max(0.3, (zoom - 8) / 4));
-        console.log(`Base opacity: ${baseOpacity}`);
         
         this.roadsLayer.eachLayer(layer => {
             if (layer.setStyle && layer.styleType) {
                 const style = this.getRoadStyle(layer.styleType);
                 const isVisible = this.layerVisibility[layer.styleType];
                 const opacity = isVisible ? baseOpacity : 0;
-                console.log(`Layer ${layer.styleType}: visible=${isVisible}, opacity=${opacity}`);
                 layer.setStyle({...style, opacity: opacity});
             }
         });
@@ -326,7 +316,6 @@ class MapManager {
         ];
         
         this.fitToBounds(bounds);
-        console.log(`Zoomed to voivodeship: ${voivodeship.name}, zoom level: ${this.map.getZoom()}`);
     }
     
     /* ==========================================
