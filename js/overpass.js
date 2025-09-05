@@ -7,7 +7,7 @@ class OverpassAPI {
     constructor() {
         this.apiUrls = CONFIG.OVERPASS_API_URLS;
         this.currentApiIndex = 0;
-        this.timeout = 45000; // 45 seconds timeout for large queries
+        this.timeout = 95000; // 95 seconds timeout for area-based queries (5s buffer over query timeout)
         this.retryAttempts = 2; // Reduce retry attempts
         this.retryDelay = 3000; // 3 seconds delay
     }
@@ -17,14 +17,14 @@ class OverpassAPI {
        ========================================== */
     
     /**
-     * Fetch roads data for a given bounding box
-     * @param {Array} bbox - Bounding box [west, south, east, north]
+     * Fetch roads data for a given voivodeship
+     * @param {string} voivodeshipName - Name of the voivodeship in Polish
      * @returns {Promise<Object>} GeoJSON FeatureCollection
      */
-    async fetchRoads(bbox) {
-        console.log(`Fetching roads for bbox: ${bbox.join(', ')}`);
+    async fetchRoads(voivodeshipName) {
+        console.log(`Fetching roads for voivodeship: ${voivodeshipName}`);
         
-        const query = this.buildRoadsQuery(bbox);
+        const query = this.buildRoadsQuery(voivodeshipName);
         
         try {
             const data = await this.executeQuery(query);
@@ -45,32 +45,73 @@ class OverpassAPI {
        ========================================== */
     
     /**
-     * Build Overpass QL query for roads
-     * @param {Array} bbox - Bounding box [west, south, east, north]
+     * Build Overpass QL query for roads by voivodeship name
+     * @param {string} voivodeshipName - Name of the voivodeship in Polish
      * @returns {string} Overpass QL query
      */
-    buildRoadsQuery(bbox) {
-        // Convert bbox to Overpass format: [south, west, north, east]
-        const overpassBbox = [bbox[1], bbox[0], bbox[3], bbox[2]];
+    buildRoadsQuery(voivodeshipName) {
+        // Build search pattern for voivodeship name (both Polish and English)
+        const searchPattern = this.buildVoivodeshipSearchPattern(voivodeshipName);
         
-        // Query ONLY for tertiary and unclassified roads
+        // Query for roads within specific voivodeship boundaries
+        // Based on proven working pattern for administrative boundaries
         const query = `
-[out:json][timeout:30][maxsize:67108864][bbox:${overpassBbox.join(',')}];
+[out:json][timeout:90][maxsize:134217728];
+
+// Find voivodeship relation using multiple methods for reliability
+rel
+  ["boundary"="administrative"]
+  ["admin_level"="4"]
+  ["name"~"${searchPattern}"];
+map_to_area->.voiv_area;
+
+// Get roads (tertiary and unclassified) within voivodeship area
 (
-  // Roads WITH smoothness data (only tertiary and unclassified)
-  way[highway=tertiary][smoothness];
-  way[highway=unclassified][smoothness];
+  // Roads WITH smoothness data
+  way["highway"="tertiary"]["smoothness"](area.voiv_area);
+  way["highway"="unclassified"]["smoothness"](area.voiv_area);
   
   // Roads WITHOUT smoothness (for coverage analysis - will be blue)
-  way[highway=tertiary][!smoothness];
-  way[highway=unclassified][!smoothness];
+  way["highway"="tertiary"][!"smoothness"](area.voiv_area);
+  way["highway"="unclassified"][!"smoothness"](area.voiv_area);
 );
 out geom;
         `.trim();
         
-        console.log('Generated Overpass query:', query);
+        console.log('Generated Overpass query for voivodeship:', voivodeshipName);
+        console.log('Search pattern:', searchPattern);
+        console.log('Query:', query);
         
         return query;
+    }
+    
+    /**
+     * Build search pattern for voivodeship name matching
+     * @param {string} voivodeshipName - Name of the voivodeship in Polish
+     * @returns {string} Regex pattern for matching voivodeship names
+     */
+    buildVoivodeshipSearchPattern(voivodeshipName) {
+        // Mapping of Polish voivodeship names to search patterns (Polish and English)
+        const voivodeshipPatterns = {
+            'dolnośląskie': 'województwo dolnośląskie|lower silesian voivodeship|dolnośląskie',
+            'kujawsko-pomorskie': 'województwo kujawsko-pomorskie|kuyavian-pomeranian voivodeship|kujawsko-pomorskie',
+            'lubelskie': 'województwo lubelskie|lublin voivodeship|lubelskie',
+            'lubuskie': 'województwo lubuskie|lubusz voivodeship|lubuskie',
+            'łódzkie': 'województwo łódzkie|łódź voivodeship|łódzkie|lodzkie',
+            'małopolskie': 'województwo małopolskie|lesser poland voivodeship|małopolskie|malopolskie',
+            'mazowieckie': 'województwo mazowieckie|masovian voivodeship|mazowieckie',
+            'opolskie': 'województwo opolskie|opole voivodeship|opolskie',
+            'podkarpackie': 'województwo podkarpackie|subcarpathian voivodeship|podkarpackie',
+            'podlaskie': 'województwo podlaskie|podlaskie voivodeship|podlaskie',
+            'pomorskie': 'województwo pomorskie|pomeranian voivodeship|pomorskie',
+            'śląskie': 'województwo śląskie|silesian voivodeship|śląskie|slaskie',
+            'świętokrzyskie': 'województwo świętokrzyskie|holy cross voivodeship|świętokrzyskie|swietokrzyskie',
+            'warmińsko-mazurskie': 'województwo warmińsko-mazurskie|warmian-masurian voivodeship|warmińsko-mazurskie|warminsko-mazurskie',
+            'wielkopolskie': 'województwo wielkopolskie|greater poland voivodeship|wielkopolskie',
+            'zachodniopomorskie': 'województwo zachodniopomorskie|west pomeranian voivodeship|zachodniopomorskie'
+        };
+        
+        return voivodeshipPatterns[voivodeshipName] || voivodeshipName;
     }
     
     /* ==========================================

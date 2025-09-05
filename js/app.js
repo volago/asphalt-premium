@@ -183,7 +183,7 @@ class AsphaltPremiumApp {
             console.log(`Fetching fresh data for ${this.currentVoivodeship}`);
             
             const voivodeshipData = CONFIG.VOIVODESHIPS[this.currentVoivodeship];
-            const data = await this.overpass.fetchRoads(voivodeshipData.bbox);
+            const data = await this.overpass.fetchRoads(voivodeshipData.adminName);
             
             // Check if we got meaningful data
             if (!data || !data.features || data.features.length === 0) {
