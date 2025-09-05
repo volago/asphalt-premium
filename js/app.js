@@ -112,6 +112,14 @@ class AsphaltPremiumApp {
                 this.hideStatistics();
             }
         });
+        
+        // Eye toggle buttons for layer visibility
+        document.querySelectorAll('.eye-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roadType = e.currentTarget.getAttribute('data-type');
+                this.toggleLayerVisibility(roadType);
+            });
+        });
     }
     
     /* ==========================================
@@ -147,6 +155,13 @@ class AsphaltPremiumApp {
                 this.showMessage(`Dane z cache IndexedDB (${featureCount} dróg)`, 'success');
                 this.displayRoads(cachedData);
                 this.zoomToVoivodeship(this.currentVoivodeship);
+                
+                // Ensure roads are visible after zoom
+                setTimeout(() => {
+                    if (this.mapManager) {
+                        this.mapManager.updateRoadVisibility();
+                    }
+                }, 500);
             } else {
                 console.log(`No cached data for ${this.currentVoivodeship}`);
             }
@@ -185,6 +200,13 @@ class AsphaltPremiumApp {
             // Display on map
             this.displayRoads(data);
             this.zoomToVoivodeship(this.currentVoivodeship);
+            
+            // Ensure roads are visible after zoom
+            setTimeout(() => {
+                if (this.mapManager) {
+                    this.mapManager.updateRoadVisibility();
+                }
+            }, 500);
             
             this.showMessage(`${CONFIG.MESSAGES.DATA_FETCHED} (${data.features.length} dróg)`, 'success');
             
@@ -246,6 +268,44 @@ class AsphaltPremiumApp {
     zoomToVoivodeship(voivodeshipKey) {
         if (this.mapManager) {
             this.mapManager.zoomToVoivodeship(voivodeshipKey);
+        }
+    }
+    
+    /**
+     * Toggle visibility of a specific road type layer
+     * @param {string} roadType - Type of road to toggle
+     */
+    toggleLayerVisibility(roadType) {
+        if (!this.mapManager) return;
+        
+        // Get current visibility state
+        const currentState = this.mapManager.getLayerVisibility(roadType);
+        const newState = !currentState;
+        
+        // Toggle visibility in map
+        this.mapManager.toggleLayerVisibility(roadType, newState);
+        
+        // Update UI
+        this.updateEyeToggleUI(roadType, newState);
+    }
+    
+    /**
+     * Update the eye toggle button UI state
+     * @param {string} roadType - Type of road
+     * @param {boolean} visible - Whether the layer is visible
+     */
+    updateEyeToggleUI(roadType, visible) {
+        const eyeButton = document.querySelector(`.eye-toggle[data-type="${roadType}"]`);
+        const legendItem = document.querySelector(`.legend-item[data-road-type="${roadType}"]`);
+        
+        if (eyeButton && legendItem) {
+            if (visible) {
+                eyeButton.classList.add('active');
+                legendItem.classList.remove('disabled');
+            } else {
+                eyeButton.classList.remove('active');
+                legendItem.classList.add('disabled');
+            }
         }
     }
     

@@ -238,6 +238,59 @@
     margin-bottom: var(--spacing-sm);
 }
 
+.legend-item.disabled {
+    opacity: 0.5;
+}
+
+.legend-item.disabled .legend-line {
+    opacity: 0.3;
+}
+
+.legend-item.disabled span {
+    color: var(--medium-gray);
+}
+
+/* Eye toggle buttons */
+.eye-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    margin-right: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: var(--dark-gray);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.eye-toggle:hover {
+    background-color: var(--light-gray);
+    color: var(--primary-blue);
+}
+
+.eye-toggle.active .eye-hidden {
+    display: none;
+}
+
+.eye-toggle:not(.active) .eye-visible {
+    display: none;
+}
+
+.eye-toggle:not(.active) {
+    color: var(--medium-gray);
+    opacity: 0.6;
+}
+
+.eye-toggle:not(.active):hover {
+    color: var(--dark-gray);
+    opacity: 0.8;
+}
+
 .legend-line {
     width: 2rem;
     height: 3px;
@@ -274,6 +327,66 @@
     font-size: var(--font-size-xs);
     color: var(--secondary-gray);
     line-height: 1.4;
+}
+
+/* ==========================================
+   EYE TOGGLE CONTROLS
+   ========================================== */
+
+.eye-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.eye-toggle:hover {
+    background-color: #f1f5f9;
+}
+
+.eye-toggle:active {
+    background-color: #e2e8f0;
+}
+
+.eye-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--dark-gray);
+    transition: all 0.2s ease;
+}
+
+/* Show visible eye by default, hide crossed-out eye */
+.eye-toggle.active .eye-visible {
+    display: block;
+}
+
+.eye-toggle.active .eye-hidden {
+    display: none;
+}
+
+/* When inactive, show crossed-out eye, hide visible eye */
+.eye-toggle:not(.active) .eye-visible {
+    display: none;
+}
+
+.eye-toggle:not(.active) .eye-hidden {
+    display: block;
+}
+
+/* Disabled state styling */
+.eye-toggle:not(.active) {
+    opacity: 0.6;
+}
+
+.eye-toggle:not(.active) .eye-icon {
+    color: var(--medium-gray);
 }
 
 /* ==========================================

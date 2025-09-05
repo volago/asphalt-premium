@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Toolbar -->
@@ -88,19 +89,35 @@
                     <!-- Legend -->
                     <div class="legend">
                         <h4>Legenda jakości dróg</h4>
-                        <div class="legend-item">
+                        <div class="legend-item" data-road-type="excellent">
+                            <button class="eye-toggle active" data-type="excellent" title="Pokaż/ukryj drogi doskonałe">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
                             <div class="legend-line excellent"></div>
                             <span>Doskonała (excellent)</span>
                         </div>
-                        <div class="legend-item">
+                        <div class="legend-item" data-road-type="good">
+                            <button class="eye-toggle active" data-type="good" title="Pokaż/ukryj drogi dobre">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
                             <div class="legend-line good"></div>
                             <span>Dobra (good)</span>
                         </div>
-                        <div class="legend-item">
+                        <div class="legend-item" data-road-type="poor">
+                            <button class="eye-toggle active" data-type="poor" title="Pokaż/ukryj drogi słabe">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
                             <div class="legend-line poor"></div>
                             <span>Słaba</span>
                         </div>
-                        <div class="legend-item">
+                        <div class="legend-item" data-road-type="unknown">
+                            <button class="eye-toggle active" data-type="unknown" title="Pokaż/ukryj drogi bez danych">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
                             <div class="legend-line unknown"></div>
                             <span>Brak danych smoothness</span>
                         </div>
