@@ -53,15 +53,17 @@ class OverpassAPI {
         // Convert bbox to Overpass format: [south, west, north, east]
         const overpassBbox = [bbox[1], bbox[0], bbox[3], bbox[2]];
         
-        // Query ONLY for roads with smoothness data + all roads for coverage analysis
+        // Query ONLY for tertiary and unclassified roads
         const query = `
-[out:json][timeout:45][maxsize:134217728][bbox:${overpassBbox.join(',')}];
+[out:json][timeout:30][maxsize:67108864][bbox:${overpassBbox.join(',')}];
 (
-  // Roads WITH smoothness data (all major types)
-  way[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$"][smoothness];
+  // Roads WITH smoothness data (only tertiary and unclassified)
+  way[highway=tertiary][smoothness];
+  way[highway=unclassified][smoothness];
   
-  // All roads WITHOUT smoothness (for coverage analysis - will be blue)
-  way[highway~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$"][!smoothness];
+  // Roads WITHOUT smoothness (for coverage analysis - will be blue)
+  way[highway=tertiary][!smoothness];
+  way[highway=unclassified][!smoothness];
 );
 out geom;
         `.trim();
