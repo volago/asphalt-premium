@@ -46,6 +46,53 @@
         <div id="map-page" class="page active">
             <div id="map" class="map-container"></div>
             
+            <!-- About Overlay (hidden by default) -->
+            <div id="about-overlay" class="about-overlay" style="display: none;">
+                <div class="about-container">
+                    <div class="about-content">
+                        <h1>O projekcie Asphalt Premium</h1>
+                    
+                        <section class="about-section">
+                            <h2>Cel projektu</h2>
+                            <p>Asphalt Premium to aplikacja webowa dedykowana cyklistom i miłośnikom dwóch kółek, która pozwala na wizualizację jakości dróg w Polsce na podstawie danych z OpenStreetMap.</p>
+                        </section>
+                        
+                        <section class="about-section">
+                            <h2>Funkcjonalności</h2>
+                            <ul>
+                                <li>Interaktywna mapa Polski z możliwością wyboru województwa</li>
+                                <li>Wizualizacja jakości dróg typu tertiary i unclassified</li>
+                                <li>System kolorów: czarny (doskonała), czarny przerywany (dobra), czerwony (słaba)</li>
+                                <li>Inteligentne cachowanie danych dla szybszego działania</li>
+                                <li>Responsywny design dostosowany do urządzeń mobilnych</li>
+                            </ul>
+                        </section>
+                        
+                        <section class="about-section">
+                            <h2>Źródło danych</h2>
+                            <p>Aplikacja wykorzystuje dane z <strong>OpenStreetMap</strong> pobierane przez <strong>OverpassAPI</strong>. Dane są automatycznie cachowane lokalnie na 3 dni dla każdego województwa osobno.</p>
+                        </section>
+                        
+                        <section class="about-section">
+                            <h2>Technologie</h2>
+                            <ul>
+                                <li>HTML5, CSS3, JavaScript (ES6+)</li>
+                                <li>Leaflet.js - biblioteka map</li>
+                                <li>OverpassAPI - pobieranie danych OSM</li>
+                                <li>LocalStorage - cachowanie danych</li>
+                            </ul>
+                        </section>
+                    </div>
+                    
+                    <div class="about-actions">
+                        <button id="go-to-map-btn" class="btn btn-primary">
+                            <span class="btn-icon">🗺️</span>
+                            Idź do mapy
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Floating Sidebar -->
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
@@ -149,45 +196,6 @@
             </div>
         </div>
 
-        <!-- About Page -->
-        <div id="about-page" class="page">
-            <div class="about-container">
-                <div class="about-content">
-                    <h1>O projekcie Asphalt Premium</h1>
-                    
-                    <section class="about-section">
-                        <h2>Cel projektu</h2>
-                        <p>Asphalt Premium to aplikacja webowa dedykowana cyklistom i miłośnikom dwóch kółek, która pozwala na wizualizację jakości dróg w Polsce na podstawie danych z OpenStreetMap.</p>
-                    </section>
-                    
-                    <section class="about-section">
-                        <h2>Funkcjonalności</h2>
-                        <ul>
-                            <li>Interaktywna mapa Polski z możliwością wyboru województwa</li>
-                            <li>Wizualizacja jakości dróg typu tertiary i unclassified</li>
-                            <li>System kolorów: czarny (doskonała), czarny przerywany (dobra), czerwony (słaba)</li>
-                            <li>Inteligentne cachowanie danych dla szybszego działania</li>
-                            <li>Responsywny design dostosowany do urządzeń mobilnych</li>
-                        </ul>
-                    </section>
-                    
-                    <section class="about-section">
-                        <h2>Źródło danych</h2>
-                        <p>Aplikacja wykorzystuje dane z <strong>OpenStreetMap</strong> pobierane przez <strong>OverpassAPI</strong>. Dane są automatycznie cachowane lokalnie na 3 dni dla każdego województwa osobno.</p>
-                    </section>
-                    
-                    <section class="about-section">
-                        <h2>Technologie</h2>
-                        <ul>
-                            <li>HTML5, CSS3, JavaScript (ES6+)</li>
-                            <li>Leaflet.js - biblioteka map</li>
-                            <li>OverpassAPI - pobieranie danych OSM</li>
-                            <li>LocalStorage - cachowanie danych</li>
-                        </ul>
-                    </section>
-                </div>
-            </div>
-        </div>
     </main>
 
     <!-- Scripts -->

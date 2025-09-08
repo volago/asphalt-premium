@@ -5,7 +5,7 @@
 
 class AsphaltPremiumApp {
     constructor() {
-        this.currentPage = 'map';
+        this.currentPage = 'map'; // Always start on map page
         this.map = null;
         this.mapManager = null;
         this.cache = null;
@@ -13,6 +13,20 @@ class AsphaltPremiumApp {
         this.currentVoivodeship = null;
         
         this.init();
+    }
+    
+    /**
+     * Determine if about overlay should be shown (first visit)
+     */
+    shouldShowAboutOverlay() {
+        const hasVisited = localStorage.getItem('asphalt_premium_visited');
+        if (!hasVisited) {
+            // First visit - show about overlay
+            localStorage.setItem('asphalt_premium_visited', 'true');
+            return true;
+        }
+        // Returning user - don't show overlay
+        return false;
     }
     
     init() {
@@ -25,10 +39,61 @@ class AsphaltPremiumApp {
         this.initSidebar();
         this.initMap();
         
+        // Set initial page state
+        this.setInitialPageState();
+        
+        // Show about overlay if first visit
+        if (this.shouldShowAboutOverlay()) {
+            this.showAboutOverlay();
+        }
+        
         // Bind events
         this.bindEvents();
         
         console.log('Asphalt Premium App initialized');
+    }
+    
+    /**
+     * Set the initial page state - always show map page
+     */
+    setInitialPageState() {
+        // Update navigation buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.page === 'map') {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Show map page
+        const mapPageElement = document.getElementById('map-page');
+        if (mapPageElement) {
+            mapPageElement.classList.add('active');
+        }
+        
+        console.log('Initial page set to: map');
+    }
+    
+    /**
+     * Show about overlay
+     */
+    showAboutOverlay() {
+        const aboutOverlay = document.getElementById('about-overlay');
+        if (aboutOverlay) {
+            aboutOverlay.style.display = 'flex';
+            aboutOverlay.classList.add('animate-fade-in');
+        }
+    }
+    
+    /**
+     * Hide about overlay
+     */
+    hideAboutOverlay() {
+        const aboutOverlay = document.getElementById('about-overlay');
+        if (aboutOverlay) {
+            aboutOverlay.style.display = 'none';
+            aboutOverlay.classList.remove('animate-fade-in');
+        }
     }
     
     /* ==========================================
@@ -41,46 +106,15 @@ class AsphaltPremiumApp {
         navButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetPage = e.target.dataset.page;
-                this.switchPage(targetPage);
+                if (targetPage === 'about') {
+                    this.showAboutOverlay();
+                } else if (targetPage === 'map') {
+                    this.hideAboutOverlay();
+                }
             });
         });
     }
     
-    switchPage(pageName) {
-        if (this.currentPage === pageName) return;
-        
-        // Update navigation buttons
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.page === pageName) {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Hide current page
-        const currentPageElement = document.getElementById(`${this.currentPage}-page`);
-        if (currentPageElement) {
-            currentPageElement.classList.remove('active');
-        }
-        
-        // Show new page
-        const newPageElement = document.getElementById(`${pageName}-page`);
-        if (newPageElement) {
-            newPageElement.classList.add('active');
-            newPageElement.classList.add('animate-fade-in');
-        }
-        
-        this.currentPage = pageName;
-        
-        // Handle map resize when switching back to map
-        if (pageName === 'map' && this.mapManager) {
-            setTimeout(() => {
-                this.mapManager.invalidateSize();
-            }, 100);
-        }
-        
-        console.log(`Switched to page: ${pageName}`);
-    }
     
     /* ==========================================
        SIDEBAR
@@ -91,27 +125,41 @@ class AsphaltPremiumApp {
         const toggleBtn = document.getElementById('sidebar-toggle');
         const refreshBtn = document.getElementById('refresh-btn');
         const voivodeshipSelect = document.getElementById('voivodeship-select');
+        const goToMapBtn = document.getElementById('go-to-map-btn');
         
         // Sidebar toggle functionality
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
         
         // Refresh button
-        refreshBtn.addEventListener('click', () => {
-            this.refreshData();
-        });
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshData();
+            });
+        }
         
         // Voivodeship selection
-        voivodeshipSelect.addEventListener('change', (e) => {
-            this.currentVoivodeship = e.target.value;
-            if (this.currentVoivodeship) {
-                this.loadCachedData();
-            } else {
-                // Hide statistics when no voivodeship selected
-                this.hideStatistics();
-            }
-        });
+        if (voivodeshipSelect) {
+            voivodeshipSelect.addEventListener('change', (e) => {
+                this.currentVoivodeship = e.target.value;
+                if (this.currentVoivodeship) {
+                    this.loadCachedData();
+                } else {
+                    // Hide statistics when no voivodeship selected
+                    this.hideStatistics();
+                }
+            });
+        }
+        
+        // Go to map button (on about overlay)
+        if (goToMapBtn) {
+            goToMapBtn.addEventListener('click', () => {
+                this.hideAboutOverlay();
+            });
+        }
         
         // Eye toggle buttons for layer visibility
         document.querySelectorAll('.eye-toggle').forEach(btn => {
@@ -452,27 +500,6 @@ class AsphaltPremiumApp {
             }
         });
         
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch (e.key) {
-                    case '1':
-                        e.preventDefault();
-                        this.switchPage('map');
-                        break;
-                    case '2':
-                        e.preventDefault();
-                        this.switchPage('about');
-                        break;
-                    case 'r':
-                        e.preventDefault();
-                        if (this.currentPage === 'map') {
-                            this.refreshData();
-                        }
-                        break;
-                }
-            }
-        });
     }
 }
 

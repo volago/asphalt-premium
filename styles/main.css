@@ -285,15 +285,35 @@ body {
 }
 
 /* ==========================================
-   ABOUT PAGE
+   ABOUT PAGE OVERLAY
    ========================================== */
 
+.about-overlay {
+    position: absolute;
+    top: var(--spacing-lg);
+    bottom: var(--spacing-lg);
+    left: calc(var(--sidebar-width) + var(--spacing-lg) + var(--spacing-lg)); /* Sidebar width + 2 margins */
+    right: var(--spacing-lg);
+    background-color: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 950;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
 .about-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: var(--spacing-2xl);
-    background: var(--white);
-    min-height: 100%;
+    padding: var(--spacing-xl);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.about-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: var(--spacing-sm); /* Space for scrollbar */
 }
 
 .about-content h1 {
@@ -342,6 +362,14 @@ body {
     font-weight: bold;
 }
 
+.about-actions {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--light-gray);
+    text-align: center;
+    flex-shrink: 0;
+}
+
 /* ==========================================
    RESPONSIVE DESIGN
    ========================================== */
@@ -370,6 +398,13 @@ body {
         top: var(--spacing-sm);
         left: var(--spacing-sm);
         max-height: calc(100vh - var(--toolbar-height) - var(--spacing-md));
+    }
+    
+    .about-overlay {
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
+        top: var(--spacing-sm);
+        bottom: var(--spacing-sm);
     }
     
     .about-container {
