@@ -154,12 +154,13 @@ class AsphaltPremiumApp {
             });
         }
         
-        // Go to map button (on about overlay)
-        if (goToMapBtn) {
-            goToMapBtn.addEventListener('click', () => {
+        // Go to map buttons (all buttons with go-to-map-btn class)
+        const goToMapButtons = document.querySelectorAll('.go-to-map-btn');
+        goToMapButtons.forEach(button => {
+            button.addEventListener('click', () => {
                 this.hideAboutOverlay();
             });
-        }
+        });
         
         // Eye toggle buttons for layer visibility
         document.querySelectorAll('.eye-toggle').forEach(btn => {

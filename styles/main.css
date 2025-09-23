@@ -53,7 +53,7 @@
     --border-radius-xl: 1rem;
     
     /* Layout */
-    --toolbar-height: 4rem;
+    --toolbar-height: 4.5rem;
     --sidebar-width: 320px;
     --sidebar-width-collapsed: 60px;
     
@@ -120,7 +120,6 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
     cursor: pointer;
     transition: transform var(--transition-fast);
 }
@@ -129,30 +128,10 @@ body {
     transform: scale(1.02);
 }
 
-.logo-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    flex-shrink: 0;
-}
-
-.logo-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-}
-
-.logo-main {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: var(--primary-blue);
-}
-
-.logo-sub {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    color: var(--medium-gray);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.logo-image {
+    height: 3.75rem;
+    width: auto;
+    object-fit: contain;
 }
 
 /* ==========================================
@@ -362,13 +341,6 @@ body {
     font-weight: bold;
 }
 
-.about-actions {
-    margin-top: var(--spacing-xl);
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--light-gray);
-    text-align: center;
-    flex-shrink: 0;
-}
 
 /* ==========================================
    RESPONSIVE DESIGN
@@ -376,7 +348,7 @@ body {
 
 @media (max-width: 768px) {
     :root {
-        --toolbar-height: 3.5rem;
+        --toolbar-height: 4rem;
         --sidebar-width: 280px;
         --sidebar-width-collapsed: 50px;
     }
@@ -385,8 +357,8 @@ body {
         padding: 0 var(--spacing-md);
     }
     
-    .logo-text {
-        display: none;
+    .logo-image {
+        height: 3rem;
     }
     
     .nav-btn {

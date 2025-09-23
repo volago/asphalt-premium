@@ -1,3 +1,4 @@
+odpal przez node i tyle a nie cudujesz
 # Asphalt Premium
 
 Aplikacja webowa do wizualizacji jakości dróg w Polsce na podstawie danych z OpenStreetMap.
@@ -37,17 +38,8 @@ Asphalt Premium to responsywna aplikacja internetowa, która wyświetla interakt
 
 2. Uruchom lokalny serwer HTTP (wymagane ze względu na CORS):
    ```bash
-   # Python 3
-   python -m http.server 8000
-   
-   # Python 2
-   python -m SimpleHTTPServer 8000
-   
-   # Node.js (jeśli masz zainstalowany http-server)
+   # Node.js
    npx http-server
-   
-   # PHP
-   php -S localhost:8000
    ```
 
 3. Otwórz przeglądarkę i przejdź do:
@@ -94,3 +86,24 @@ Projekt open source. Dane pochodzą z OpenStreetMap na licencji ODbL.
 ## Autor
 
 Asphalt Premium - aplikacja do wizualizacji jakości dróg dla cyklistów.
+
+## Progress
+
+| Nazwa | 2025-09-11 |
+|---|---|
+|Dolnośląskie|89,2%|
+|Kujawsko-pomorskie|87,4%|
+|Lubelskie|84,2%|
+|Lubuskie|95,8%|
+|Łódzkie|93,4%|
+|Małopolskie|88,6%|
+|Mazowieckie|82,9%|
+|Opolskie|90,8%|
+|Podkarpackie|88,4%|
+|Podlaskie|82,4%|
+|Pomorskie|86,5%|
+|Śląskie|89,0%|
+|Świętokrzyskie|92,6%|
+|Warmińsko-mazurskie|89,5%|
+|Wielkopolskie|92,6%|
+|Zachodniopomorskie|90,9%|

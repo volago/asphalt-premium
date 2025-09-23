@@ -17,20 +17,7 @@
     <header class="toolbar">
         <div class="toolbar-left">
             <div class="logo">
-                <svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Bike wheel -->
-                    <circle cx="20" cy="40" r="12" stroke="#2563eb" stroke-width="2" fill="none"/>
-                    <circle cx="44" cy="40" r="12" stroke="#2563eb" stroke-width="2" fill="none"/>
-                    <!-- Bike frame -->
-                    <path d="M20 40 L32 28 L44 40 L32 35 Z" stroke="#2563eb" stroke-width="2" fill="none"/>
-                    <!-- Road -->
-                    <path d="M8 52 Q32 48 56 52" stroke="#374151" stroke-width="3" fill="none"/>
-                    <path d="M8 55 Q32 51 56 55" stroke="#6b7280" stroke-width="2" fill="none" stroke-dasharray="4,2"/>
-                </svg>
-                <div class="logo-text">
-                    <span class="logo-main">Asphalt</span>
-                    <span class="logo-sub">Premium</span>
-                </div>
+                <img src="assets/logo.jpg" alt="Asphalt Premium Logo" class="logo-image" />
             </div>
         </div>
         
@@ -50,45 +37,257 @@
             <div id="about-overlay" class="about-overlay" style="display: none;">
                 <div class="about-container">
                     <div class="about-content">
-                        <h1>O projekcie Asphalt Premium</h1>
-                    
-                        <section class="about-section">
-                            <h2>Cel projektu</h2>
-                            <p>Asphalt Premium to aplikacja webowa dedykowana cyklistom i miłośnikom dwóch kółek, która pozwala na wizualizację jakości dróg w Polsce na podstawie danych z OpenStreetMap.</p>
+                        <!-- Hero Section -->
+                        <section class="hero-section">
+                            <div class="hero-content">
+                                <h1 class="hero-title">Asphalt Premium</h1>
+                                <p class="hero-subtitle">Znajdź najlepsze drogi dla swojej przygody na rowerze</p>
+                                <div class="hero-features">
+                                    <div class="feature-badge">
+                                        <i class="fas fa-bicycle"></i>
+                                        <span>Dla cyklistów</span>
+                                    </div>
+                                    <div class="feature-badge">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                        <span>Jakość dróg</span>
+                                    </div>
+                                    <div class="feature-badge">
+                                        <i class="fas fa-database"></i>
+                                        <span>OpenStreetMap</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Mission Section -->
+                        <section class="mission-section">
+                            <div class="section-header">
+                                <i class="fas fa-flag section-icon"></i>
+                                <h2>Cel projektu</h2>
+                            </div>
+                            <p class="mission-text">
+                                Naszym celem jest <strong>uzupełnienie danych o jakości dróg w OpenStreetMap</strong>, 
+                                co pozwoli wszystkim cyklistom na planowanie lepszych, bardziej komfortowych tras. 
+                                Asphalt Premium pokazuje gdzie można znaleźć dobry asfalt na mało uczęszczanych drogach 
+                                — idealnych do spokojnych przejażdżek z dala od ruchu.
+                            </p>
+                        </section>
+
+                        <!-- Map Button -->
+                        <div class="map-button-section">
+                            <button class="btn-map-small go-to-map-btn">
+                                <i class="fas fa-map"></i>
+                                <span>Zobacz mapę</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Map Description Section -->
+                        <section class="map-description-section">
+                            <div class="section-header">
+                                <i class="fas fa-route section-icon"></i>
+                                <h2>Co pokazuje mapa?</h2>
+                            </div>
+                            
+                            <!-- Map and Legend Layout -->
+                            <div class="map-legend-layout">
+                                <!-- Map Example -->
+                                <div class="map-example">
+                                    <img src="assets/map_exapmle.jpg" alt="Przykład mapy z kolorowymi drogami według jakości nawierzchni" />
+                                    <p class="map-caption">Przykład mapy pokazującej jakość dróg w województwie dolnośląskim</p>
+                                </div>
+                                
+                                <!-- Quality Legend -->
+                                <div class="quality-legend">
+                                <div class="quality-item">
+                                    <div class="quality-line excellent"></div>
+                                    <div class="quality-content">
+                                        <h4>Doskonała jakość</h4>
+                                        <p>Świeży, gładki asfalt bez wybojów</p>
+                                    </div>
+                                </div>
+                                <div class="quality-item">
+                                    <div class="quality-line good"></div>
+                                    <div class="quality-content">
+                                        <h4>Dobra jakość</h4>
+                                        <p>Drobne niedoskonałości, ale przyjemna jazda</p>
+                                    </div>
+                                </div>
+                                <div class="quality-item">
+                                    <div class="quality-line poor"></div>
+                                    <div class="quality-content">
+                                        <h4>Słaba jakość</h4>
+                                        <p>Wyboje, pęknięcia - lepiej omijać</p>
+                                    </div>
+                                </div>
+                                <div class="quality-item">
+                                    <div class="quality-line unknown"></div>
+                                    <div class="quality-content">
+                                        <h4>Brak danych</h4>
+                                        <p>Tutaj możesz pomóc! Oceń drogę</p>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Statistics Info -->
+                            <div class="statistics-info">
+                                <div class="info-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <p>
+                                    <strong>Bonus:</strong> Aplikacja automatycznie generuje statystyki jakości dróg 
+                                    dla wybranego województwa, pokazując procentowy udział każdego typu nawierzchni. Pozbądźmy się z mapy niebieskich lini !!!
+                                </p>
+                            </div>
                         </section>
                         
-                        <section class="about-section">
-                            <h2>Funkcjonalności</h2>
-                            <ul>
-                                <li>Interaktywna mapa Polski z możliwością wyboru województwa</li>
-                                <li>Wizualizacja jakości dróg typu tertiary i unclassified</li>
-                                <li>System kolorów: czarny (doskonała), czarny przerywany (dobra), czerwony (słaba)</li>
-                                <li>Inteligentne cachowanie danych dla szybszego działania</li>
-                                <li>Responsywny design dostosowany do urządzeń mobilnych</li>
-                            </ul>
+                        <!-- Map Button -->
+                        <div class="map-button-section">
+                            <button class="btn-map-small go-to-map-btn">
+                                <i class="fas fa-map"></i>
+                                <span>Zobacz mapę</span>
+                            </button>
+                        </div>
+
+                        <!-- Call to Action Section -->
+                        <section class="cta-section">
+                            <div class="cta-content">
+                                <div class="cta-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h2>Znasz tę drogę? Podziel się opinią!</h2>
+                                <p>
+                                    Każda informacja o jakości drogi to cenny wkład w społeczność cyklistów. 
+                                    Pomóż innym rowerzystom unikać wybojów i znajdować najlepsze trasy!
+                                </p>
+                                <div class="cta-stats">
+                                    <div class="stat-highlight">
+                                        <span class="stat-number">74%</span>
+                                        <span class="stat-label">dróg bez oceny jakości</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Impact Benefits -->
+                            <div class="impact-benefits">
+                                <h3>Twój wkład ma znaczenie</h3>
+                                <div class="impact-grid">
+                                    <div class="impact-item">
+                                        <i class="fas fa-users-cog"></i>
+                                        <h4>Pomagasz społeczności</h4>
+                                        <p>Każda ocena drogi pomaga innym cyklistom</p>
+                                    </div>
+                                    <div class="impact-item">
+                                        <i class="fas fa-route"></i>
+                                        <h4>Lepsze planowanie tras</h4>
+                                        <p>Aplikacje nawigacyjne będą unikać złych dróg</p>
+                                    </div>
+                                    <div class="impact-item">
+                                        <i class="fas fa-bicycle"></i>
+                                        <h4>Komfortowe przejażdżki</h4>
+                                        <p>Mniej niespodzianek, więcej przyjemności z jazdy</p>
+                                    </div>
+                                    <div class="impact-item">
+                                        <i class="fas fa-globe"></i>
+                                        <h4>Globalne dane</h4>
+                                        <p>Twoje dane są dostępne na całym świecie</p>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
                         
-                        <section class="about-section">
-                            <h2>Źródło danych</h2>
-                            <p>Aplikacja wykorzystuje dane z <strong>OpenStreetMap</strong> pobierane przez <strong>OverpassAPI</strong>. Dane są automatycznie cachowane lokalnie na 3 dni dla każdego województwa osobno.</p>
+                        <!-- How to Help Section -->
+                        <section class="help-section">
+                            <div class="section-header">
+                                <i class="fas fa-hands-helping section-icon"></i>
+                                <h2>Jak możesz pomóc?</h2>
+                            </div>
+                            
+                            <div class="help-methods">
+                                <!-- StreetComplete Method -->
+                                <div class="help-method featured">
+                                    <div class="method-header">
+                                        <div class="method-icon streetcomplete-icon">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </div>
+                                        <h3>StreetComplete App (POLECANE)</h3>
+                                    </div>
+                                    <div class="method-content">
+                                        <p class="method-highlight">Najłatwiejszy sposób — oceń drogi podczas jazdy!</p>
+                                        
+                                        <div class="streetcomplete-demo">
+                                            <div class="demo-images">
+                                                <div class="demo-image">
+                                                    <img src="assets/street_complete_settings.jpg" alt="StreetComplete - ustawienia filtrów" />
+                                                    <span class="demo-caption">1. Włącz zadania o jakości dróg</span>
+                                                </div>
+                                                <div class="demo-image">
+                                                    <img src="assets/street_complete_smoothness.jpg" alt="StreetComplete - ocena jakości drogi" />
+                                                    <span class="demo-caption">2. Oceń jakość nawierzchni</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="streetcomplete-features">
+                                            <div class="feature">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>Automatyczna lokalizacja</span>
+                                            </div>
+                                            <div class="feature">
+                                                <i class="fas fa-images"></i>
+                                                <span>Wizualne oceny</span>
+                                            </div>
+                                            <div class="feature">
+                                                <i class="fas fa-sync"></i>
+                                                <span>Automatyczne wysyłanie</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="method-cta">
+                                            <a href="https://play.google.com/store/apps/details?id=de.westnordost.streetcomplete" target="_blank" rel="noopener" class="btn btn-primary">
+                                                <i class="fab fa-google-play"></i>
+                                                Pobierz z Google Play
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OpenStreetMap Method -->
+                                <div class="help-method">
+                                    <div class="method-header">
+                                        <div class="method-icon osm-icon">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <h3>Edycja w OpenStreetMap</h3>
+                                    </div>
+                                    <div class="method-content">
+                                        <p>Bezpośrednia edycja w przeglądarce:</p>
+                                        <ol class="method-steps">
+                                            <li>Przejdź na <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">openstreetmap.org</a></li>
+                                            <li>Znajdź interesującą Cię drogę</li>
+                                            <li>Kliknij "Edytuj" i wybierz edytor iD</li>
+                                            <li>Wybierz drogę i dodaj tag <code>smoothness</code></li>
+                                            <li>Zapisz zmiany z opisem</li>
+                                        </ol>
+                                        <div class="method-cta">
+                                            <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" class="btn btn-secondary">
+                                                <i class="fas fa-external-link-alt"></i>
+                                                Otwórz OpenStreetMap
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
-                        
-                        <section class="about-section">
-                            <h2>Technologie</h2>
-                            <ul>
-                                <li>HTML5, CSS3, JavaScript (ES6+)</li>
-                                <li>Leaflet.js - biblioteka map</li>
-                                <li>OverpassAPI - pobieranie danych OSM</li>
-                                <li>LocalStorage - cachowanie danych</li>
-                            </ul>
-                        </section>
+
+                        <!-- Map Button -->
+                        <div class="map-button-section">
+                            <button class="btn-map-small go-to-map-btn">
+                                <i class="fas fa-map"></i>
+                                <span>Zobacz mapę</span>
+                            </button>
                     </div>
                     
-                    <div class="about-actions">
-                        <button id="go-to-map-btn" class="btn btn-primary">
-                            <span class="btn-icon">🗺️</span>
-                            Idź do mapy
-                        </button>
                     </div>
                 </div>
             </div>
@@ -180,15 +379,15 @@
                         <div class="stat-breakdown">
                             <div class="stat-item">
                                 <div class="legend-line excellent"></div>
-                                <span class="stat-number" id="excellent-percent">-</span>
+                                <span class="sidebar-stat-number" id="excellent-percent">-</span>
                             </div>
                             <div class="stat-item">
                                 <div class="legend-line good"></div>
-                                <span class="stat-number" id="good-percent">-</span>
+                                <span class="sidebar-stat-number" id="good-percent">-</span>
                             </div>
                             <div class="stat-item">
                                 <div class="legend-line poor"></div>
-                                <span class="stat-number" id="poor-percent">-</span>
+                                <span class="sidebar-stat-number" id="poor-percent">-</span>
                             </div>
                         </div>
                     </div>
