@@ -56,7 +56,7 @@ class MapManager {
         L.tileLayer(CONFIG.MAP.TILE_LAYER, {
             attribution: CONFIG.MAP.ATTRIBUTION,
             maxZoom: CONFIG.MAP.MAX_ZOOM,
-            detectRetina: true
+            detectRetina: false  // Wyłączamy detectRetina - może to powoduje problem
         }).addTo(this.map);
     }
     

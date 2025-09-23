@@ -17,7 +17,7 @@ const CONFIG = {
     // Map Configuration
     MAP: {
         DEFAULT_CENTER: [52.0693, 19.4803], // Poland center
-        DEFAULT_ZOOM: 7,
+        DEFAULT_ZOOM: 8,
         MIN_ZOOM: 6,
         MAX_ZOOM: 18,
         TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
