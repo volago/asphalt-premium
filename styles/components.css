@@ -658,12 +658,14 @@
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-blue), #1e40af);
-    color: var(--white);
+    background: var(--white);
+    color: var(--dark-gray);
     padding: var(--spacing-2xl);
     margin: 0 0 var(--spacing-2xl) 0;
     border-radius: var(--border-radius-lg);
     text-align: center;
+    border: 1px solid #e5e7eb;
+    box-shadow: var(--shadow-sm);
 }
 
 .hero-content {
@@ -671,17 +673,22 @@
     margin: 0 auto;
 }
 
-.hero-title {
-    font-size: var(--font-size-3xl);
-    font-weight: 700;
-    margin-bottom: var(--spacing-md);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.hero-logo {
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero-logo-image {
+    height: 6rem;
+    width: auto;
+    object-fit: contain;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .hero-subtitle {
     font-size: var(--font-size-lg);
     margin-bottom: var(--spacing-xl);
-    opacity: 0.9;
+    color: var(--secondary-gray);
     line-height: 1.6;
 }
 
@@ -692,21 +699,29 @@
     flex-wrap: wrap;
 }
 
-.feature-badge {
-    display: flex;
+.feature-chip {
+    display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: var(--spacing-sm) var(--spacing-md);
+    background: linear-gradient(135deg, var(--primary-blue), #1e40af);
+    color: var(--white);
+    padding: var(--spacing-sm) var(--spacing-lg);
     border-radius: var(--border-radius-xl);
     font-size: var(--font-size-sm);
     font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-fast);
+    border: none;
 }
 
-.feature-badge i {
+.feature-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-chip i {
     font-size: var(--font-size-base);
+    opacity: 0.9;
 }
 
 /* Section Styles */
@@ -1334,20 +1349,20 @@
         margin: 0 0 var(--spacing-xl) 0;
     }
     
-    .hero-title {
-        font-size: var(--font-size-2xl);
-    }
-    
     .hero-subtitle {
         font-size: var(--font-size-base);
+    }
+    
+    .hero-logo-image {
+        height: 4.5rem;
     }
     
     .hero-features {
         gap: var(--spacing-sm);
     }
     
-    .feature-badge {
-        padding: var(--spacing-xs) var(--spacing-sm);
+    .feature-chip {
+        padding: var(--spacing-xs) var(--spacing-md);
         font-size: var(--font-size-xs);
     }
     
