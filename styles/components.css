@@ -881,6 +881,14 @@
     justify-content: center;
 }
 
+/* Voivodeship Grid */
+.voivodeship-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+    max-width: 100%;
+}
+
 .stat-highlight {
     display: flex;
     flex-direction: column;
