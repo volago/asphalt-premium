@@ -107,3 +107,5 @@ Asphalt Premium - aplikacja do wizualizacji jakości dróg dla cyklistów.
 |Warmińsko-mazurskie|89,5%|
 |Wielkopolskie|92,6%|
 |Zachodniopomorskie|90,9%|
+
+

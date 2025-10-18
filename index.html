@@ -103,7 +103,9 @@
                             <div class="map-legend-layout">
                                 <!-- Map Example -->
                                 <div class="map-example">
-                                    <img src="assets/map_exapmle.jpg" alt="Przykład mapy z kolorowymi drogami według jakości nawierzchni" />
+                                    <div class="clickable-image">
+                                        <img src="assets/map_exapmle.jpg" alt="Przykład mapy z kolorowymi drogami według jakości nawierzchni" />
+                                    </div>
                                     <p class="map-caption">Przykład mapy pokazującej jakość dróg w województwie dolnośląskim</p>
                                 </div>
                                 
@@ -171,6 +173,7 @@
                                     Każda informacja o jakości drogi to cenny wkład w społeczność cyklistów. 
                                     Pomóż innym rowerzystom unikać wybojów i znajdować najlepsze trasy!
                                 </p>
+                                <h2>Ilość nieznanych dróg w województwach</h2>
                                 <div class="cta-stats">
                                     <div class="voivodeship-grid">
                                         <div class="stat-highlight">
@@ -283,20 +286,85 @@
                                         <div class="method-icon streetcomplete-icon">
                                             <i class="fas fa-mobile-alt"></i>
                                         </div>
-                                        <h3>StreetComplete App (POLECANE)</h3>
+                                        <h3>StreetComplete App</h3>
+                                        <span class="platform-badge android">tylko dla Androida</span>
                                     </div>
                                     <div class="method-content">
                                         <p class="method-highlight">Najłatwiejszy sposób — oceń drogi podczas jazdy!</p>
                                         
-                                        <div class="streetcomplete-demo">
-                                            <div class="demo-images">
-                                                <div class="demo-image">
-                                                    <img src="assets/street_complete_settings.jpg" alt="StreetComplete - ustawienia filtrów" />
-                                                    <span class="demo-caption">1. Włącz zadania o jakości dróg</span>
+                                        <p class="method-info">
+                                            <strong>Wskazówka:</strong> Możesz także oceniać asfalt po powrocie do domu. 
+                                            W tym celu ustaw mapę w okolicy, którą chcesz edytować, wejdź w menu (hamburger) 
+                                            i kliknij "Szukaj zadań w okolicy".
+                                        </p>
+                                        
+                                        <div class="streetcomplete-tutorial">
+                                            <h4>Instrukcja krok po kroku:</h4>
+                                            <div class="tutorial-steps">
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">1</div>
+                                                    <div class="step-content">
+                                                        <h5>Ściągnij i zainstaluj aplikację</h5>
+                                                        <p>Pobierz aplikację StreetComplete z Google Play Store i zainstaluj ją na swoim telefonie Android.</p>
+                                                        <div class="step-image clickable-image" data-image="assets/streetcomplete_install_placeholder.jpg">
+                                                            <img src="assets/street_complete_install.jpg" alt="Instalacja aplikacji StreetComplete" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-image\'></i><span>Obrazek zostanie dodany wkrótce</span></div>'" />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="demo-image">
-                                                    <img src="assets/street_complete_smoothness.jpg" alt="StreetComplete - ocena jakości drogi" />
-                                                    <span class="demo-caption">2. Oceń jakość nawierzchni</span>
+                                                
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">2</div>
+                                                    <div class="step-content">
+                                                        <h5>Włącz opcję widoczności zadań o jakości dróg</h5>
+                                                        <p>W ustawieniach aplikacji włącz zadania dotyczące oceny gładkości (smoothness) nawierzchni dróg.</p>
+                                                        <div class="step-image clickable-image" data-image="assets/street_complete_settings.jpg">
+                                                            <img src="assets/street_complete_settings.jpg" alt="StreetComplete - włączanie opcji widoczności" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">3</div>
+                                                    <div class="step-content">
+                                                        <h5>Znajdź drogę o nieznanej nawierzchni na Asphalt Premium</h5>
+                                                        <p>Otwórz mapę Asphalt Premium i znajdź drogę oznaczoną kolorem niebieskim (brak danych o nawierzchni).</p>
+                                                        <div class="step-image clickable-image" data-image="assets/asphalt_find_road_placeholder.jpg">
+                                                            <img src="assets/asphatl_blue.png" alt="Znajdowanie drogi na Asphalt Premium" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-image\'></i><span>Obrazek zostanie dodany wkrótce</span></div>'" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">4</div>
+                                                    <div class="step-content">
+                                                        <h5>Znajdź tę samą drogę w aplikacji StreetComplete</h5>
+                                                        <p>Otwórz aplikację StreetComplete, przejdź do lokalizacji tej drogi i poszukaj zadania związanego z oceną nawierzchni.</p>
+                                                        <div class="step-image clickable-image" data-image="assets/streetcomplete_find_road_placeholder.jpg">
+                                                            <img src="assets/street_complete_find_road.jpg" alt="Znajdowanie drogi w StreetComplete" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-image\'></i><span>Obrazek zostanie dodany wkrótce</span></div>'" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">5</div>
+                                                    <div class="step-content">
+                                                        <h5>Dodaj informację o nawierzchni</h5>
+                                                        <p>Wybierz odpowiednią opcję jakości nawierzchni na podstawie swojej oceny drogi.</p>
+                                                        <div class="step-image clickable-image" data-image="assets/street_complete_smoothness.jpg">
+                                                            <img src="assets/street_complete_smoothness.jpg" alt="Dodawanie oceny jakości drogi" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="tutorial-step">
+                                                    <div class="step-number">6</div>
+                                                    <div class="step-content">
+                                                        <h5>Zobacz zaktualizowaną drogę na Asphalt Premium</h5>
+                                                        <p>Po kilku minutach Twoja ocena zostanie przetworzona, a droga zmieni kolor na mapie Asphalt Premium!</p>
+                                                        <div class="step-image clickable-image" data-image="assets/asphalt_updated_road_placeholder.jpg">
+                                                            <img src="assets/asphatl_good.png" alt="Zaktualizowana droga na Asphalt Premium" onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-image\'></i><span>Obrazek zostanie dodany wkrótce</span></div>'" />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -339,7 +407,8 @@
                                             <li>Przejdź na <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">openstreetmap.org</a></li>
                                             <li>Znajdź interesującą Cię drogę</li>
                                             <li>Kliknij "Edytuj" i wybierz edytor iD</li>
-                                            <li>Wybierz drogę i dodaj tag <code>smoothness</code></li>
+                                            <li>Wybierz drogę i dodaj tag <b>smoothness</b></li>
+                                            <li>Wybierz odpowiednią jakość nawierzchni. Możesz sugerować się grafiką z aplikacji Sreet Complete lub skorzystać z dokumentacji OSM <a href="https://wiki.openstreetmap.org/wiki/Tag:smoothness" target="_blank" rel="noopener">https://wiki.openstreetmap.org/wiki/Tag:smoothness</a></li>
                                             <li>Zapisz zmiany z opisem</li>
                                         </ol>
                                         <div class="method-cta">
@@ -470,6 +539,13 @@
 
     </main>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="image-modal-close">&times;</span>
+        <img class="image-modal-content" id="modalImage">
+        <div id="modalCaption"></div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js"></script>
@@ -477,5 +553,6 @@
     <script src="js/overpass.js"></script>
     <script src="js/map.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/image-modal.js"></script>
 </body>
 </html>
