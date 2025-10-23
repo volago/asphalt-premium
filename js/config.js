@@ -173,7 +173,133 @@ const CONFIG = {
         ERROR_PARSE: 'Błąd podczas przetwarzania danych',
         NO_VOIVODESHIP: 'Wybierz województwo',
         NO_DATA: 'Brak danych dla wybranego województwa'
-    }
+    },
+    
+    // OpenStreetMap API Configuration
+    OSM_API: {
+        USE_DEV_SERVER: false, // Change to false for production
+        DEV_URL: 'https://master.apis.dev.openstreetmap.org',
+        PROD_URL: 'https://api.openstreetmap.org',
+        
+        // OAuth 2.0 Configuration (PKCE for public clients)
+        OAUTH: {
+            // === DEVELOPMENT SERVER ===
+            // Register at: https://master.apis.dev.openstreetmap.org/oauth2/applications
+            // - Name: Asphalt Premium Dev
+            // - Redirect URI: http://127.0.0.1:8081/
+            // - Confidential: NO
+            // - Scopes: read_prefs, write_api
+            CLIENT_ID_DEV: 'Nx-kib-6eyscUk3mo6btnV5g3ZZDLEqQ1wBLjkyYTIY',
+            REDIRECT_URI_DEV: 'http://127.0.0.1:8081/',
+            
+            // === PRODUCTION SERVER ===
+            // Register at: https://www.openstreetmap.org/oauth2/applications
+            // - Name: Asphalt Premium
+            // - Redirect URI: https://your-domain.com/ (your actual production URL)
+            // - Confidential: NO
+            // - Scopes: read_prefs, write_api
+            CLIENT_ID_PROD: '-SbX_4ow4ipLfqQXYItNpi1WsmeUuSmPJ_YfVcGSK7w',
+            REDIRECT_URI_PROD: 'https://volago.github.io/asphalt-premium/', // Change to your production URL
+            
+            SCOPES: 'read_prefs write_api',
+            
+            // OAuth endpoints
+            AUTHORIZATION_ENDPOINT_DEV: 'https://master.apis.dev.openstreetmap.org/oauth2/authorize',
+            AUTHORIZATION_ENDPOINT_PROD: 'https://www.openstreetmap.org/oauth2/authorize',
+            TOKEN_ENDPOINT_DEV: 'https://master.apis.dev.openstreetmap.org/oauth2/token',
+            TOKEN_ENDPOINT_PROD: 'https://www.openstreetmap.org/oauth2/token',
+            
+            // Helper methods to get current settings based on USE_DEV_SERVER
+            getClientId() {
+                return CONFIG.OSM_API.USE_DEV_SERVER ? this.CLIENT_ID_DEV : this.CLIENT_ID_PROD;
+            },
+            
+            getRedirectUri() {
+                return CONFIG.OSM_API.USE_DEV_SERVER ? this.REDIRECT_URI_DEV : this.REDIRECT_URI_PROD;
+            }
+        },
+        
+        // Get current API URL based on USE_DEV_SERVER
+        getApiUrl() {
+            return this.USE_DEV_SERVER ? this.DEV_URL : this.PROD_URL;
+        },
+        
+        getAuthorizationEndpoint() {
+            return this.USE_DEV_SERVER ? this.OAUTH.AUTHORIZATION_ENDPOINT_DEV : this.OAUTH.AUTHORIZATION_ENDPOINT_PROD;
+        },
+        
+        getTokenEndpoint() {
+            return this.USE_DEV_SERVER ? this.OAUTH.TOKEN_ENDPOINT_DEV : this.OAUTH.TOKEN_ENDPOINT_PROD;
+        }
+    },
+    
+    // Smoothness options for road editing
+    SMOOTHNESS_OPTIONS: [
+        {
+            value: 'excellent',
+            label: 'Doskonała',
+            labelEn: 'Excellent',
+            description: 'Idealny asfalt, jak nowy. Jazda bardzo komfortowa.',
+            image: 'excellent.jpg',
+            common: true
+        },
+        {
+            value: 'good',
+            label: 'Dobra',
+            labelEn: 'Good',
+            description: 'Dobry asfalt z drobnymi niedoskonałościami. Przyjemna jazda.',
+            image: 'good.jpg',
+            common: true
+        },
+        {
+            value: 'intermediate',
+            label: 'Średnia',
+            labelEn: 'Intermediate',
+            description: 'Widoczne pęknięcia i łaty, ale przejezdna dla rowerów.',
+            image: 'intermediate.jpg',
+            common: true
+        },
+        {
+            value: 'bad',
+            label: 'Słaba',
+            labelEn: 'Bad',
+            description: 'Sporo dziur i pęknięć. Jazda niekomfortowa.',
+            image: 'bad.jpg',
+            common: true
+        },
+        {
+            value: 'very_bad',
+            label: 'Bardzo słaba',
+            labelEn: 'Very Bad',
+            description: 'Wiele dziur i zniszczeń. Trzeba uważać na wyboje.',
+            image: 'very_bad.jpg',
+            common: false
+        },
+        {
+            value: 'horrible',
+            label: 'Okropna',
+            labelEn: 'Horrible',
+            description: 'Bardzo zniszczona droga, duże wyboje. Trudna do przejechania.',
+            image: 'horrible.jpg',
+            common: false
+        },
+        {
+            value: 'very_horrible',
+            label: 'Bardzo okropna',
+            labelEn: 'Very Horrible',
+            description: 'Ekstremalnie zniszczona. Praktycznie nie do przejechania na rowerze.',
+            image: 'very_horrible.jpg',
+            common: false
+        },
+        {
+            value: 'impassable',
+            label: 'Nieprzejezdna',
+            labelEn: 'Impassable',
+            description: 'Całkowicie nieprzejezdna nawierzchnia.',
+            image: 'impassable.jpg',
+            common: false
+        }
+    ]
 };
 
 // Export for use in other modules

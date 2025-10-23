@@ -1,0 +1,13 @@
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#d35400"/>
+  <rect width="300" height="40" y="80" fill="#e67e22" rx="5"/>
+  <circle cx="40" cy="85" r="15" fill="#c0392b"/>
+  <circle cx="90" cy="110" r="18" fill="#c0392b"/>
+  <circle cx="150" cy="95" r="14" fill="#c0392b"/>
+  <circle cx="210" cy="105" r="16" fill="#c0392b"/>
+  <circle cx="260" cy="92" r="13" fill="#c0392b"/>
+  <line x1="120" y1="85" x2="180" y2="115" stroke="#c0392b" stroke-width="6"/>
+  <text x="150" y="115" font-family="Arial" font-size="16" fill="#ecf0f1" text-anchor="middle">Horrible</text>
+  <text x="150" y="135" font-family="Arial" font-size="12" fill="#ecf0f1" text-anchor="middle">Extremely bad</text>
+</svg>
+

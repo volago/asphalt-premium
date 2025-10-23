@@ -11,6 +11,8 @@ class AsphaltPremiumApp {
         this.cache = null;
         this.overpass = null;
         this.currentVoivodeship = null;
+        this.oauth = null;
+        this.osmApi = null;
         
         this.init();
     }
@@ -29,28 +31,85 @@ class AsphaltPremiumApp {
         return false;
     }
     
-    init() {
+    async init() {
         // Initialize components
         this.cache = new CacheManager();
         this.overpass = new OverpassAPI();
+        
+        // Initialize OAuth and OSM API
+        this.oauth = new OSMOAuth();
+        this.osmApi = new OSMAPIClient(this.oauth);
+        
+        // Check if this is an OAuth callback
+        const isOAuthCallback = await this.handleOAuthCallback();
         
         // Initialize UI
         this.initNavigation();
         this.initSidebar();
         this.initMap();
         
+        // Pass OAuth instances to map manager
+        if (this.mapManager) {
+            this.mapManager.setOAuthClient(this.oauth, this.osmApi);
+        }
+        
         // Set initial page state
         this.setInitialPageState();
         
-        // Show about overlay if first visit
-        if (this.shouldShowAboutOverlay()) {
+        // Show about overlay if first visit (but not if OAuth callback)
+        if (!isOAuthCallback && this.shouldShowAboutOverlay()) {
             this.showAboutOverlay();
         }
         
         // Bind events
         this.bindEvents();
         
+        // Log authentication status
+        if (this.oauth.isAuthenticated()) {
+            console.log('User is authenticated');
+            this.getUserInfo();
+        } else {
+            console.log('User is not authenticated');
+        }
+        
         console.log('Asphalt Premium App initialized');
+    }
+    
+    /**
+     * Handle OAuth callback if present
+     * @returns {Promise<boolean>} True if OAuth callback was handled
+     */
+    async handleOAuthCallback() {
+        try {
+            const handled = await this.oauth.handleCallback();
+            
+            if (handled) {
+                console.log('OAuth callback handled successfully');
+                this.showMessage('Logowanie powiodło się! Możesz teraz edytować drogi.', 'success');
+                return true;
+            }
+            
+            return false;
+            
+        } catch (error) {
+            console.error('OAuth callback error:', error);
+            this.showMessage(`Błąd logowania: ${error.message}`, 'error');
+            return false;
+        }
+    }
+    
+    /**
+     * Get and display user info
+     */
+    async getUserInfo() {
+        try {
+            const userName = await this.oauth.getUserInfo();
+            if (userName) {
+                console.log('Logged in as:', userName);
+            }
+        } catch (error) {
+            console.error('Failed to get user info:', error);
+        }
     }
     
     /**

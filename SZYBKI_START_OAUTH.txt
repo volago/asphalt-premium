@@ -1,0 +1,88 @@
+═══════════════════════════════════════════════════════════
+   SZYBKI START - Konfiguracja OAuth dla Asphalt Premium
+═══════════════════════════════════════════════════════════
+
+Problem: Błąd "Client authentication failed" podczas logowania
+
+Rozwiązanie: Musisz zarejestrować aplikację OAuth2 w OSM
+
+═══════════════════════════════════════════════════════════
+KROK 1: Zarejestruj aplikację OAuth2
+═══════════════════════════════════════════════════════════
+
+1. Otwórz: https://master.apis.dev.openstreetmap.org/oauth2/applications
+
+2. Kliknij "Register new application"
+
+3. Wypełnij formularz:
+   
+   Name: Asphalt Premium Dev
+   
+   Redirect URI: 
+   http://127.0.0.1:8081/
+   
+   ⚠️ WAŻNE: Użyj 127.0.0.1 NIE localhost!
+   
+   Confidential: NIE ❌ (UNCHECKED!)
+   
+   Scopes:
+   ✅ read_prefs
+   ✅ write_api
+
+4. Kliknij "Create"
+
+5. SKOPIUJ Client ID (długi ciąg znaków)
+
+═══════════════════════════════════════════════════════════
+KROK 2: Wklej Client ID do konfiguracji
+═══════════════════════════════════════════════════════════
+
+1. Otwórz plik: js/config.js
+
+2. Znajdź linię (około linia 192):
+   CLIENT_ID_DEV: 'YOUR_CLIENT_ID_HERE',
+
+3. Zamień na:
+   CLIENT_ID_DEV: 'twoj-skopiowany-client-id',
+
+4. Zapisz plik
+
+📝 UWAGA: To jest dla serwera DEV!
+   Dla produkcji musisz zarejestrować osobną aplikację
+   na www.openstreetmap.org i wpisać Client ID do CLIENT_ID_PROD
+
+═══════════════════════════════════════════════════════════
+KROK 3: Uruchom ponownie
+═══════════════════════════════════════════════════════════
+
+1. Odśwież stronę w przeglądarce (F5)
+
+2. Kliknij na drogę
+
+3. Kliknij "Zaloguj się aby edytować"
+
+4. Powinieneś zostać pomyślnie przekierowany!
+
+═══════════════════════════════════════════════════════════
+WAŻNE UWAGI
+═══════════════════════════════════════════════════════════
+
+✓ Confidential MUSI być NIE (unchecked)
+✓ Redirect URI musi kończyć się slashem: /
+✓ Używaj 127.0.0.1 NIE localhost (wymóg OSM!)
+✓ Używaj portu 8081: npx http-server -p 8081
+✓ Client ID jest bezpieczny do pokazywania publicznie
+✓ Otwieraj w przeglądarce: http://127.0.0.1:8081/
+
+═══════════════════════════════════════════════════════════
+DLACZEGO 127.0.0.1 A NIE localhost?
+═══════════════════════════════════════════════════════════
+
+OSM wymaga HTTPS dla wszystkich Redirect URI.
+WYJĄTEK: http://127.0.0.1 jest akceptowany.
+localhost NIE działa - dostaniesz błąd "must be HTTPS"!
+
+═══════════════════════════════════════════════════════════
+
+Szczegółowa dokumentacja: OAUTH_SETUP.md
+

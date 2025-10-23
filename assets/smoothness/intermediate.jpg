@@ -1,0 +1,10 @@
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#7f8c8d"/>
+  <rect width="300" height="40" y="80" fill="#95a5a6" rx="5"/>
+  <line x1="40" y1="92" x2="60" y2="98" stroke="#34495e" stroke-width="3"/>
+  <line x1="120" y1="95" x2="140" y2="105" stroke="#34495e" stroke-width="3"/>
+  <line x1="200" y1="90" x2="220" y2="100" stroke="#34495e" stroke-width="3"/>
+  <text x="150" y="115" font-family="Arial" font-size="16" fill="#2c3e50" text-anchor="middle">Intermediate</text>
+  <text x="150" y="135" font-family="Arial" font-size="12" fill="#34495e" text-anchor="middle">Visible cracks</text>
+</svg>
+
