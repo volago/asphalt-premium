@@ -239,7 +239,7 @@ const CONFIG = {
             value: 'excellent',
             label: 'Doskonała',
             labelEn: 'Excellent',
-            description: 'Idealny asfalt, jak nowy. Jazda bardzo komfortowa.',
+            description: 'Idealny asfalt, nowy dywan. Asfalt premium, można jździć do końca życia.',
             image: 'excellent.jpg',
             common: true
         },
@@ -247,7 +247,7 @@ const CONFIG = {
             value: 'good',
             label: 'Dobra',
             labelEn: 'Good',
-            description: 'Dobry asfalt z drobnymi niedoskonałościami. Przyjemna jazda.',
+            description: 'Dobry asfalt z drobnymi niedoskonałościami. Jazda w miarę przyjemna, nierówności do zaakceptowanis.',
             image: 'good.jpg',
             common: true
         },
@@ -255,7 +255,7 @@ const CONFIG = {
             value: 'intermediate',
             label: 'Średnia',
             labelEn: 'Intermediate',
-            description: 'Widoczne pęknięcia i łaty, ale przejezdna dla rowerów.',
+            description: 'Zaczyna się robić niemiło, na drodze nierówności i trzęsie rowerem. Tu już niebardzo chcemy jeździć.',
             image: 'intermediate.jpg',
             common: true
         },
@@ -263,7 +263,7 @@ const CONFIG = {
             value: 'bad',
             label: 'Słaba',
             labelEn: 'Bad',
-            description: 'Sporo dziur i pęknięć. Jazda niekomfortowa.',
+            description: 'Sporo dziur i pęknięć. Zaczynasz wizualizować sobie osoby odpowiedzialne za tą drogę.',
             image: 'bad.jpg',
             common: true
         },
@@ -271,7 +271,7 @@ const CONFIG = {
             value: 'very_bad',
             label: 'Bardzo słaba',
             labelEn: 'Very Bad',
-            description: 'Wiele dziur i zniszczeń. Trzeba uważać na wyboje.',
+            description: 'Wiele dziur i zniszczeń. Odechciewa się wszystkiego.',
             image: 'very_bad.jpg',
             common: false
         },

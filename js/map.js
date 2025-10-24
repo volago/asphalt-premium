@@ -692,8 +692,10 @@ class MapManager {
                         <img src="${imagePath}" alt="${option.label}" 
                              onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i> ${option.labelEn}'">
                     </div>
-                    <div class="smoothness-option-label">${option.label}</div>
-                    <div class="smoothness-option-description">${option.description}</div>
+                    <div class="smoothness-option-content">
+                        <div class="smoothness-option-label">${option.label}</div>
+                        <div class="smoothness-option-description">${option.description}</div>
+                    </div>
                 </div>
             `;
         }
