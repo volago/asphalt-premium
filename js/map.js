@@ -454,30 +454,26 @@ class MapManager {
         const name = properties.name || 'Droga bez nazwy';
         const smoothness = properties.smoothness || null;
         const highway = properties.highway || 'nieznany typ';
-        const maxspeed = properties.maxspeed || 'nieograniczona';
         const osmId = properties.osm_id;
         
         // Reset selected smoothness
         this.selectedSmoothnessValue = smoothness;
         
+        // Update the header with the road name and info icon
+        const header = document.getElementById('road-info-sidebar').querySelector('.road-info-header h3');
+        if (header) {
+            header.innerHTML = `
+                ${name}
+                <i class="fas fa-info-circle road-info-icon" id="road-tech-info-icon" 
+                   title="Informacje techniczne"></i>
+            `;
+        }
+        
         content.innerHTML = `
-            <h4>${name}</h4>
-            <div class="road-details">
-                <p><strong>Typ drogi:</strong> ${highway}</p>
-                <p><strong>Jakość nawierzchni:</strong> ${smoothness || 'brak danych'}</p>
-                <p><strong>Prędkość maksymalna:</strong> ${maxspeed}</p>
-                <p><strong>ID obiektu way:</strong> ${osmId}</p>
+            <div class="road-info-scrollable">
+                ${this.renderSmoothnessEditor(smoothness, osmId)}
             </div>
-            <div class="road-actions">
-                <a href="https://www.openstreetmap.org/edit?way=${osmId}" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="btn-edit-osm">
-                    <i class="fas fa-external-link-alt"></i>
-                    Edytuj w OpenStreetMap
-                </a>
-            </div>
-            ${this.renderSmoothnessEditor(smoothness, osmId)}
+            ${this.renderBottomActions(osmId, smoothness)}
         `;
         
         sidebar.style.display = 'flex';
@@ -487,6 +483,99 @@ class MapManager {
         
         // Initialize smoothness editor controls
         this.initSmoothnessEditor(osmId, smoothness);
+        
+        // Initialize tech info icon
+        this.initTechInfoIcon(properties);
+    }
+    
+    /**
+     * Get smoothness label in Polish
+     * @param {string} smoothness - Smoothness value
+     * @returns {string} Polish label
+     */
+    getSmoothnessLabel(smoothness) {
+        const option = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === smoothness);
+        return option ? `${option.label} (${smoothness})` : smoothness;
+    }
+    
+    /**
+     * Initialize tech info icon click handler
+     * @param {Object} properties - Road properties
+     */
+    initTechInfoIcon(properties) {
+        const infoIcon = document.getElementById('road-tech-info-icon');
+        if (!infoIcon) return;
+        
+        // Remove previous listener if exists
+        const newIcon = infoIcon.cloneNode(true);
+        infoIcon.parentNode.replaceChild(newIcon, infoIcon);
+        
+        newIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.showTechInfoPopup(properties);
+        });
+    }
+    
+    /**
+     * Show technical information popup
+     * @param {Object} properties - Road properties
+     */
+    showTechInfoPopup(properties) {
+        const highway = properties.highway || 'nieznany typ';
+        const smoothness = properties.smoothness || 'brak danych';
+        const osmId = properties.osm_id;
+        
+        const popupHtml = `
+            <div class="tech-info-popup-overlay" id="tech-info-popup-overlay">
+                <div class="tech-info-popup">
+                    <div class="tech-info-popup-header">
+                        <h4>Informacje techniczne</h4>
+                        <button class="tech-info-popup-close" id="tech-info-popup-close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="tech-info-popup-content">
+                        <div class="tech-info-item">
+                            <span class="tech-info-label">Typ drogi:</span>
+                            <span class="tech-info-value">${highway}</span>
+                        </div>
+                        <div class="tech-info-item">
+                            <span class="tech-info-label">Jakość nawierzchni:</span>
+                            <span class="tech-info-value">${smoothness}</span>
+                        </div>
+                        <div class="tech-info-item">
+                            <span class="tech-info-label">OSM ID:</span>
+                            <span class="tech-info-value">${osmId}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing popup if any
+        const existingPopup = document.getElementById('tech-info-popup-overlay');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        
+        // Add popup to body
+        document.body.insertAdjacentHTML('beforeend', popupHtml);
+        
+        // Add close handlers
+        const overlay = document.getElementById('tech-info-popup-overlay');
+        const closeBtn = document.getElementById('tech-info-popup-close');
+        
+        const closePopup = () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 200);
+        };
+        
+        closeBtn.addEventListener('click', closePopup);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closePopup();
+            }
+        });
     }
     
     /**
@@ -496,6 +585,11 @@ class MapManager {
         const sidebar = document.getElementById('road-info-sidebar');
         if (sidebar) {
             sidebar.style.display = 'none';
+            // Reset header title
+            const header = sidebar.querySelector('.road-info-header h3');
+            if (header) {
+                header.textContent = 'Informacje o drodze';
+            }
         }
     }
     
@@ -519,6 +613,50 @@ class MapManager {
        ========================================== */
     
     /**
+     * Render bottom actions bar with save/login and OSM edit button
+     * @param {number} wayId - Way ID
+     * @param {string} currentSmoothness - Current smoothness value
+     * @returns {string} HTML string
+     */
+    renderBottomActions(wayId, currentSmoothness) {
+        const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
+        
+        let html = '<div class="road-info-bottom-actions">';
+        
+        // Save or Login button
+        if (isAuthenticated) {
+            html += `
+                <button class="btn-save-smoothness" id="save-smoothness-btn" disabled>
+                    <i class="fas fa-save"></i>
+                    Zapisz
+                </button>
+            `;
+        } else {
+            html += `
+                <button class="btn-login-osm" id="login-osm-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Zaloguj do OSM
+                </button>
+            `;
+        }
+        
+        // Compact OSM edit button
+        html += `
+            <a href="https://www.openstreetmap.org/edit?way=${wayId}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="btn-edit-osm-compact">
+                <i class="fas fa-external-link-alt"></i>
+                OSM
+            </a>
+        `;
+        
+        html += '</div>';
+        
+        return html;
+    }
+    
+    /**
      * Render smoothness editor HTML
      * @param {string} currentSmoothness - Current smoothness value
      * @param {number} wayId - Way ID
@@ -527,9 +665,10 @@ class MapManager {
     renderSmoothnessEditor(currentSmoothness, wayId) {
         const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
         
-        // Separate common and rare options
-        const commonOptions = CONFIG.SMOOTHNESS_OPTIONS.filter(opt => opt.common);
-        const rareOptions = CONFIG.SMOOTHNESS_OPTIONS.filter(opt => !opt.common);
+        // Only show 5 main options: excellent, good, intermediate, bad, very_bad
+        const mainOptions = CONFIG.SMOOTHNESS_OPTIONS.filter(opt => 
+            ['excellent', 'good', 'intermediate', 'bad', 'very_bad'].includes(opt.value)
+        );
         
         let html = `
             <div class="smoothness-editor">
@@ -542,20 +681,9 @@ class MapManager {
                 </div>
         `;
         
-        // Show current value if exists
-        if (currentSmoothness) {
-            const currentOption = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === currentSmoothness);
-            const label = currentOption ? currentOption.label : currentSmoothness;
-            html += `
-                <div class="smoothness-current-value">
-                    <strong>Obecna wartość:</strong> ${label} (${currentSmoothness})
-                </div>
-            `;
-        }
-        
-        // Common options gallery
+        // Main options gallery (5 options only)
         html += '<div class="smoothness-gallery">';
-        for (const option of commonOptions) {
+        for (const option of mainOptions) {
             const selected = option.value === currentSmoothness ? 'selected' : '';
             const imagePath = `assets/smoothness/${option.image}`;
             html += `
@@ -571,60 +699,7 @@ class MapManager {
         }
         html += '</div>';
         
-        // Rare options collapsible section
-        if (rareOptions.length > 0) {
-            html += `
-                <div class="smoothness-rare-section">
-                    <button class="smoothness-rare-toggle">
-                        <span>Pokaż rzadziej używane opcje</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="smoothness-rare-options">
-                        <div class="smoothness-gallery">
-            `;
-            
-            for (const option of rareOptions) {
-                const selected = option.value === currentSmoothness ? 'selected' : '';
-                const imagePath = `assets/smoothness/${option.image}`;
-                html += `
-                    <div class="smoothness-option ${selected}" data-value="${option.value}">
-                        <div class="smoothness-option-image">
-                            <img src="${imagePath}" alt="${option.label}"
-                                 onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i> ${option.labelEn}'">
-                        </div>
-                        <div class="smoothness-option-label">${option.label}</div>
-                        <div class="smoothness-option-description">${option.description}</div>
-                    </div>
-                `;
-            }
-            
-            html += `
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Save section
-        html += '<div class="smoothness-save-section">';
-        
-        if (isAuthenticated) {
-            html += `
-                <button class="btn-save-smoothness" id="save-smoothness-btn" disabled>
-                    <i class="fas fa-save"></i>
-                    Zapisz zmiany
-                </button>
-            `;
-        } else {
-            html += `
-                <button class="btn-login-osm" id="login-osm-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Zaloguj się aby edytować
-                </button>
-            `;
-        }
-        
-        html += '</div></div>';
+        html += '</div>';
         
         return html;
     }
@@ -654,18 +729,6 @@ class MapManager {
                 }
             });
         });
-        
-        // Handle rare options toggle
-        const rareToggle = document.querySelector('.smoothness-rare-toggle');
-        if (rareToggle) {
-            rareToggle.addEventListener('click', () => {
-                rareToggle.classList.toggle('expanded');
-                const rareOptions = document.querySelector('.smoothness-rare-options');
-                if (rareOptions) {
-                    rareOptions.classList.toggle('expanded');
-                }
-            });
-        }
         
         // Handle save button
         const saveBtn = document.getElementById('save-smoothness-btn');

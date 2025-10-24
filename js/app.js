@@ -85,7 +85,26 @@ class AsphaltPremiumApp {
             
             if (handled) {
                 console.log('OAuth callback handled successfully');
-                this.showMessage('Logowanie powiodło się! Możesz teraz edytować drogi.', 'success');
+                
+                // Check if we're in a popup window
+                if (window.opener && !window.opener.closed) {
+                    // We're in a popup, notify parent and close
+                    try {
+                        window.opener.postMessage({ type: 'oauth_success' }, window.location.origin);
+                        console.log('Notified parent window of successful login');
+                        // Give the message time to be delivered
+                        setTimeout(() => {
+                            window.close();
+                        }, 500);
+                    } catch (error) {
+                        console.error('Failed to notify parent window:', error);
+                        // If we can't close the popup, show a message
+                        document.body.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Arial; text-align: center; padding: 2rem;"><div><h1>✓ Logowanie powiodło się!</h1><p>Możesz zamknąć to okno i wrócić do aplikacji.</p></div></div>';
+                    }
+                } else {
+                    // Normal callback in main window
+                    this.showMessage('Logowanie powiodło się! Możesz teraz edytować drogi.', 'success');
+                }
                 return true;
             }
             
@@ -93,7 +112,23 @@ class AsphaltPremiumApp {
             
         } catch (error) {
             console.error('OAuth callback error:', error);
-            this.showMessage(`Błąd logowania: ${error.message}`, 'error');
+            
+            // Check if we're in a popup window
+            if (window.opener && !window.opener.closed) {
+                // We're in a popup, notify parent of error and close
+                try {
+                    window.opener.postMessage({ type: 'oauth_error', error: error.message }, window.location.origin);
+                    setTimeout(() => {
+                        window.close();
+                    }, 500);
+                } catch (notifyError) {
+                    console.error('Failed to notify parent window:', notifyError);
+                    document.body.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Arial; text-align: center; padding: 2rem;"><div><h1>✗ Błąd logowania</h1><p>${error.message}</p><p>Możesz zamknąć to okno.</p></div></div>`;
+                }
+            } else {
+                // Normal callback in main window
+                this.showMessage(`Błąd logowania: ${error.message}`, 'error');
+            }
             return false;
         }
     }
