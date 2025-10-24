@@ -1,79 +1,196 @@
-odpal przez node i tyle a nie cudujesz
 # Asphalt Premium
 
 Aplikacja webowa do wizualizacji jakości dróg w Polsce na podstawie danych z OpenStreetMap.
 
 ## Opis
 
-Asphalt Premium to responsywna aplikacja internetowa, która wyświetla interaktywną mapę Polski z możliwością sprawdzenia jakości dróg w poszczególnych województwach. Aplikacja wykorzystuje dane z OpenStreetMap pobierane przez OverpassAPI.
+Asphalt Premium to aplikacja internetowa, która wyświetla interaktywną mapę Polski z możliwością sprawdzenia jakości dróg w poszczególnych województwach. Aplikacja wykorzystuje dane z OpenStreetMap pobierane przez OverpassAPI i umożliwia bezpośrednią edycję danych jakości nawierzchni.
 
-## Funkcjonalności
+## Główne funkcjonalności
 
-- 🗺️ **Interaktywna mapa** - pełnoekranowa mapa z możliwością nawigacji
-- 🚴 **Kolarski motyw** - aplikacja dedykowana cyklistom
-- 📍 **Wybór województwa** - możliwość filtrowania danych według województw
-- 🛣️ **Jakość dróg** - wizualizacja według standardów smoothness OSM:
+### 🗺️ Wizualizacja dróg
+- **Interaktywna mapa** - pełnoekranowa mapa Polski oparta na Leaflet.js
+- **Filtrowanie według województw** - dane dla wszystkich 16 województw
+- **Typy dróg** - wyświetlanie dróg trzeciorzędnych (tertiary) i niesklasyfikowanych (unclassified)
+- **Kolorystyka dróg** według jakości nawierzchni:
   - **Czarna linia ciągła** - doskonała jakość (excellent)
   - **Czarna linia przerywana** - dobra jakość (good)  
   - **Czerwona linia** - słaba jakość (intermediate, bad, very_bad, horrible, very_horrible, impassable)
-- ✏️ **Edycja bezpośrednia w OSM** - możliwość edycji jakości dróg bezpośrednio z aplikacji:
-  - Wizualna galeria opcji smoothness z obrazkami
-  - Autoryzacja OAuth 2.0 z PKCE (bezpieczna dla aplikacji statycznych)
-  - Potwierdzenie przed zapisem zmian
-  - Automatyczne tworzenie i zamykanie changesetów
-- 💾 **Inteligentne cache'owanie** - lokalny cache danych na 3 dni dla każdego województwa
-- 📱 **Responsywny design** - działa na wszystkich urządzeniach
-- ⚡ **Wysoka wydajność** - optymalizacja wyświetlania tysięcy dróg
+  - **Niebieska linia** - brak danych o jakości (smoothness nie jest określone)
+
+### ✏️ Edycja bezpośrednia w OSM
+- **Wizualna galeria opcji** - 8 poziomów jakości nawierzchni z opisami i zdjęciami przykładowymi
+- **OAuth 2.0 z PKCE** - bezpieczna autoryzacja dla aplikacji statycznych
+- **Tryb deweloperski i produkcyjny** - możliwość testowania na serwerze dev.openstreetmap.org
+- **Sidebar z informacjami o drodze** - wyświetlanie szczegółów wybranej drogi
+- **Potwierdzenie przed zapisem** - modalne okno z podsumowaniem zmian
+- **Automatyczne changesets** - tworzenie, aktualizacja i zamykanie changesetów OSM
+- **Widoczne końce odcinka** - fioletowe markery oznaczające początek i koniec wybranej drogi
+
+### 💾 Inteligentne cache'owanie
+- **IndexedDB** - przechowywanie dużych zbiorów danych lokalnie
+- **Cache na 3 dni** - automatyczne odświeżanie przeterminowanych danych
+- **Per województwo** - osobny cache dla każdego regionu
+- **Automatyczne czyszczenie** - usuwanie wygasłych wpisów
+
+### 📊 Statystyki i analiza
+- **Procentowy rozkład** - ile dróg ma poszczególne oceny jakości
+- **Drogi bez danych** - podświetlenie brakujących ocen
+- **Wizualizacja w czasie rzeczywistym** - aktualizacja po załadowaniu danych
+
+### 🎨 Interfejs użytkownika
+- **Responsywny design** - działa na wszystkich urządzeniach
+- **Sidebar z kontrolkami** - wybór województwa, odświeżanie, legenda
+- **Przełączanie widoczności warstw** - pokazuj/ukrywaj drogi według jakości
+- **Overlay "O projekcie"** - instrukcje i informacje o projekcie (wyświetlane przy pierwszej wizycie)
+- **Toast notifications** - powiadomienia o statusie operacji
+- **Modal potwierdzenia** - dialogi dla krytycznych akcji
 
 ## Technologie
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Mapa**: Leaflet.js
-- **Dane**: OpenStreetMap via OverpassAPI
-- **Cache**: LocalStorage
-- **Style**: Własne CSS z system designu
+- **Mapa**: Leaflet.js 1.9.4
+- **Dane**: OpenStreetMap via OverpassAPI (3 serwery fallback)
+- **Cache**: IndexedDB
+- **Autoryzacja**: OAuth 2.0 z PKCE
+- **Style**: Własne CSS z CSS Variables, Font Awesome icons, Google Fonts (Inter)
+- **API OSM**: bezpośrednia integracja z api.openstreetmap.org
 
 ## Uruchomienie
 
-1. Sklonuj repozytorium:
+### Wymagania wstępne
+- Przeglądarka wspierająca ES6+ i IndexedDB
+- Lokalny serwer HTTP (ze względu na CORS i OAuth)
+- (Opcjonalnie) Konto OpenStreetMap dla funkcji edycji
+
+### Instalacja i uruchomienie
+
+1. **Sklonuj repozytorium:**
    ```bash
    git clone <repository-url>
    cd asphalt-premium
    ```
 
-2. Uruchom lokalny serwer HTTP (wymagane ze względu na CORS):
+2. **Uruchom lokalny serwer HTTP:**
    ```bash
    # Node.js (zalecany port 8081)
    npx http-server -p 8081
+   
+   # Alternatywnie Python:
+   python -m http.server 8081
+   
+   # Lub dowolny inny serwer HTTP
    ```
 
-3. **Konfiguracja OAuth (wymagane dla edycji dróg):**
-   - Zobacz szczegółową instrukcję w pliku `OAUTH_SETUP.md` lub `SZYBKI_START_OAUTH.txt`
-   - **Development:** Zarejestruj aplikację OAuth2 na https://master.apis.dev.openstreetmap.org/oauth2/applications
-   - **Ważne:** Użyj `http://127.0.0.1:8081/` jako Redirect URI (NIE localhost!)
-   - Skopiuj Client ID do `CLIENT_ID_DEV` w `js/config.js`
-   - **Produkcja:** Przed wdrożeniem zarejestruj osobną aplikację na https://www.openstreetmap.org/oauth2/applications
-
-4. Otwórz przeglądarkę i przejdź do:
+3. **Otwórz aplikację w przeglądarce:**
    ```
    http://127.0.0.1:8081
    ```
-   ⚠️ **Uwaga:** Używaj `127.0.0.1` zamiast `localhost` (wymóg OAuth OSM)
+   ⚠️ **Ważne:** Używaj `127.0.0.1` zamiast `localhost` (wymóg OAuth OSM)
+
+### Konfiguracja OAuth (opcjonalna - dla edycji dróg)
+
+Jeśli chcesz włączyć funkcję edycji dróg bezpośrednio z aplikacji:
+
+1. **Zarejestruj aplikację OAuth2:**
+   - **Development (testy):** https://master.apis.dev.openstreetmap.org/oauth2/applications
+   - **Production (produkcja):** https://www.openstreetmap.org/oauth2/applications
+
+2. **Parametry rejestracji:**
+   - **Application Name:** Asphalt Premium (lub własna nazwa)
+   - **Redirect URI:** `http://127.0.0.1:8081/` (dla development)
+   - **Confidential:** NO (aplikacja publiczna)
+   - **Permissions:** `read_prefs`, `write_api`
+
+3. **Konfiguracja w kodzie:**
+   - Otwórz plik `js/config.js`
+   - Wpisz otrzymany `Client ID` w odpowiednie pole:
+     - `CLIENT_ID_DEV` dla developmentu
+     - `CLIENT_ID_PROD` dla produkcji
+   - Ustaw flagę `USE_DEV_SERVER`:
+     - `true` - dla testów na dev.openstreetmap.org
+     - `false` - dla produkcji na api.openstreetmap.org
+
+4. **Szczegółowa instrukcja:**
+   - Zobacz plik `OAUTH_SETUP.md` dla pełnej dokumentacji
+   - Zobacz plik `SZYBKI_START_OAUTH.txt` dla skróconej instrukcji
 
 ## Instrukcja użytkowania
 
-1. **Wybór województwa**: W sidebarze po lewej stronie wybierz województwo z listy rozwijanej
-2. **Ładowanie danych**: Kliknij przycisk "Odśwież" aby pobrać dane dla wybranego województwa
-3. **Cache**: Przy pierwszym uruchomieniu dane są pobierane z OverpassAPI. Kolejne ładowania używają lokalnego cache (ważnego 3 dni)
-4. **Nawigacja**: Użyj przycisków "Mapa" i "O projekcie" w górnym toolbarze
-5. **Interakcja z mapą**: Kliknij na drogę aby zobaczyć szczegóły w sidebarze
-6. **Edycja jakości drogi**:
-   - Kliknij na drogę aby otworzyć sidebar z informacjami
-   - W sekcji "Edycja jakości nawierzchni" wybierz odpowiednią opcję z galerii
-   - Jeśli niezalogowany, kliknij "Zaloguj się aby edytować"
-   - Po wybraniu opcji kliknij "Zapisz zmiany"
-   - Potwierdź zapis w wyświetlonym oknie
-   - Zmiany zostaną zapisane bezpośrednio w OpenStreetMap
+### Podstawowa nawigacja
+
+1. **Przy pierwszym uruchomieniu:**
+   - Aplikacja automatycznie wyświetla overlay "O projekcie" z instrukcjami
+   - Kliknij "Zobacz mapę" aby przejść do mapy
+   
+2. **Wybór województwa:**
+   - W bocznym panelu (sidebar) wybierz województwo z listy rozwijanej
+   - Lista zawiera wszystkie 16 województw z oznaczeniami rozmiaru
+   
+3. **Ładowanie danych:**
+   - Po wybraniu województwa dane ładują się automatycznie z cache
+   - Kliknij przycisk "Odśwież" aby pobrać świeże dane z OverpassAPI
+   - Przy pierwszym pobraniu dane są zapisywane w IndexedDB (cache 3 dni)
+
+4. **Nawigacja po mapie:**
+   - Użyj przycisków zoom lub scroll myszy do zmiany przybliżenia
+   - Przeciągaj mapę aby przesuwać widok
+   - Drogi stają się bardziej widoczne przy większym przybliżeniu (zoom > 7)
+
+### Kontrola widoczności warstw
+
+- **Ikony oka w legendzie** - kliknij aby pokazać/ukryć drogi danego typu:
+  - 👁️ Doskonała jakość (czarna ciągła)
+  - 👁️ Dobra jakość (czarna przerywana)
+  - 👁️ Słaba jakość (czerwona)
+  - 👁️ Brak danych (niebieska)
+
+### Przeglądanie szczegółów drogi
+
+1. **Kliknij na drogę** na mapie
+2. **Otworzy się panel boczny** z informacjami:
+   - Nazwa drogi
+   - Obecna jakość nawierzchni
+   - Typ drogi (highway tag)
+   - OSM ID
+3. **Widoczne markery** - fioletowe punkty na początku i końcu odcinka
+4. **Podświetlenie** - wybrana droga jest zaznaczona na fioletowo
+5. **Zamknięcie panelu** - kliknij X lub kliknij w puste miejsce na mapie
+
+### Edycja jakości drogi (wymaga logowania)
+
+1. **Zaloguj się do OSM:**
+   - Kliknij przycisk "Zaloguj do OSM" w panelu edycji drogi
+   - Zostaniesz przekierowany do OSM (lub okno popup)
+   - Zaloguj się swoim kontem OpenStreetMap
+   - Autoryzuj aplikację Asphalt Premium
+
+2. **Wybierz jakość nawierzchni:**
+   - W galerii kliknij na odpowiednią opcję (5 głównych opcji)
+   - Każda opcja ma: obraz przykładowy, nazwę i opis
+   - Dostępne opcje: Doskonała, Dobra, Średnia, Słaba, Bardzo słaba
+
+3. **Zapisz zmiany:**
+   - Kliknij przycisk "Zapisz"
+   - W oknie potwierdzenia sprawdź zmiany
+   - Potwierdź klikając "Potwierdź"
+   - Aplikacja automatycznie:
+     - Utworzy changeset w OSM
+     - Zaktualizuje tag smoothness
+     - Zamknie changeset
+     - Odświeży wyświetlane informacje
+
+4. **Edycja bezpośrednio w OSM:**
+   - Kliknij przycisk "OSM" w prawym dolnym rogu panelu
+   - Otworzy się edytor iD na stronie openstreetmap.org
+   - Możesz edytować wszystkie tagi drogi
+
+### Statystyki
+
+Panel boczny pokazuje automatycznie wygenerowane statystyki dla załadowanego województwa:
+- Procent dróg bez oceny jakości (niebieskie)
+- Rozkład procentowy poszczególnych ocen jakości
+- Liczby aktualizują się po każdym załadowaniu danych
 
 ## Konfiguracja środowiska
 
@@ -109,53 +226,193 @@ OSM_API: {
 
 ```
 asphalt-premium/
-├── index.html              # Główny plik HTML
-├── styles/                 # Style CSS
-│   ├── main.css            # Główne style
-│   └── components.css      # Style komponentów
-├── js/                     # Pliki JavaScript
-│   ├── app.js              # Główna logika aplikacji
-│   ├── map.js              # Zarządzanie mapą
-│   ├── cache.js            # System cache'owania
-│   ├── overpass.js         # Komunikacja z OverpassAPI
-│   └── config.js           # Konfiguracja
-└── README.md               # Ten plik
+├── index.html                  # Główny plik HTML z kompletną strukturą UI
+├── styles/                     # Style CSS
+│   ├── main.css                # Główne style, zmienne CSS, layout
+│   └── components.css          # Style komponentów (sidebar, modals, etc.)
+├── js/                         # Pliki JavaScript (modułowa architektura)
+│   ├── app.js                  # Główna logika aplikacji, inicjalizacja
+│   ├── map.js                  # MapManager - zarządzanie mapą Leaflet
+│   ├── cache.js                # CacheManager - IndexedDB cache
+│   ├── overpass.js             # OverpassAPI - pobieranie danych OSM
+│   ├── oauth.js                # OSMOAuth - autoryzacja OAuth 2.0 PKCE
+│   ├── osm-api.js              # OSMAPIClient - komunikacja z OSM API
+│   ├── config.js               # Konfiguracja (województwa, style, OAuth)
+│   └── image-modal.js          # Obsługa modalu z obrazkami
+├── assets/                     # Zasoby graficzne
+│   ├── logo.jpg                # Logo aplikacji
+│   ├── map_exapmle.jpg         # Przykładowy screenshot mapy
+│   ├── asphatl_blue.png        # Przykład drogi bez danych
+│   ├── asphatl_good.png        # Przykład dobrej drogi
+│   ├── street_complete_*.jpg   # Screenshoty z instrukcji StreetComplete
+│   └── smoothness/             # Zdjęcia przykładowe jakości nawierzchni
+│       ├── excellent.jpg
+│       ├── good.jpg
+│       ├── intermediate.jpg
+│       ├── bad.jpg
+│       ├── very_bad.jpg
+│       ├── horrible.jpg
+│       ├── very_horrible.jpg
+│       ├── impassable.jpg
+│       └── README.md
+├── OAUTH_SETUP.md              # Szczegółowa instrukcja konfiguracji OAuth
+├── SZYBKI_START_OAUTH.txt      # Skrócona instrukcja OAuth
+├── TODO.md                     # Lista zadań do zrobienia
+└── README.md                   # Ten plik - dokumentacja projektu
 ```
+
+### Architektura kodu
+
+#### Klasy główne:
+- **AsphaltPremiumApp** (`app.js`) - główny kontroler aplikacji
+- **MapManager** (`map.js`) - zarządzanie mapą, warstwami, interakcjami
+- **CacheManager** (`cache.js`) - obsługa IndexedDB cache
+- **OverpassAPI** (`overpass.js`) - pobieranie danych z OSM
+- **OSMOAuth** (`oauth.js`) - autoryzacja OAuth 2.0 z PKCE
+- **OSMAPIClient** (`osm-api.js`) - modyfikacja danych w OSM
+
+#### Przepływ danych:
+1. Użytkownik wybiera województwo → `app.js`
+2. Sprawdzenie cache → `cache.js` (IndexedDB)
+3. Jeśli brak/przestarzałe → zapytanie do OverpassAPI → `overpass.js`
+4. Konwersja do GeoJSON → wyświetlenie na mapie → `map.js`
+5. Kliknięcie w drogę → wyświetlenie sidebara z informacjami
+6. Edycja → autoryzacja OAuth → `oauth.js`
+7. Zapis do OSM → `osm-api.js` → aktualizacja UI
 
 ## API i źródła danych
 
-- **OpenStreetMap**: Źródło danych o drogach
-- **OverpassAPI**: Interface do pobierania danych OSM
-- **Leaflet.js**: Biblioteka map
-- **Tiles**: OpenStreetMap tile server
+### OpenStreetMap
+- **Źródło danych**: Wszystkie dane o drogach pochodzą z [OpenStreetMap](https://www.openstreetmap.org)
+- **Tag główny**: `smoothness=*` - standard jakości nawierzchni OSM
+- **Licencja danych**: [ODbL (Open Database License)](https://opendatacommons.org/licenses/odbl/)
+
+### OverpassAPI
+- **Serwery**:
+  - `https://overpass-api.de/api/interpreter` (główny)
+  - `https://overpass.kumi.systems/api/interpreter` (backup)
+  - `https://overpass.openstreetmap.ru/api/interpreter` (backup)
+- **Timeout**: 90 sekund dla zapytań
+- **Fallback**: automatyczne przełączanie między serwerami przy błędach
+
+### OSM API
+- **Development**: `https://master.apis.dev.openstreetmap.org`
+- **Production**: `https://api.openstreetmap.org`
+- **Wersja API**: 0.6
+- **Metody używane**:
+  - `GET /api/0.6/way/:id` - pobieranie szczegółów drogi
+  - `PUT /api/0.6/way/:id` - aktualizacja drogi
+  - `PUT /api/0.6/changeset/create` - tworzenie changesetów
+  - `PUT /api/0.6/changeset/:id/close` - zamykanie changesetów
+
+### Mapy i kafelki
+- **Biblioteka**: [Leaflet.js 1.9.4](https://leafletjs.com/)
+- **Tile server**: OpenStreetMap standard tiles
+- **URL**: `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+
+## Wydajność i optymalizacja
+
+- **Canvas rendering** - Leaflet używa Canvas dla lepszej wydajności
+- **Lazy loading** - drogi są ukrywane przy zoom < 7
+- **IndexedDB** - przechowywanie dużych zbiorów danych (do kilku MB na województwo)
+- **3-dniowy cache** - redukcja obciążenia serwerów OverpassAPI
+- **Kompresja GeoJSON** - optymalna struktura danych
+- **Fallback servers** - 3 serwery OverpassAPI dla niezawodności
+
+## Bezpieczeństwo
+
+- **OAuth 2.0 PKCE** - bezpieczna autoryzacja dla aplikacji publicznych (bez client secret)
+- **CSRF protection** - weryfikacja `state` podczas OAuth callback
+- **SessionStorage** - tokeny przechowywane tylko w sesji przeglądarki
+- **CORS compliance** - wymagany lokalny serwer HTTP
+- **No credential exposure** - Client ID jest publiczny, brak wrażliwych danych w kodzie
+
+## Kompatybilność
+
+- **Przeglądarki**: Chrome 60+, Firefox 55+, Safari 11+, Edge 79+
+- **Wymagania**:
+  - ES6+ (Promise, async/await, Classes, Arrow functions)
+  - IndexedDB
+  - Crypto API (dla PKCE)
+  - Fetch API
+- **Responsywność**: działa na desktopach, tabletach i smartfonach
+- **Ekran**: minimalna szerokość 320px
+
+## Rozwój i contributing
+
+Projekt jest otwarty na kontrybucje! Jeśli chcesz pomóc:
+
+1. **Zgłaszanie błędów**: Użyj Issues na GitHubie
+2. **Propozycje funkcji**: Otwórz Issue z opisem funkcjonalności
+3. **Pull requesty**: Mile widziane! Proszę o:
+   - Opisanie zmian
+   - Testy funkcjonalności
+   - Zgodność z istniejącym stylem kodu
+
+### Planowane funkcjonalności (zobacz TODO.md)
+- Analityka użytkowania
+- Wyszukiwanie dróg w bieżącym widoku (zamiast po województwie)
+- Zachowanie pozycji mapy po odświeżeniu
+- Eksport danych do różnych formatów
 
 ## Licencja
 
-Projekt open source. Dane pochodzą z OpenStreetMap na licencji ODbL.
+- **Kod aplikacji**: Open source (licencja do określenia)
+- **Dane OSM**: [ODbL (Open Database License)](https://opendatacommons.org/licenses/odbl/)
+- **Zobowiązania**:
+  - Należy przypisać źródło: © OpenStreetMap contributors
+  - Zmiany w danych OSM muszą być udostępnione na tej samej licencji
+  - Szczegóły: https://www.openstreetmap.org/copyright
 
-## Autor
+## Autor i kontakt
 
-Asphalt Premium - aplikacja do wizualizacji jakości dróg dla cyklistów.
+**Asphalt Premium** - aplikacja do wizualizacji jakości dróg dla cyklistów i mapperów OSM.
 
-## Progress
+Projekt stworzony w celu:
+- Ułatwienia życia cyklistom poprzez lepsze planowanie tras
+- Zachęcenia społeczności do uzupełniania danych o jakości dróg w OSM
+- Pokazania mocy danych otwartych i crowdsourcingu
 
-| Nazwa | 2025-09-11 |
+**Wkład w społeczność OpenStreetMap:**
+Każda ocena drogi dodana przez tę aplikację pomaga milionom użytkowników OSM na całym świecie!
+
+## Statystyki pokrycia danych
+
+Procent dróg **bez** oceny jakości (smoothness) w poszczególnych województwach (stan na 2025-09-11):
+
+| Województwo | Drogi bez oceny |
 |---|---|
-|Dolnośląskie|89,2%|
-|Kujawsko-pomorskie|87,4%|
-|Lubelskie|84,2%|
-|Lubuskie|95,8%|
-|Łódzkie|93,4%|
-|Małopolskie|88,6%|
-|Mazowieckie|82,9%|
-|Opolskie|90,8%|
-|Podkarpackie|88,4%|
-|Podlaskie|82,4%|
-|Pomorskie|86,5%|
-|Śląskie|89,0%|
-|Świętokrzyskie|92,6%|
-|Warmińsko-mazurskie|89,5%|
-|Wielkopolskie|92,6%|
-|Zachodniopomorskie|90,9%|
+| Podlaskie | 82,4% |
+| Mazowieckie | 82,9% |
+| Lubelskie | 84,2% |
+| Pomorskie | 86,5% |
+| Kujawsko-pomorskie | 87,4% |
+| Podkarpackie | 88,4% |
+| Małopolskie | 88,6% |
+| Śląskie | 89,0% |
+| Dolnośląskie | 89,2% |
+| Warmińsko-mazurskie | 89,5% |
+| Opolskie | 90,8% |
+| Zachodniopomorskie | 90,9% |
+| Świętokrzyskie | 92,6% |
+| Wielkopolskie | 92,6% |
+| Łódzkie | 93,4% |
+| Lubuskie | 95,8% |
+
+**Cel projektu**: zmniejszyć te wartości poprzez zachęcenie społeczności do dodawania ocen jakości dróg!
+
+---
+
+## Przydatne linki
+
+- **OpenStreetMap Wiki - smoothness**: https://wiki.openstreetmap.org/wiki/Key:smoothness
+- **StreetComplete (Android)**: https://play.google.com/store/apps/details?id=de.westnordost.streetcomplete
+- **OSM OAuth Documentation**: https://wiki.openstreetmap.org/wiki/OAuth
+- **OverpassAPI Documentation**: https://wiki.openstreetmap.org/wiki/Overpass_API
+- **Leaflet.js Documentation**: https://leafletjs.com/reference.html
+
+---
+
+**Dziękujemy za korzystanie z Asphalt Premium! 🚴‍♂️🗺️**
 
 
