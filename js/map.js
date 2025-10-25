@@ -798,12 +798,8 @@ class MapManager {
             // Show success message
             this.showSuccessMessage(result);
             
-            // Update road info display
-            const properties = this.selectedRoad?.feature?.properties;
-            if (properties) {
-                properties.smoothness = this.selectedSmoothnessValue;
-                this.showRoadInfo(properties);
-            }
+            // Update road locally (eventual consistency)
+            this.updateRoadLocally(wayId, this.selectedSmoothnessValue);
             
         } catch (error) {
             console.error('Failed to save smoothness:', error);
@@ -903,6 +899,43 @@ class MapManager {
     }
     
     /**
+     * Update road locally after successful save (eventual consistency)
+     * @param {number} wayId - Way ID
+     * @param {string} newSmoothness - New smoothness value
+     */
+    updateRoadLocally(wayId, newSmoothness) {
+        if (!this.selectedRoad) return;
+        
+        // Update the road properties
+        const properties = this.selectedRoad.feature.properties;
+        properties.smoothness = newSmoothness;
+        
+        // Calculate new style
+        const newStyleType = this.getRoadStyleType(newSmoothness);
+        const newStyle = this.getRoadStyle(newStyleType);
+        
+        // Update the road style
+        this.selectedRoad.styleType = newStyleType;
+        this.selectedRoad.setStyle(newStyle);
+        
+        // If the road is selected, reapply selection style
+        if (this.selectedRoad) {
+            const selectedStyle = {
+                color: '#8b5cf6',
+                weight: 4,
+                opacity: 1,
+                dashArray: null
+            };
+            this.selectedRoad.setStyle(selectedStyle);
+        }
+        
+        // Update the road info panel
+        this.showRoadInfo(properties);
+        
+        console.log(`✓ Road ${wayId} updated locally with smoothness: ${newSmoothness} (style: ${newStyleType})`);
+    }
+    
+    /**
      * Show success message after saving
      * @param {Object} result - Save result
      */
@@ -910,7 +943,8 @@ class MapManager {
         const message = `Sukces! Jakość nawierzchni została zaktualizowana.\n\n` +
                        `Droga: ${result.wayId}\n` +
                        `Nowa wartość: ${result.newSmoothness}\n` +
-                       `Changeset: ${result.changesetId}`;
+                       `Changeset: ${result.changesetId}\n\n` +
+                       `Zmiany są widoczne lokalnie. Po odświeżeniu załadują się dane z OSM.`;
         
         alert(message);
     }
