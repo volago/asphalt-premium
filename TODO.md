@@ -3,6 +3,7 @@
 - [x] wdrożyć na jakiś serwer, żeby było szerzej dostępne.
 - [x] uzupełnić instrukcję edycji w OpenStreetMap i streetcomplete
 - [x] lokalna zmiana odcinka po edycji - natychmiastowa wizualizacja efektu
+- [ ] usuwanie jakości drogi - pomyłka w zapisie (?)
 - [ ] dodać analitykę, żeby wiedzieć ile osób korzysta z mapy
 - [ ] dodać jakiś kontakt do mnie
 - [ ] dodać wpis na linkedin i forach rowerowych

@@ -595,6 +595,25 @@ class AsphaltPremiumApp {
             }
         });
         
+        // Handle smooth scrolling for anchor links in about overlay
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('a[href^="#"]');
+            if (target && target.hash) {
+                const aboutOverlay = document.getElementById('about-overlay');
+                if (aboutOverlay && aboutOverlay.style.display !== 'none') {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(target.hash);
+                    if (targetElement) {
+                        // Smooth scroll within the about overlay
+                        targetElement.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start',
+                            inline: 'nearest'
+                        });
+                    }
+                }
+            }
+        });
     }
 }
 
