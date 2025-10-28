@@ -614,6 +614,39 @@ class AsphaltPremiumApp {
                 }
             }
         });
+        
+        // Handle legend info button
+        const legendInfoBtn = document.getElementById('legend-info-btn');
+        const legendInfoPopup = document.getElementById('legend-info-popup');
+        const legendInfoClose = document.getElementById('legend-info-popup-close');
+        
+        if (legendInfoBtn && legendInfoPopup) {
+            // Open popup
+            legendInfoBtn.addEventListener('click', () => {
+                legendInfoPopup.style.display = 'flex';
+            });
+            
+            // Close popup
+            if (legendInfoClose) {
+                legendInfoClose.addEventListener('click', () => {
+                    legendInfoPopup.style.display = 'none';
+                });
+            }
+            
+            // Close on overlay click
+            legendInfoPopup.addEventListener('click', (e) => {
+                if (e.target === legendInfoPopup) {
+                    legendInfoPopup.style.display = 'none';
+                }
+            });
+            
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && legendInfoPopup.style.display === 'flex') {
+                    legendInfoPopup.style.display = 'none';
+                }
+            });
+        }
     }
 }
 

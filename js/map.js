@@ -686,6 +686,13 @@ class MapManager {
         for (const option of mainOptions) {
             const selected = option.value === currentSmoothness ? 'selected' : '';
             const imagePath = `assets/smoothness/${option.image}`;
+            
+            // Determine quality class for line indicator
+            let qualityClass = 'unknown';
+            if (option.value === 'excellent') qualityClass = 'excellent';
+            else if (option.value === 'good') qualityClass = 'good';
+            else if (['intermediate', 'bad', 'very_bad'].includes(option.value)) qualityClass = 'poor';
+            
             html += `
                 <div class="smoothness-option ${selected}" data-value="${option.value}">
                     <div class="smoothness-option-image">
@@ -693,7 +700,10 @@ class MapManager {
                              onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i> ${option.labelEn}'">
                     </div>
                     <div class="smoothness-option-content">
-                        <div class="smoothness-option-label">${option.label}</div>
+                        <div class="smoothness-option-label-wrapper">
+                            <div class="smoothness-option-label">${option.label}</div>
+                            <div class="smoothness-option-line ${qualityClass}"></div>
+                        </div>
                         <div class="smoothness-option-description">${option.description}</div>
                     </div>
                 </div>
