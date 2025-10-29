@@ -46,7 +46,7 @@ const CONFIG = {
         },
         unknown: {
             color: '#2563eb',
-            weight: 2,
+            weight: 3,
             opacity: 0.6,
             dashArray: null
         }

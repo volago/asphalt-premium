@@ -160,17 +160,23 @@ Jeśli chcesz włączyć funkcję edycji dróg bezpośrednio z aplikacji:
 ### Edycja jakości drogi (wymaga logowania)
 
 1. **Zaloguj się do OSM:**
-   - Kliknij przycisk "Zaloguj do OSM" w panelu edycji drogi
+   - Kliknij przycisk "Zaloguj" w prawym górnym rogu mapy (toolbar)
    - Zostaniesz przekierowany do OSM (lub okno popup)
    - Zaloguj się swoim kontem OpenStreetMap
    - Autoryzuj aplikację Asphalt Premium
+   - Po zalogowaniu zobaczysz swoją nazwę użytkownika w toolbarze
 
-2. **Wybierz jakość nawierzchni:**
+2. **Wybierz drogę do edycji:**
+   - Kliknij na wybraną drogę na mapie
+   - Otworzy się panel boczny z informacjami o drodze
+   - Panel edycji jest dostępny tylko po zalogowaniu
+
+3. **Wybierz jakość nawierzchni:**
    - W galerii kliknij na odpowiednią opcję (5 głównych opcji)
    - Każda opcja ma: obraz przykładowy, nazwę i opis
    - Dostępne opcje: Doskonała, Dobra, Średnia, Słaba, Bardzo słaba
 
-3. **Zapisz zmiany:**
+4. **Zapisz zmiany:**
    - Kliknij przycisk "Zapisz"
    - W oknie potwierdzenia sprawdź zmiany
    - Potwierdź klikając "Potwierdź"
@@ -180,7 +186,7 @@ Jeśli chcesz włączyć funkcję edycji dróg bezpośrednio z aplikacji:
      - Zamknie changeset
      - Odświeży wyświetlane informacje
 
-4. **Edycja bezpośrednio w OSM:**
+5. **Edycja bezpośrednio w OSM:**
    - Kliknij przycisk "OSM" w prawym dolnym rogu panelu
    - Otworzy się edytor iD na stronie openstreetmap.org
    - Możesz edytować wszystkie tagi drogi
