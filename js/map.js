@@ -188,27 +188,42 @@ class MapManager {
         const styleType = this.getRoadStyleType(properties.smoothness);
         const style = this.getRoadStyle(styleType);
         
-        // Create polyline
-        const road = L.polyline(latLngs, style);
+        // Create invisible wider polyline for better click detection
+        const clickableLine = L.polyline(latLngs, {
+            color: 'transparent',
+            weight: 15, // Much wider for easier clicking
+            opacity: 0,
+            interactive: true,
+            bubblingMouseEvents: false
+        });
         
-        // Note: Popup replaced with sidebar - no popup binding needed
+        // Create visible polyline with actual road style
+        const visibleLine = L.polyline(latLngs, {
+            ...style,
+            interactive: false // Clicks go to the wider invisible line
+        });
         
-        // Add click handler for road selection
-        road.on('click', (e) => {
+        // Create a layer group with both lines
+        const road = L.layerGroup([clickableLine, visibleLine]);
+        
+        // Add click handler to the clickable line
+        clickableLine.on('click', (e) => {
             L.DomEvent.stopPropagation(e); // Prevent map click event
             this.selectRoad(road, e);
         });
         
-        // Add tooltip for quick info
+        // Add tooltip to the clickable line for quick info
         const tooltipContent = this.createRoadTooltip(properties);
-        road.bindTooltip(tooltipContent, {
+        clickableLine.bindTooltip(tooltipContent, {
             sticky: true,
             className: 'custom-tooltip'
         });
         
-        // Store metadata
+        // Store metadata on the road group
         road.feature = feature;
         road.styleType = styleType;
+        road._clickableLine = clickableLine; // Store reference for later
+        road._visibleLine = visibleLine;
         
         return road;
     }
@@ -359,7 +374,7 @@ class MapManager {
         // Set as selected
         this.selectedRoad = road;
         
-        // Apply selected style
+        // Apply selected style to the visible line
         const selectedStyle = {
             color: '#8b5cf6', // Purple color
             weight: 4,
@@ -367,13 +382,14 @@ class MapManager {
             dashArray: null
         };
         
-        road.setStyle(selectedStyle);
+        if (road._visibleLine) {
+            road._visibleLine.setStyle(selectedStyle);
+            // Bring visible line to front
+            road._visibleLine.bringToFront();
+        }
         
         // Add endpoint markers
         this.addEndpointMarkers(road);
-        
-        // Bring to front
-        road.bringToFront();
         
         // Show road info sidebar
         this.showRoadInfo(road.feature.properties);
@@ -386,9 +402,11 @@ class MapManager {
      */
     clearSelection() {
         if (this.selectedRoad) {
-            // Restore original style
+            // Restore original style to the visible line
             const originalStyle = this.getRoadStyle(this.selectedRoad.styleType);
-            this.selectedRoad.setStyle(originalStyle);
+            if (this.selectedRoad._visibleLine) {
+                this.selectedRoad._visibleLine.setStyle(originalStyle);
+            }
             
             // Remove endpoint markers
             this.removeEndpointMarkers();
@@ -405,7 +423,9 @@ class MapManager {
      * @param {L.Polyline} road - The road layer
      */
     addEndpointMarkers(road) {
-        const coordinates = road.getLatLngs();
+        // Get coordinates from the visible line
+        const line = road._visibleLine || road;
+        const coordinates = line.getLatLngs();
         if (coordinates.length < 2) return;
         
         const startPoint = coordinates[0];
@@ -917,19 +937,21 @@ class MapManager {
         const newStyleType = this.getRoadStyleType(newSmoothness);
         const newStyle = this.getRoadStyle(newStyleType);
         
-        // Update the road style
+        // Update the road style type
         this.selectedRoad.styleType = newStyleType;
-        this.selectedRoad.setStyle(newStyle);
         
-        // If the road is selected, reapply selection style
-        if (this.selectedRoad) {
+        // Update the visible line style
+        if (this.selectedRoad._visibleLine) {
+            this.selectedRoad._visibleLine.setStyle(newStyle);
+            
+            // If the road is selected, reapply selection style
             const selectedStyle = {
                 color: '#8b5cf6',
                 weight: 4,
                 opacity: 1,
                 dashArray: null
             };
-            this.selectedRoad.setStyle(selectedStyle);
+            this.selectedRoad._visibleLine.setStyle(selectedStyle);
         }
         
         // Update the road info panel
