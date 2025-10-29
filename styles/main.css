@@ -140,9 +140,119 @@ body {
 
 .toolbar-nav {
     display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+/* Auth Section (login/user info) */
+.toolbar-auth-section {
+    display: flex;
+    align-items: center;
+    padding-right: var(--spacing-lg);
+    border-right: 2px solid #e5e7eb;
+}
+
+/* Login button in toolbar */
+.btn-toolbar-login {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: var(--white);
+    border: none;
+    border-radius: var(--border-radius-lg);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-toolbar-login:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-toolbar-login:active {
+    transform: translateY(0);
+}
+
+.btn-toolbar-login i {
+    font-size: var(--font-size-base);
+}
+
+/* User section (info + logout button) */
+.toolbar-user-section {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-sm);
 }
 
+/* User info in toolbar */
+.toolbar-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--border-radius-lg);
+    color: var(--dark-gray);
+}
+
+.toolbar-user-info i {
+    font-size: var(--font-size-lg);
+    color: var(--green);
+}
+
+.toolbar-user-info .user-name {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+/* Logout button */
+.btn-toolbar-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--white);
+    color: var(--medium-gray);
+    border: 1px solid #d1d5db;
+    border-radius: var(--border-radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-toolbar-logout:hover {
+    background: var(--light-gray);
+    color: var(--red);
+    border-color: var(--red);
+    transform: translateY(-1px);
+}
+
+.btn-toolbar-logout:active {
+    transform: translateY(0);
+}
+
+.btn-toolbar-logout i {
+    font-size: var(--font-size-sm);
+}
+
+/* Navigation buttons group */
+.toolbar-nav-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Navigation buttons */
 .nav-btn {
     background: none;
     border: none;
@@ -359,6 +469,41 @@ body {
     
     .logo-image {
         height: 3rem;
+    }
+    
+    .toolbar-auth-section {
+        padding-right: var(--spacing-sm);
+        border-right-width: 1px;
+    }
+    
+    .btn-toolbar-login {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .btn-toolbar-login span {
+        display: none;
+    }
+    
+    .toolbar-user-info {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-xs);
+    }
+    
+    .toolbar-user-info .user-name {
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .btn-toolbar-logout {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-xs);
+    }
+    
+    .btn-toolbar-logout span {
+        display: none;
     }
     
     .nav-btn {

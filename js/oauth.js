@@ -78,13 +78,13 @@ class OSMOAuth {
             const codeChallenge = await this.generateCodeChallenge(codeVerifier);
             const state = this.generateState();
             
-            // Store code_verifier and state in sessionStorage
-            sessionStorage.setItem(this.storageKeys.codeVerifier, codeVerifier);
-            sessionStorage.setItem(this.storageKeys.state, state);
+            // Store code_verifier and state in localStorage (shared between windows)
+            localStorage.setItem(this.storageKeys.codeVerifier, codeVerifier);
+            localStorage.setItem(this.storageKeys.state, state);
             
             // Store return URL if provided
             if (returnUrl) {
-                sessionStorage.setItem(this.storageKeys.returnUrl, returnUrl);
+                localStorage.setItem(this.storageKeys.returnUrl, returnUrl);
             }
             
             // Build authorization URL
@@ -132,14 +132,27 @@ class OSMOAuth {
                 return false; // No OAuth callback
             }
             
+            // Check if user is already authenticated (callback was already processed)
+            if (this.isAuthenticated()) {
+                console.log('User already authenticated, cleaning up URL');
+                // Clean URL without processing callback again
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                return true; // Callback already handled
+            }
+            
             // Verify state to prevent CSRF
-            const savedState = sessionStorage.getItem(this.storageKeys.state);
+            const savedState = localStorage.getItem(this.storageKeys.state);
             if (!savedState || savedState !== state) {
-                throw new Error('Invalid state parameter - possible CSRF attack');
+                console.warn('State parameter mismatch - callback may have been already processed');
+                // Clean URL and return
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                return false;
             }
             
             // Get code_verifier from storage
-            const codeVerifier = sessionStorage.getItem(this.storageKeys.codeVerifier);
+            const codeVerifier = localStorage.getItem(this.storageKeys.codeVerifier);
             if (!codeVerifier) {
                 throw new Error('Code verifier not found in session');
             }
@@ -153,12 +166,12 @@ class OSMOAuth {
             sessionStorage.setItem(this.storageKeys.accessToken, tokenData.access_token);
             
             // Clean up temporary storage
-            sessionStorage.removeItem(this.storageKeys.codeVerifier);
-            sessionStorage.removeItem(this.storageKeys.state);
+            localStorage.removeItem(this.storageKeys.codeVerifier);
+            localStorage.removeItem(this.storageKeys.state);
             
             // Get return URL if any
-            const returnUrl = sessionStorage.getItem(this.storageKeys.returnUrl);
-            sessionStorage.removeItem(this.storageKeys.returnUrl);
+            const returnUrl = localStorage.getItem(this.storageKeys.returnUrl);
+            localStorage.removeItem(this.storageKeys.returnUrl);
             
             // Clean URL (remove OAuth parameters)
             const cleanUrl = returnUrl || window.location.pathname;
@@ -234,6 +247,21 @@ class OSMOAuth {
     }
     
     /**
+     * Logout user and clear all stored tokens
+     */
+    logout() {
+        // Clear access token
+        sessionStorage.removeItem(this.storageKeys.accessToken);
+        
+        // Clear any remaining OAuth data
+        localStorage.removeItem(this.storageKeys.codeVerifier);
+        localStorage.removeItem(this.storageKeys.state);
+        localStorage.removeItem(this.storageKeys.returnUrl);
+        
+        console.log('User logged out successfully');
+    }
+    
+    /**
      * Get access token
      * @returns {string|null} Access token or null
      */
@@ -241,16 +269,6 @@ class OSMOAuth {
         return sessionStorage.getItem(this.storageKeys.accessToken);
     }
     
-    /**
-     * Logout user
-     */
-    logout() {
-        sessionStorage.removeItem(this.storageKeys.accessToken);
-        sessionStorage.removeItem(this.storageKeys.codeVerifier);
-        sessionStorage.removeItem(this.storageKeys.state);
-        sessionStorage.removeItem(this.storageKeys.returnUrl);
-        console.log('User logged out');
-    }
     
     /**
      * Get user display name (requires authenticated token)

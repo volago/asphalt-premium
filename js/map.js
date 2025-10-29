@@ -623,29 +623,24 @@ class MapManager {
         
         let html = '<div class="road-info-bottom-actions">';
         
-        // Save or Login button
-        if (isAuthenticated) {
-            html += `
-                <button class="btn-save-smoothness" id="save-smoothness-btn" disabled>
-                    <i class="fas fa-save"></i>
-                    Zapisz
-                </button>
-            `;
-        } else {
-            html += `
-                <button class="btn-login-osm" id="login-osm-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Zaloguj do OSM
-                </button>
-            `;
-        }
+        // Save button - always visible, but disabled if not authenticated
+        const disabledAttr = !isAuthenticated ? 'disabled' : '';
+        const tooltipAttr = !isAuthenticated ? 'title="Zaloguj się do OSM, aby zapisać zmiany"' : '';
+        
+        html += `
+            <button class="btn-save-smoothness" id="save-smoothness-btn" ${disabledAttr} ${tooltipAttr} disabled>
+                <i class="fas fa-save"></i>
+                Zapisz
+            </button>
+        `;
         
         // Compact OSM edit button
         html += `
             <a href="https://www.openstreetmap.org/edit?way=${wayId}" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="btn-edit-osm-compact">
+               class="btn-edit-osm-compact"
+               title="Edytuj w edytorze OSM">
                 <i class="fas fa-external-link-alt"></i>
                 OSM
             </a>
@@ -734,10 +729,18 @@ class MapManager {
                 // Store selected value
                 this.selectedSmoothnessValue = option.dataset.value;
                 
-                // Enable save button
+                // Enable save button only if user is authenticated
                 const saveBtn = document.getElementById('save-smoothness-btn');
                 if (saveBtn) {
-                    saveBtn.disabled = false;
+                    const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
+                    saveBtn.disabled = !isAuthenticated;
+                    
+                    // Update tooltip if not authenticated
+                    if (!isAuthenticated) {
+                        saveBtn.title = 'Zaloguj się do OSM, aby zapisać zmiany';
+                    } else {
+                        saveBtn.title = '';
+                    }
                 }
             });
         });
@@ -747,16 +750,6 @@ class MapManager {
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
                 this.saveSmoothnessEdit(wayId, currentSmoothness);
-            });
-        }
-        
-        // Handle login button
-        const loginBtn = document.getElementById('login-osm-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                if (this.oauth) {
-                    this.oauth.login(window.location.href);
-                }
             });
         }
     }

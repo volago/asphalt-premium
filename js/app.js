@@ -64,6 +64,9 @@ class AsphaltPremiumApp {
         // Bind events
         this.bindEvents();
         
+        // Update toolbar login status
+        this.updateToolbarLoginStatus();
+        
         // Log authentication status
         if (this.oauth.isAuthenticated()) {
             console.log('User is authenticated');
@@ -141,9 +144,38 @@ class AsphaltPremiumApp {
             const userName = await this.oauth.getUserInfo();
             if (userName) {
                 console.log('Logged in as:', userName);
+                this.updateToolbarLoginStatus(userName);
             }
         } catch (error) {
             console.error('Failed to get user info:', error);
+        }
+    }
+    
+    /**
+     * Update toolbar login status display
+     * @param {string} userName - Optional username if authenticated
+     */
+    updateToolbarLoginStatus(userName = null) {
+        const loginBtn = document.getElementById('toolbar-login-btn');
+        const userSection = document.getElementById('toolbar-user-section');
+        const userNameEl = document.getElementById('toolbar-user-name');
+        
+        if (!loginBtn || !userSection) return;
+        
+        const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
+        
+        if (isAuthenticated && userName) {
+            // Show user section (info + logout), hide login button
+            loginBtn.style.display = 'none';
+            userSection.style.display = 'flex';
+            userNameEl.textContent = `Zalogowany jako ${userName}`;
+        } else if (isAuthenticated) {
+            // Authenticated but no username yet - try to get it
+            this.getUserInfo();
+        } else {
+            // Not authenticated - show login button, hide user section
+            loginBtn.style.display = 'inline-flex';
+            userSection.style.display = 'none';
         }
     }
     
@@ -647,6 +679,50 @@ class AsphaltPremiumApp {
                 }
             });
         }
+        
+        // Handle toolbar login button
+        const toolbarLoginBtn = document.getElementById('toolbar-login-btn');
+        if (toolbarLoginBtn) {
+            toolbarLoginBtn.addEventListener('click', () => {
+                if (this.oauth) {
+                    this.oauth.login(window.location.href);
+                }
+            });
+        }
+        
+        // Handle toolbar logout button
+        const toolbarLogoutBtn = document.getElementById('toolbar-logout-btn');
+        if (toolbarLogoutBtn) {
+            toolbarLogoutBtn.addEventListener('click', () => {
+                if (this.oauth) {
+                    this.oauth.logout();
+                    this.updateToolbarLoginStatus();
+                    
+                    // Close any open road info sidebar
+                    const roadInfoSidebar = document.getElementById('road-info-sidebar');
+                    if (roadInfoSidebar) {
+                        roadInfoSidebar.style.display = 'none';
+                    }
+                    
+                    // Show success message
+                    this.showMessage('Wylogowano pomyślnie', 'success');
+                }
+            });
+        }
+        
+        // Listen for OAuth success messages from popup
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) return;
+            
+            if (event.data.type === 'oauth_success') {
+                console.log('OAuth success message received');
+                this.updateToolbarLoginStatus();
+                // Refresh user info
+                if (this.oauth.isAuthenticated()) {
+                    this.getUserInfo();
+                }
+            }
+        });
     }
 }
 
