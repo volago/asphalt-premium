@@ -262,8 +262,8 @@ class MapManager {
         // Hide roads at very low zoom levels for performance
         if (zoom < 7) {
             this.roadsLayer.eachLayer(layer => {
-                if (layer.setStyle) {
-                    layer.setStyle({opacity: 0});
+                if (layer._visibleLine) {
+                    layer._visibleLine.setStyle({opacity: 0});
                 }
             });
             return;
@@ -273,7 +273,7 @@ class MapManager {
         let baseOpacity = Math.min(1, Math.max(0.3, (zoom - 8) / 4));
         
         this.roadsLayer.eachLayer(layer => {
-            if (layer.setStyle && layer.styleType) {
+            if (layer._visibleLine && layer.styleType) {
                 // Check if this is the selected road
                 const isSelected = (this.selectedRoad && layer === this.selectedRoad);
                 
@@ -285,13 +285,13 @@ class MapManager {
                         opacity: 1,
                         dashArray: null
                     };
-                    layer.setStyle(selectedStyle);
+                    layer._visibleLine.setStyle(selectedStyle);
                 } else {
                     // Apply normal style rules
                     const style = this.getRoadStyle(layer.styleType);
                     const isVisible = this.layerVisibility[layer.styleType];
-                    const opacity = isVisible ? baseOpacity : 0;
-                    layer.setStyle({...style, opacity: opacity});
+                    const opacity = isVisible ? (baseOpacity * style.opacity) : 0;
+                    layer._visibleLine.setStyle({...style, opacity: opacity});
                 }
             }
         });
