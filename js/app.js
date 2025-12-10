@@ -13,6 +13,9 @@ class AsphaltPremiumApp {
         this.currentVoivodeship = null;
         this.oauth = null;
         this.osmApi = null;
+        this.isMobile = false;
+        this.mobileMediaQuery = null;
+        this.mobileFilterControl = null;
         
         this.init();
     }
@@ -52,6 +55,12 @@ class AsphaltPremiumApp {
         if (this.mapManager) {
             this.mapManager.setOAuthClient(this.oauth, this.osmApi);
         }
+        
+        // Setup responsive UI after map is initialized
+        // Use setTimeout to ensure map is fully rendered
+        setTimeout(() => {
+            this.setupResponsiveUI();
+        }, 100);
         
         // Set initial page state
         this.setInitialPageState();
@@ -221,6 +230,83 @@ class AsphaltPremiumApp {
             aboutOverlay.classList.remove('animate-fade-in');
         }
     }
+
+    /* ==========================================
+       RESPONSIVE / MOBILE FILTERS
+       ========================================== */
+
+    setupResponsiveUI() {
+        try {
+            // Initialize mobile media query
+            this.mobileMediaQuery = window.matchMedia('(max-width: 768px)');
+            this.isMobile = this.mobileMediaQuery.matches;
+
+            // React to viewport changes
+            const handleChange = (event) => {
+                try {
+                    this.handleViewportChange(event.matches);
+                } catch (error) {
+                    console.error('Error handling viewport change:', error);
+                }
+            };
+
+            if (this.mobileMediaQuery.addEventListener) {
+                this.mobileMediaQuery.addEventListener('change', handleChange);
+            } else if (this.mobileMediaQuery.addListener) {
+                // Safari <14
+                this.mobileMediaQuery.addListener(handleChange);
+            }
+
+            this.handleViewportChange(this.isMobile);
+        } catch (error) {
+            console.error('Error setting up responsive UI:', error);
+        }
+    }
+
+    handleViewportChange(isMobile) {
+        this.isMobile = isMobile;
+
+        // Ensure map is initialized before adding controls
+        if (!this.mapManager || !this.mapManager.map) {
+            console.warn('MapManager not ready, retrying...');
+            setTimeout(() => this.handleViewportChange(isMobile), 200);
+            return;
+        }
+
+        if (isMobile) {
+            this.mobileFilterControl = this.mapManager.addMobileFilterControl(() => this.openMobileFilterModal());
+        } else {
+            this.closeMobileFilterModal();
+            this.mapManager.removeMobileFilterControl();
+        }
+    }
+
+    openMobileFilterModal() {
+        if (!this.isMobile) return;
+
+        const overlay = document.getElementById('mobile-filter-overlay');
+        const sidebar = document.getElementById('sidebar');
+
+        if (overlay) {
+            overlay.style.display = 'block';
+        }
+
+        if (sidebar) {
+            sidebar.scrollTop = 0;
+        }
+
+        document.body.classList.add('mobile-filter-open');
+    }
+
+    closeMobileFilterModal() {
+        const overlay = document.getElementById('mobile-filter-overlay');
+
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+
+        document.body.classList.remove('mobile-filter-open');
+    }
     
     /* ==========================================
        NAVIGATION
@@ -252,12 +338,22 @@ class AsphaltPremiumApp {
         const refreshBtn = document.getElementById('refresh-btn');
         const voivodeshipSelect = document.getElementById('voivodeship-select');
         const goToMapBtn = document.getElementById('go-to-map-btn');
+        const mobileCloseBtn = document.getElementById('mobile-filter-close');
+        const mobileOverlay = document.getElementById('mobile-filter-overlay');
         
         // Sidebar toggle functionality
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('collapsed');
             });
+        }
+
+        if (mobileCloseBtn) {
+            mobileCloseBtn.addEventListener('click', () => this.closeMobileFilterModal());
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', () => this.closeMobileFilterModal());
         }
         
         // Refresh button
@@ -432,6 +528,11 @@ class AsphaltPremiumApp {
         }
         
         const roadCounts = this.mapManager.displayRoads(geoJsonData);
+        
+        // Close mobile filter modal after data is loaded (on mobile only)
+        if (this.isMobile) {
+            this.closeMobileFilterModal();
+        }
         
         // Update statistics
         this.updateRoadStatistics(geoJsonData, roadCounts);

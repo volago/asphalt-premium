@@ -374,6 +374,72 @@ body {
 }
 
 /* ==========================================
+   MOBILE FILTER MODAL
+   ========================================== */
+
+.mobile-filter-overlay {
+    position: fixed;
+    top: var(--toolbar-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(17, 24, 39, 0.45);
+    z-index: 1150;
+    display: none;
+    pointer-events: none;
+}
+
+.mobile-filter-overlay[style*="display: block"] {
+    pointer-events: auto;
+}
+
+.mobile-filter-close {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.mobile-filter-close:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.mobile-filter-close i {
+    pointer-events: none;
+}
+
+.mobile-filter-control {
+    display: none;
+}
+
+.mobile-filter-control .mobile-filter-control-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border: 1px solid #d1d5db;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    color: var(--dark-gray);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+}
+
+.mobile-filter-control .mobile-filter-control-btn:hover {
+    background: var(--light-gray);
+    color: var(--primary-blue);
+}
+
+/* ==========================================
    ABOUT PAGE OVERLAY
    ========================================== */
 
@@ -510,11 +576,53 @@ body {
         font-size: var(--font-size-xs);
         padding: var(--spacing-xs) var(--spacing-sm);
     }
-    
+ 
+    /* Sidebar hidden by default on mobile; shown as full-screen when opened */
     .sidebar {
-        top: var(--spacing-sm);
-        left: var(--spacing-sm);
-        max-height: calc(100vh - var(--toolbar-height) - var(--spacing-md));
+        display: none;
+    }
+
+    body.mobile-filter-open {
+        overflow: hidden;
+    }
+
+    body.mobile-filter-open .sidebar {
+        display: flex;
+        position: fixed;
+        top: var(--toolbar-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: none;
+        border-radius: 0;
+        box-shadow: var(--shadow-lg);
+        overflow-y: auto;
+        z-index: 1160;
+        transform: none;
+    }
+
+    body.mobile-filter-open .sidebar-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--white);
+    }
+
+    body.mobile-filter-open .mobile-filter-overlay {
+        display: block;
+    }
+
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .mobile-filter-close {
+        display: inline-flex;
+    }
+    
+    .mobile-filter-control {
+        display: block;
     }
     
     .about-overlay {

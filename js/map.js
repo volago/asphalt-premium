@@ -19,6 +19,7 @@ class MapManager {
         this.oauth = null;
         this.osmApi = null;
         this.selectedSmoothnessValue = null;
+        this.mobileFilterControl = null;
     }
     
     /**
@@ -104,6 +105,46 @@ class MapManager {
             return div;
         };
         infoControl.addTo(this.map);
+    }
+
+    addMobileFilterControl(onClick) {
+        if (!this.map) return null;
+        if (this.mobileFilterControl) {
+            return this.mobileFilterControl;
+        }
+
+        const MobileFilterControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: () => {
+                const container = L.DomUtil.create('div', 'leaflet-control mobile-filter-control');
+                const button = L.DomUtil.create('button', 'mobile-filter-control-btn', container);
+                button.type = 'button';
+                button.title = 'Filtry';
+                button.setAttribute('aria-label', 'Pokaż filtry');
+                button.innerHTML = '<i class="fas fa-filter"></i>';
+
+                L.DomEvent.disableClickPropagation(button);
+                L.DomEvent.on(button, 'click', (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    if (typeof onClick === 'function') {
+                        onClick();
+                    }
+                });
+
+                return container;
+            }
+        });
+
+        this.mobileFilterControl = new MobileFilterControl();
+        this.map.addControl(this.mobileFilterControl);
+        return this.mobileFilterControl;
+    }
+
+    removeMobileFilterControl() {
+        if (this.map && this.mobileFilterControl) {
+            this.map.removeControl(this.mobileFilterControl);
+            this.mobileFilterControl = null;
+        }
     }
     
     bindMapEvents() {
