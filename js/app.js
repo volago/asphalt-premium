@@ -217,6 +217,15 @@ class AsphaltPremiumApp {
         if (aboutOverlay) {
             aboutOverlay.style.display = 'flex';
             aboutOverlay.classList.add('animate-fade-in');
+            document.body.classList.add('about-overlay-open');
+            
+            // Hide mobile filter control when about overlay is shown
+            if (this.isMobile && this.mapManager && this.mapManager.mobileFilterControl) {
+                const controlElement = this.mapManager.mobileFilterControl.getContainer();
+                if (controlElement) {
+                    controlElement.style.display = 'none';
+                }
+            }
         }
     }
     
@@ -228,6 +237,15 @@ class AsphaltPremiumApp {
         if (aboutOverlay) {
             aboutOverlay.style.display = 'none';
             aboutOverlay.classList.remove('animate-fade-in');
+            document.body.classList.remove('about-overlay-open');
+            
+            // Show mobile filter control when about overlay is hidden
+            if (this.isMobile && this.mapManager && this.mapManager.mobileFilterControl) {
+                const controlElement = this.mapManager.mobileFilterControl.getContainer();
+                if (controlElement) {
+                    controlElement.style.display = 'block';
+                }
+            }
         }
     }
 
@@ -265,6 +283,11 @@ class AsphaltPremiumApp {
 
     handleViewportChange(isMobile) {
         this.isMobile = isMobile;
+
+        // Close mobile menu when switching to desktop
+        if (!isMobile) {
+            this.closeMobileMenu();
+        }
 
         // Ensure map is initialized before adding controls
         if (!this.mapManager || !this.mapManager.map) {
@@ -314,17 +337,96 @@ class AsphaltPremiumApp {
     
     initNavigation() {
         const navButtons = document.querySelectorAll('.nav-btn');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const logo = document.querySelector('.logo');
         
+        // Handle logo click - go to map
+        if (logo) {
+            logo.addEventListener('click', () => {
+                this.hideAboutOverlay();
+                
+                // Update active state in navigation buttons
+                navButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.page === 'map') {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Close mobile menu if open
+                if (this.isMobile && mobileMenu && mobileMenu.classList.contains('open')) {
+                    this.closeMobileMenu();
+                }
+            });
+            
+            // Make logo cursor pointer to indicate it's clickable
+            logo.style.cursor = 'pointer';
+        }
+        
+        // Handle navigation button clicks (both desktop and mobile)
         navButtons.forEach(button => {
             button.addEventListener('click', (e) => {
-                const targetPage = e.target.dataset.page;
+                const targetPage = e.target.closest('.nav-btn').dataset.page;
+                
+                // Update active state
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Handle page navigation
                 if (targetPage === 'about') {
                     this.showAboutOverlay();
                 } else if (targetPage === 'map') {
                     this.hideAboutOverlay();
                 }
+                
+                // Close mobile menu after selection
+                if (this.isMobile && mobileMenu) {
+                    this.closeMobileMenu();
+                }
             });
         });
+        
+        // Mobile menu toggle
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                this.toggleMobileMenu();
+            });
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (this.isMobile && mobileMenu && mobileMenuToggle) {
+                const isClickInsideMenu = mobileMenu.contains(e.target);
+                const isClickOnToggle = mobileMenuToggle.contains(e.target);
+                
+                if (!isClickInsideMenu && !isClickOnToggle && mobileMenu.classList.contains('open')) {
+                    this.closeMobileMenu();
+                }
+            }
+        });
+    }
+    
+    toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+            const isOpen = mobileMenu.classList.contains('open');
+            if (isOpen) {
+                mobileMenu.classList.remove('open');
+                document.body.classList.remove('mobile-menu-open');
+            } else {
+                mobileMenu.classList.add('open');
+                document.body.classList.add('mobile-menu-open');
+            }
+        }
+    }
+    
+    closeMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+            mobileMenu.classList.remove('open');
+            document.body.classList.remove('mobile-menu-open');
+        }
     }
     
     

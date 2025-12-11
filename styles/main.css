@@ -95,6 +95,103 @@ body {
 .toolbar-left {
     display: flex;
     align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Mobile Menu Toggle (Hamburger) */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    color: var(--dark-gray);
+    font-size: var(--font-size-lg);
+    transition: all var(--transition-fast);
+    border-radius: var(--border-radius-sm);
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: var(--light-gray);
+    color: var(--primary-blue);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Menu Dropdown */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: var(--toolbar-height);
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: var(--shadow-lg);
+    z-index: 10000 !important;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: max-height var(--transition-normal), opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.mobile-menu.open {
+    max-height: 300px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mobile-menu-content {
+    padding: var(--spacing-sm) 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    min-height: 3.5rem;
+    background: none;
+    border: none;
+    text-align: left;
+    width: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    touch-action: manipulation;
+}
+
+.mobile-menu-item:hover {
+    background-color: var(--light-gray);
+    color: var(--primary-blue);
+}
+
+.mobile-menu-item.active {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-blue);
+}
+
+.mobile-menu-item i {
+    font-size: var(--font-size-xl);
+    width: 2rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.mobile-menu-item span {
+    flex: 1;
 }
 
 .main-content {
@@ -531,6 +628,22 @@ body {
     
     .toolbar {
         padding: 0 var(--spacing-md);
+        justify-content: space-between;
+    }
+    
+    .toolbar-left {
+        flex: 1;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .mobile-menu-toggle {
+        position: absolute;
+        left: 0;
+    }
+    
+    .logo {
+        margin: 0 auto;
     }
     
     .logo-image {
@@ -575,6 +688,31 @@ body {
     .nav-btn {
         font-size: var(--font-size-xs);
         padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    /* Hide desktop navigation buttons on mobile */
+    .toolbar-nav-buttons {
+        display: none;
+    }
+    
+    /* Show mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    /* Show mobile menu when open */
+    .mobile-menu {
+        display: block;
+    }
+    
+    /* Ensure mobile menu is above everything when open */
+    .mobile-menu.open {
+        z-index: 10000 !important;
+    }
+    
+    /* Lower z-index for about overlay so menu appears above it */
+    .about-overlay {
+        z-index: 1200 !important;
     }
  
     /* Sidebar hidden by default on mobile; shown as full-screen when opened */
@@ -625,11 +763,19 @@ body {
         display: block;
     }
     
+    /* Hide filter control when about overlay is visible */
+    body.about-overlay-open .mobile-filter-control {
+        display: none !important;
+    }
+    
     .about-overlay {
-        left: var(--spacing-sm);
-        right: var(--spacing-sm);
-        top: var(--spacing-sm);
-        bottom: var(--spacing-sm);
+        position: fixed;
+        top: var(--toolbar-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        z-index: 1200;
     }
     
     .about-container {

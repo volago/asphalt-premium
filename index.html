@@ -17,6 +17,10 @@
     <!-- Toolbar -->
     <header class="toolbar">
         <div class="toolbar-left">
+            <!-- Mobile Hamburger Menu -->
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="logo">
                 <img src="assets/logo.jpg" alt="Asphalt Premium Logo" class="logo-image" />
             </div>
@@ -41,13 +45,27 @@
                 </div>
             </div>
             
-            <!-- Navigation Buttons -->
+            <!-- Navigation Buttons (Desktop) -->
             <div class="toolbar-nav-buttons">
                 <button class="nav-btn active" data-page="map">Mapa</button>
                 <button class="nav-btn" data-page="about">O projekcie</button>
             </div>
         </nav>
     </header>
+    
+    <!-- Mobile Menu Dropdown (outside header to avoid stacking context issues) -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-content">
+            <button class="mobile-menu-item nav-btn active" data-page="map">
+                <i class="fas fa-map"></i>
+                <span>Mapa</span>
+            </button>
+            <button class="mobile-menu-item nav-btn" data-page="about">
+                <i class="fas fa-info-circle"></i>
+                <span>O projekcie</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">
