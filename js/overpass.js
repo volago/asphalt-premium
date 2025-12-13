@@ -1,6 +1,6 @@
 /* ==========================================
    OVERPASS.JS - OverpassAPI Communication
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class OverpassAPI {
@@ -182,7 +182,7 @@ out geom;
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'User-Agent': 'AsphaltPremium/1.0'
+                    'User-Agent': 'AsfaltPremium/1.0'
                 },
                 body: `data=${encodeURIComponent(query)}`,
                 signal: controller.signal

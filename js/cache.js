@@ -1,11 +1,11 @@
 /* ==========================================
    CACHE.JS - IndexedDB Cache Management
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class CacheManager {
     constructor() {
-        this.dbName = 'AsphaltPremiumCache';
+        this.dbName = 'AsfaltPremiumCache';
         this.dbVersion = 1;
         this.storeName = 'voivodeships';
         this.durationMs = CONFIG.CACHE_DURATION_DAYS * 24 * 60 * 60 * 1000;

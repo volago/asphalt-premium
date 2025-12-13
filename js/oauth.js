@@ -1,6 +1,6 @@
 /* ==========================================
    OAUTH.JS - OAuth 2.0 with PKCE for OSM
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class OSMOAuth {

@@ -1,5 +1,5 @@
 /* ==========================================
-   CONFIG - Asphalt Premium
+   CONFIG - Asfalt Premium
    ========================================== */
 
 const CONFIG = {
@@ -185,7 +185,7 @@ const CONFIG = {
         OAUTH: {
             // === DEVELOPMENT SERVER ===
             // Register at: https://master.apis.dev.openstreetmap.org/oauth2/applications
-            // - Name: Asphalt Premium Dev
+            // - Name: Asfalt Premium Dev
             // - Redirect URI: http://127.0.0.1:8081/
             // - Confidential: NO
             // - Scopes: read_prefs, write_api
@@ -194,7 +194,7 @@ const CONFIG = {
             
             // === PRODUCTION SERVER ===
             // Register at: https://www.openstreetmap.org/oauth2/applications
-            // - Name: Asphalt Premium
+            // - Name: Asfalt Premium
             // - Redirect URI: https://your-domain.com/ (your actual production URL)
             // - Confidential: NO
             // - Scopes: read_prefs, write_api

@@ -1,6 +1,6 @@
 /* ==========================================
    IMAGE MODAL - Image Zoom Functionality
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class ImageModal {

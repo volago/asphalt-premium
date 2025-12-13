@@ -1,6 +1,6 @@
 /* ==========================================
    MAP.JS - Map Management
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class MapManager {
@@ -93,7 +93,7 @@ class MapManager {
         const infoControl = L.control({position: 'bottomright'});
         infoControl.onAdd = function(map) {
             const div = L.DomUtil.create('div', 'map-info-control');
-            div.innerHTML = '<small>Asphalt Premium &copy; 2024</small>';
+            div.innerHTML = '<small>Asfalt Premium &copy; 2024</small>';
             div.style.cssText = `
                 background: rgba(255,255,255,0.9);
                 padding: 4px 8px;

@@ -1,9 +1,9 @@
 /* ==========================================
    APP.JS - Main Application Logic
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
-class AsphaltPremiumApp {
+class AsfaltPremiumApp {
     constructor() {
         this.currentPage = 'map'; // Always start on map page
         this.map = null;
@@ -84,7 +84,7 @@ class AsphaltPremiumApp {
             console.log('User is not authenticated');
         }
         
-        console.log('Asphalt Premium App initialized');
+        console.log('Asfalt Premium App initialized');
     }
     
     /**
@@ -936,7 +936,7 @@ class AsphaltPremiumApp {
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the application
-    window.asphaltApp = new AsphaltPremiumApp();
+    window.asphaltApp = new AsfaltPremiumApp();
 });
 
 // Add some CSS for road popup

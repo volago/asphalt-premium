@@ -1,6 +1,6 @@
 /* ==========================================
    OSM-API.JS - OpenStreetMap API Client
-   Asphalt Premium
+   Asfalt Premium
    ========================================== */
 
 class OSMAPIClient {
@@ -168,7 +168,7 @@ class OSMAPIClient {
             // Build changeset XML
             let xml = `<osm>\n`;
             xml += `  <changeset>\n`;
-            xml += `    <tag k="created_by" v="Asphalt Premium"/>\n`;
+            xml += `    <tag k="created_by" v="Asfalt_Premium"/>\n`;
             xml += `    <tag k="comment" v="${comment}"/>\n`;
             
             // Add additional tags
@@ -302,7 +302,7 @@ class OSMAPIClient {
             
             changesetId = await this.createChangeset(changesetComment, {
                 'source': 'survey',
-                'description': 'Road quality assessment via Asphalt Premium'
+                'description': 'Road quality assessment via Asfalt Premium'
             });
             
             // Update way
