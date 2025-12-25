@@ -9,11 +9,11 @@ const CONFIG = {
         'https://overpass.kumi.systems/api/interpreter',
         'https://overpass.openstreetmap.ru/api/interpreter'
     ],
-    
+
     // Cache Configuration
     CACHE_DURATION_DAYS: 3,
     CACHE_KEY_PREFIX: 'asphalt_premium_',
-    
+
     // Map Configuration
     MAP: {
         DEFAULT_CENTER: [52.0693, 19.4803], // Poland center
@@ -23,7 +23,7 @@ const CONFIG = {
         TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     },
-    
+
     // Road Quality Styles
     ROAD_STYLES: {
         excellent: {
@@ -51,7 +51,7 @@ const CONFIG = {
             dashArray: null
         }
     },
-    
+
     // Polish Voivodeships with proper naming and administrative names
     VOIVODESHIPS: {
         'opolskie': {
@@ -151,7 +151,7 @@ const CONFIG = {
             size: 'xxlarge'
         }
     },
-    
+
     // Road quality mapping
     SMOOTHNESS_MAPPING: {
         'excellent': 'excellent',
@@ -163,7 +163,7 @@ const CONFIG = {
         'very_horrible': 'poor',
         'impassable': 'poor'
     },
-    
+
     // UI Messages
     MESSAGES: {
         LOADING: 'Ładowanie danych...',
@@ -174,13 +174,13 @@ const CONFIG = {
         NO_VOIVODESHIP: 'Wybierz województwo',
         NO_DATA: 'Brak danych dla wybranego województwa'
     },
-    
+
     // OpenStreetMap API Configuration
     OSM_API: {
-        USE_DEV_SERVER: false, // Change to false for production
+        USE_DEV_SERVER: true, // Change to false for production
         DEV_URL: 'https://master.apis.dev.openstreetmap.org',
         PROD_URL: 'https://api.openstreetmap.org',
-        
+
         // OAuth 2.0 Configuration (PKCE for public clients)
         OAUTH: {
             // === DEVELOPMENT SERVER ===
@@ -191,7 +191,7 @@ const CONFIG = {
             // - Scopes: read_prefs, write_api
             CLIENT_ID_DEV: 'Nx-kib-6eyscUk3mo6btnV5g3ZZDLEqQ1wBLjkyYTIY',
             REDIRECT_URI_DEV: 'http://127.0.0.1:8081/',
-            
+
             // === PRODUCTION SERVER ===
             // Register at: https://www.openstreetmap.org/oauth2/applications
             // - Name: Asfalt Premium
@@ -200,39 +200,39 @@ const CONFIG = {
             // - Scopes: read_prefs, write_api
             CLIENT_ID_PROD: '-SbX_4ow4ipLfqQXYItNpi1WsmeUuSmPJ_YfVcGSK7w',
             REDIRECT_URI_PROD: 'https://volago.github.io/asphalt-premium/', // Change to your production URL
-            
+
             SCOPES: 'read_prefs write_api',
-            
+
             // OAuth endpoints
             AUTHORIZATION_ENDPOINT_DEV: 'https://master.apis.dev.openstreetmap.org/oauth2/authorize',
             AUTHORIZATION_ENDPOINT_PROD: 'https://www.openstreetmap.org/oauth2/authorize',
             TOKEN_ENDPOINT_DEV: 'https://master.apis.dev.openstreetmap.org/oauth2/token',
             TOKEN_ENDPOINT_PROD: 'https://www.openstreetmap.org/oauth2/token',
-            
+
             // Helper methods to get current settings based on USE_DEV_SERVER
             getClientId() {
                 return CONFIG.OSM_API.USE_DEV_SERVER ? this.CLIENT_ID_DEV : this.CLIENT_ID_PROD;
             },
-            
+
             getRedirectUri() {
                 return CONFIG.OSM_API.USE_DEV_SERVER ? this.REDIRECT_URI_DEV : this.REDIRECT_URI_PROD;
             }
         },
-        
+
         // Get current API URL based on USE_DEV_SERVER
         getApiUrl() {
             return this.USE_DEV_SERVER ? this.DEV_URL : this.PROD_URL;
         },
-        
+
         getAuthorizationEndpoint() {
             return this.USE_DEV_SERVER ? this.OAUTH.AUTHORIZATION_ENDPOINT_DEV : this.OAUTH.AUTHORIZATION_ENDPOINT_PROD;
         },
-        
+
         getTokenEndpoint() {
             return this.USE_DEV_SERVER ? this.OAUTH.TOKEN_ENDPOINT_DEV : this.OAUTH.TOKEN_ENDPOINT_PROD;
         }
     },
-    
+
     // Smoothness options for road editing
     SMOOTHNESS_OPTIONS: [
         {

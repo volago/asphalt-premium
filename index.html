@@ -32,18 +32,24 @@
             <!-- Login/User Section -->
             <div class="toolbar-auth-section">
                 <button class="btn-toolbar-login" id="toolbar-login-btn" style="display: none;">
-                    <i class="fas fa-sign-in-alt"></i>
+                    <i class="fas fa-user"></i>
                     <span>Zaloguj do OSM</span>
                 </button>
                 <div class="toolbar-user-section" id="toolbar-user-section" style="display: none;">
-                    <div class="toolbar-user-info" id="toolbar-user-info">
-                        <i class="fas fa-user-circle"></i>
-                        <span class="user-name" id="toolbar-user-name">Zalogowany</span>
+                    <div class="toolbar-user-dropdown-container">
+                        <div class="toolbar-user-info" id="toolbar-user-info" role="button" tabindex="0">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name" id="toolbar-user-name">Zalogowany</span>
+                            <i class="fas fa-chevron-down"
+                                style="font-size: 0.75em; margin-left: 4px; opacity: 0.7;"></i>
+                        </div>
+                        <div class="toolbar-user-dropdown-menu" id="toolbar-user-dropdown">
+                            <button class="btn-toolbar-logout" id="toolbar-logout-btn" title="Wyloguj się">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Wyloguj</span>
+                            </button>
+                        </div>
                     </div>
-                    <button class="btn-toolbar-logout" id="toolbar-logout-btn" title="Wyloguj się">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Wyloguj</span>
-                    </button>
                 </div>
             </div>
 
