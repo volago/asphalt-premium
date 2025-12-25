@@ -756,7 +756,8 @@
 .mission-section,
 .map-description-section,
 .help-section,
-.impact-section {
+.impact-section,
+.contact-section {
     margin-bottom: var(--spacing-2xl);
 }
 
@@ -786,6 +787,54 @@
     font-size: var(--font-size-lg);
     line-height: 1.7;
     color: var(--secondary-gray);
+}
+
+/* Contact Section */
+.contact-text {
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+    color: var(--secondary-gray);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.contact-email-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.contact-email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: linear-gradient(135deg, var(--primary-blue), #1e40af);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: var(--border-radius-lg);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+}
+
+.contact-email-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
+}
+
+.contact-email-link i {
+    font-size: var(--font-size-xl);
+}
+
+.contact-note {
+    font-size: var(--font-size-sm);
+    color: var(--medium-gray);
+    text-align: center;
+    font-style: italic;
+    margin-top: var(--spacing-md);
 }
 
 /* Quality Grid (legacy - for mobile) */

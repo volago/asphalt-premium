@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Toolbar -->
     <header class="toolbar">
@@ -25,7 +27,7 @@
                 <img src="assets/logo.jpg" alt="Asfalt Premium Logo" class="logo-image" />
             </div>
         </div>
-        
+
         <nav class="toolbar-nav">
             <!-- Login/User Section -->
             <div class="toolbar-auth-section">
@@ -44,15 +46,21 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Navigation Buttons (Desktop) -->
             <div class="toolbar-nav-buttons">
                 <button class="nav-btn active" data-page="map">Mapa</button>
                 <button class="nav-btn" data-page="about">O projekcie</button>
             </div>
+
+            <!-- Contact Email (Desktop) -->
+            <a href="mailto:asfaltpremiumpl@gmail.com" class="toolbar-contact-link" title="Napisz do nas">
+                <i class="fas fa-envelope"></i>
+                <span>Kontakt</span>
+            </a>
         </nav>
     </header>
-    
+
     <!-- Mobile Menu Dropdown (outside header to avoid stacking context issues) -->
     <div class="mobile-menu" id="mobile-menu">
         <div class="mobile-menu-content">
@@ -64,6 +72,10 @@
                 <i class="fas fa-info-circle"></i>
                 <span>O projekcie</span>
             </button>
+            <a href="mailto:asfaltpremiumpl@gmail.com" class="mobile-menu-item nav-btn">
+                <i class="fas fa-envelope"></i>
+                <span>Napisz do nas</span>
+            </a>
         </div>
     </div>
 
@@ -72,10 +84,10 @@
         <!-- Map Page -->
         <div id="map-page" class="page active">
             <div id="map" class="map-container"></div>
-            
+
             <!-- Mobile Filter Overlay -->
             <div id="mobile-filter-overlay" class="mobile-filter-overlay" style="display: none;"></div>
-            
+
             <!-- About Overlay (hidden by default) -->
             <div id="about-overlay" class="about-overlay" style="display: none;">
                 <div class="about-container">
@@ -111,9 +123,9 @@
                                 <h2>Cel projektu</h2>
                             </div>
                             <p class="mission-text">
-                                Naszym celem jest <strong>uzupełnienie danych o jakości dróg w OpenStreetMap</strong>, 
-                                co pozwoli wszystkim cyklistom na planowanie lepszych, bardziej komfortowych tras. 
-                                Asfalt Premium pokazuje gdzie można znaleźć dobry asfalt na mało uczęszczanych drogach 
+                                Naszym celem jest <strong>uzupełnienie danych o jakości dróg w OpenStreetMap</strong>,
+                                co pozwoli wszystkim cyklistom na planowanie lepszych, bardziej komfortowych tras.
+                                Asfalt Premium pokazuje gdzie można znaleźć dobry asfalt na mało uczęszczanych drogach
                                 — idealnych do spokojnych przejażdżek z dala od ruchu.
                             </p>
                         </section>
@@ -129,102 +141,107 @@
                                 <span>Chcę pomóc</span>
                             </a>
                         </div>
-                        
+
                         <!-- Map Description Section -->
                         <section class="map-description-section">
                             <div class="section-header">
                                 <i class="fas fa-route section-icon"></i>
                                 <h2>Co pokazuje mapa?</h2>
                             </div>
-                            
+
                             <!-- Road Types Info -->
                             <div class="road-types-info">
                                 <p>
-                                    Mapa prezentuje <strong>drogi trzeciorzędne i niesklasyfikowane</strong> — 
-                                    te o niewielkim natężeniu ruchu, idealne dla spokojnych przejażdżek rowerowych 
+                                    Mapa prezentuje <strong>drogi trzeciorzędne i niesklasyfikowane</strong> —
+                                    te o niewielkim natężeniu ruchu, idealne dla spokojnych przejażdżek rowerowych
                                     z dala od głównych arterii komunikacyjnych.
                                 </p>
                             </div>
-                            
+
                             <!-- Map and Legend Layout -->
                             <div class="map-legend-layout">
                                 <!-- Map Example -->
                                 <div class="map-example">
                                     <div class="clickable-image">
-                                        <img src="assets/map_exapmle.jpg" alt="Przykład mapy z kolorowymi drogami według jakości nawierzchni" />
+                                        <img src="assets/map_exapmle.jpg"
+                                            alt="Przykład mapy z kolorowymi drogami według jakości nawierzchni" />
                                     </div>
-                                    <p class="map-caption">Przykład mapy pokazującej jakość dróg w województwie dolnośląskim</p>
+                                    <p class="map-caption">Przykład mapy pokazującej jakość dróg w województwie
+                                        dolnośląskim</p>
                                 </div>
-                                
+
                                 <!-- Quality Legend -->
                                 <div class="quality-legend">
-                                <div class="quality-item">
-                                    <div class="quality-line excellent"></div>
-                                    <div class="quality-content">
-                                        <h4>Doskonała jakość</h4>
-                                        <p>Świeży, gładki asfalt bez wybojów</p>
+                                    <div class="quality-item">
+                                        <div class="quality-line excellent"></div>
+                                        <div class="quality-content">
+                                            <h4>Doskonała jakość</h4>
+                                            <p>Świeży, gładki asfalt bez wybojów</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="quality-item">
-                                    <div class="quality-line good"></div>
-                                    <div class="quality-content">
-                                        <h4>Dobra jakość</h4>
-                                        <p>Drobne niedoskonałości, ale przyjemna jazda</p>
+                                    <div class="quality-item">
+                                        <div class="quality-line good"></div>
+                                        <div class="quality-content">
+                                            <h4>Dobra jakość</h4>
+                                            <p>Drobne niedoskonałości, ale przyjemna jazda</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="quality-item">
-                                    <div class="quality-line poor"></div>
-                                    <div class="quality-content">
-                                        <h4>Słaba jakość</h4>
-                                        <p>Wyboje, pęknięcia, nierówności, dziury - lepiej omijać</p>
+                                    <div class="quality-item">
+                                        <div class="quality-line poor"></div>
+                                        <div class="quality-content">
+                                            <h4>Słaba jakość</h4>
+                                            <p>Wyboje, pęknięcia, nierówności, dziury - lepiej omijać</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="quality-item">
-                                    <div class="quality-line unknown"></div>
-                                    <div class="quality-content">
-                                        <h4>Brak danych</h4>
-                                        <p>Tutaj możesz pomóc! Oceń drogę</p>
+                                    <div class="quality-item">
+                                        <div class="quality-line unknown"></div>
+                                        <div class="quality-content">
+                                            <h4>Brak danych</h4>
+                                            <p>Tutaj możesz pomóc! Oceń drogę</p>
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Statistics Info -->
                             <div class="statistics-info">
                                 <div class="info-icon">
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
                                 <p>
-                                    <strong>Bonus:</strong> Aplikacja automatycznie generuje statystyki jakości dróg 
-                                    dla wybranego województwa, pokazując procentowy udział każdego typu nawierzchni. Pozbądźmy się z mapy niebieskich lini !!!
+                                    <strong>Bonus:</strong> Aplikacja automatycznie generuje statystyki jakości dróg
+                                    dla wybranego województwa, pokazując procentowy udział każdego typu nawierzchni.
+                                    Pozbądźmy się z mapy niebieskich lini !!!
                                 </p>
                             </div>
                         </section>
-                        
+
                         <!-- How to Help Section -->
                         <section class="help-section" id="help-section">
                             <div class="section-header">
                                 <i class="fas fa-hands-helping section-icon"></i>
                                 <h2>Jak możesz pomóc?</h2>
                             </div>
-                            
+
                             <div class="help-content">
                                 <p class="help-intro">
-                                    <strong>Znasz jakość danej drogi?</strong> Podziel się swoją wiedzą z innymi cyklistami! 
-                                    Dzięki Tobie mapa będzie coraz bardziej kompletna i przydatna dla wszystkich. 
+                                    <strong>Znasz jakość danej drogi?</strong> Podziel się swoją wiedzą z innymi
+                                    cyklistami!
+                                    Dzięki Tobie mapa będzie coraz bardziej kompletna i przydatna dla wszystkich.
                                     Wystarczy kilka kliknięć, aby dodać cenną informację o stanie nawierzchni.
                                 </p>
-                                
+
                                 <div class="help-steps-container">
                                     <h3 class="steps-title">Instrukcja krok po kroku:</h3>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">1</div>
                                         <div class="step-content-block">
                                             <h4>Zarejestruj się w OpenStreetMap</h4>
                                             <p>
-                                                Jeśli nie masz jeszcze konta w OpenStreetMap, przejdź do 
-                                                <a href="https://www.openstreetmap.org/user/new" target="_blank" rel="noopener">strony rejestracji</a> 
+                                                Jeśli nie masz jeszcze konta w OpenStreetMap, przejdź do
+                                                <a href="https://www.openstreetmap.org/user/new" target="_blank"
+                                                    rel="noopener">strony rejestracji</a>
                                                 i załóż darmowe konto. To zajmie tylko chwilę!
                                             </p>
                                             <p class="step-note">
@@ -233,78 +250,91 @@
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">2</div>
                                         <div class="step-content-block">
                                             <h4>Zaloguj się do OpenStreetMap</h4>
                                             <p>
-                                                Kliknij przycisk <strong>"Zaloguj do OSM"</strong> w prawym górnym rogu mapy (toolbar). 
+                                                Kliknij przycisk <strong>"Zaloguj do OSM"</strong> w prawym górnym rogu
+                                                mapy (toolbar).
                                                 Po zalogowaniu zobaczysz swoją nazwę użytkownika w tym samym miejscu.
                                             </p>
                                             <div class="step-image-wrapper clickable-image">
-                                                <img src="assets/instructions/logowanie.jpg" alt="Logowanie do OSM przez toolbar" />
+                                                <img src="assets/instructions/logowanie.jpg"
+                                                    alt="Logowanie do OSM przez toolbar" />
                                             </div>
                                             <p class="step-note">
                                                 <i class="fas fa-info-circle"></i>
-                                                Logowanie jest wymagane tylko raz. Po zalogowaniu możesz edytować wiele dróg bez ponownego logowania.
+                                                Logowanie jest wymagane tylko raz. Po zalogowaniu możesz edytować wiele
+                                                dróg bez ponownego logowania.
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">3</div>
                                         <div class="step-content-block">
                                             <h4>Zaznacz fragment drogi na mapie</h4>
                                             <p>
-                                                Kliknij na drogę, której jakość znasz. Wybrany fragment zostanie podświetlony 
+                                                Kliknij na drogę, której jakość znasz. Wybrany fragment zostanie
+                                                podświetlony
                                                 na <strong>fioletowo</strong>, pokazując, że został zaznaczony.
                                             </p>
                                             <div class="step-image-wrapper clickable-image">
-                                                <img src="assets/instructions/zaznacz_droge.jpg" alt="Zaznaczony fragment drogi na fioletowo" />
+                                                <img src="assets/instructions/zaznacz_droge.jpg"
+                                                    alt="Zaznaczony fragment drogi na fioletowo" />
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">4</div>
                                         <div class="step-content-block">
                                             <h4>Wybierz jakość nawierzchni</h4>
                                             <p>
-                                                Po zalogowaniu, w panelu bocznym z informacjami o drodze, zobaczysz galerię opcji jakości. 
-                                                Wybierz odpowiednią jakość nawierzchni (doskonała, dobra, średnia, słaba itp.), 
+                                                Po zalogowaniu, w panelu bocznym z informacjami o drodze, zobaczysz
+                                                galerię opcji jakości.
+                                                Wybierz odpowiednią jakość nawierzchni (doskonała, dobra, średnia, słaba
+                                                itp.),
                                                 która najlepiej opisuje stan drogi.
                                             </p>
                                             <div class="step-image-wrapper clickable-image">
-                                                <img src="assets/instructions/wybierz_jakosc.jpg" alt="Wybór jakości nawierzchni z galerii opcji" />
+                                                <img src="assets/instructions/wybierz_jakosc.jpg"
+                                                    alt="Wybór jakości nawierzchni z galerii opcji" />
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">5</div>
                                         <div class="step-content-block">
                                             <h4>Zapisz zmiany</h4>
                                             <p>
-                                                Kliknij przycisk <strong>"Zapisz"</strong>, a następnie potwierdź zmiany w oknie dialogowym. 
+                                                Kliknij przycisk <strong>"Zapisz"</strong>, a następnie potwierdź zmiany
+                                                w oknie dialogowym.
                                                 Twoja ocena zostanie wysłana do bazy danych OpenStreetMap.
                                             </p>
                                             <div class="step-image-wrapper clickable-image">
-                                                <img src="assets/instructions/kliknij_zapisz.jpg" alt="Zapisywanie zmian - przycisk Zapisz" />
+                                                <img src="assets/instructions/kliknij_zapisz.jpg"
+                                                    alt="Zapisywanie zmian - przycisk Zapisz" />
                                             </div>
                                             <p class="step-note highlight">
                                                 <i class="fas fa-user-graduate"></i>
-                                                <strong>Dla zaawansowanych użytkowników OSM:</strong> Możesz również kliknąć przycisk "Edytuj w OSM", aby otworzyć wybraną drogę bezpośrednio w edytorze OpenStreetMap i wprowadzić zmiany ręcznie.
+                                                <strong>Dla zaawansowanych użytkowników OSM:</strong> Możesz również
+                                                kliknąć przycisk "Edytuj w OSM", aby otworzyć wybraną drogę bezpośrednio
+                                                w edytorze OpenStreetMap i wprowadzić zmiany ręcznie.
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">6</div>
                                         <div class="step-content-block">
                                             <h4>Gotowe! Droga została zaktualizowana</h4>
                                             <p>
-                                                Twoja ocena zostanie zapisana w OpenStreetMap i wkrótce pojawi się na mapie 
+                                                Twoja ocena zostanie zapisana w OpenStreetMap i wkrótce pojawi się na
+                                                mapie
                                                 Asfalt Premium. Gratulacje, właśnie pomogłeś innym cyklistom!
                                             </p>
                                             <div class="success-message">
@@ -313,36 +343,37 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="help-step">
                                         <div class="step-number-badge">7</div>
                                         <div class="step-content-block">
                                             <h4>Oceń kolejne drogi</h4>
                                             <p>
-                                                Możesz teraz wybrać kolejny fragment drogi i ustalić dla niego jakość. 
+                                                Możesz teraz wybrać kolejny fragment drogi i ustalić dla niego jakość.
                                                 Im więcej dróg ocenisz, tym bardziej kompletna będzie mapa!
                                             </p>
                                             <p class="step-note highlight">
                                                 <i class="fas fa-star"></i>
-                                                <strong>Porada:</strong> Oceń drogi w swojej okolicy — znasz je najlepiej!
+                                                <strong>Porada:</strong> Oceń drogi w swojej okolicy — znasz je
+                                                najlepiej!
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="help-footer">
                                     <div class="help-cta-box">
                                         <i class="fas fa-heart"></i>
                                         <h4>Dziękujemy za pomoc!</h4>
                                         <p>
-                                            Każda ocena drogi to cenny wkład w społeczność cyklistów. 
+                                            Każda ocena drogi to cenny wkład w społeczność cyklistów.
                                             Razem tworzymy najbardziej kompletną mapę jakości dróg w Polsce!
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </section>
-                        
+
                         <!-- Map Button -->
                         <div class="map-button-section">
                             <button class="btn-map-small go-to-map-btn">
@@ -359,7 +390,7 @@
                                 </div>
                                 <h2>Znasz tę drogę? Podziel się opinią!</h2>
                                 <p>
-                                    Każda informacja o jakości drogi to cenny wkład w społeczność cyklistów. 
+                                    Każda informacja o jakości drogi to cenny wkład w społeczność cyklistów.
                                     Pomóż innym rowerzystom unikać wybojów i znajdować najlepsze trasy!
                                 </p>
                                 <h2>Ilość nieznanych dróg w województwach</h2>
@@ -432,7 +463,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Impact Benefits -->
                             <div class="impact-benefits">
                                 <h3>Twój wkład ma znaczenie</h3>
@@ -460,7 +491,26 @@
                                 </div>
                             </div>
                         </section>
-                        
+
+                        <!-- Contact Section -->
+                        <section class="contact-section">
+                            <div class="section-header">
+                                <i class="fas fa-envelope section-icon"></i>
+                                <h2>Kontakt</h2>
+                            </div>
+                            <p class="contact-text">
+                                Masz pytania, sugestie lub chcesz zgłosić problem? Napisz do nas!
+                            </p>
+                            <div class="contact-email-box">
+                                <a href="mailto:asfaltpremiumpl@gmail.com" class="contact-email-link">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>asfaltpremiumpl@gmail.com</span>
+                                </a>
+                            </div>
+                            <p class="contact-note">
+                                Odpowiadamy na wszystkie wiadomości. Twoja opinia jest dla nas ważna!
+                            </p>
+                        </section>
 
                         <!-- Map Button -->
                         <div class="map-button-section">
@@ -468,12 +518,12 @@
                                 <i class="fas fa-map"></i>
                                 <span>Zobacz mapę</span>
                             </button>
-                    </div>
-                    
+                        </div>
+
                     </div>
                 </div>
             </div>
-            
+
             <!-- Floating Sidebar -->
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
@@ -481,11 +531,11 @@
                     <button class="sidebar-toggle" id="sidebar-toggle">
                         <span class="toggle-icon">←</span>
                     </button>
-                        <button class="mobile-filter-close" id="mobile-filter-close" aria-label="Zamknij filtry">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <button class="mobile-filter-close" id="mobile-filter-close" aria-label="Zamknij filtry">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                
+
                 <div class="sidebar-content">
                     <div class="form-group">
                         <label for="voivodeship-select">Województwo:</label>
@@ -509,14 +559,14 @@
                             <option value="zachodniopomorskie">Zachodniopomorskie</option>
                         </select>
                     </div>
-                    
+
                     <button id="refresh-btn" class="btn btn-primary">
                         <span class="btn-icon">🔄</span>
                         Odśwież
                     </button>
-                    
 
-                    
+
+
                     <!-- Legend -->
                     <div class="legend">
                         <h4>
@@ -558,7 +608,7 @@
                             <span>Brak danych smoothness</span>
                         </div>
                     </div>
-                    
+
                     <!-- Statistics -->
                     <div class="road-stats" id="road-stats" style="display: none;">
                         <h4>Statystyki jakości dróg</h4>
@@ -583,7 +633,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Road Info Sidebar -->
             <div class="road-info-sidebar" id="road-info-sidebar" style="display: none;">
                 <div class="road-info-header">
@@ -592,7 +642,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                
+
                 <div class="road-info-content" id="road-info-content">
                     <!-- Content will be filled dynamically -->
                 </div>
@@ -609,9 +659,10 @@
                     </div>
                     <div class="legend-info-popup-content">
                         <p class="legend-info-intro">
-                            Nasza aplikacja mapuje poziomy jakości nawierzchni na standardowe tagi OpenStreetMap (smoothness):
+                            Nasza aplikacja mapuje poziomy jakości nawierzchni na standardowe tagi OpenStreetMap
+                            (smoothness):
                         </p>
-                        
+
                         <div class="legend-info-mapping">
                             <div class="legend-info-item">
                                 <div class="legend-info-line excellent"></div>
@@ -621,7 +672,7 @@
                                     <p class="legend-info-desc">Świeży, gładki asfalt bez wybojów</p>
                                 </div>
                             </div>
-                            
+
                             <div class="legend-info-item">
                                 <div class="legend-info-line good"></div>
                                 <div class="legend-info-details">
@@ -630,7 +681,7 @@
                                     <p class="legend-info-desc">Drobne niedoskonałości, ale przyjemna jazda</p>
                                 </div>
                             </div>
-                            
+
                             <div class="legend-info-item">
                                 <div class="legend-info-line poor"></div>
                                 <div class="legend-info-details">
@@ -647,7 +698,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="legend-info-item">
                                 <div class="legend-info-line unknown"></div>
                                 <div class="legend-info-details">
@@ -657,12 +708,13 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="legend-info-footer">
                             <p>
                                 <i class="fas fa-info-circle"></i>
-                                Więcej informacji o tagu smoothness znajdziesz w 
-                                <a href="https://wiki.openstreetmap.org/wiki/Key:smoothness" target="_blank" rel="noopener">
+                                Więcej informacji o tagu smoothness znajdziesz w
+                                <a href="https://wiki.openstreetmap.org/wiki/Key:smoothness" target="_blank"
+                                    rel="noopener">
                                     dokumentacji OpenStreetMap
                                 </a>
                             </p>
@@ -712,4 +764,5 @@
     <script src="js/app.js"></script>
     <script src="js/image-modal.js"></script>
 </body>
+
 </html>
