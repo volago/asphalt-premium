@@ -177,7 +177,7 @@ const CONFIG = {
 
     // OpenStreetMap API Configuration
     OSM_API: {
-        USE_DEV_SERVER: true, // Change to false for production
+        USE_DEV_SERVER: false, // Change to false for production
         DEV_URL: 'https://master.apis.dev.openstreetmap.org',
         PROD_URL: 'https://api.openstreetmap.org',
 

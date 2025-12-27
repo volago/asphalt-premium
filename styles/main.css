@@ -1037,6 +1037,39 @@ body {
         cursor: pointer;
         box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
     }
+}
+
+/* Closing media query for styles defined above, BUT wait, expanded view is also inside media query? Or should be? */
+
+@media (max-width: 768px) {
+
+    /* Expanded Mobile View (Full Screen styling) */
+    .road-info-sidebar.mobile-bottom-sheet.expanded {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        /* Robust height */
+        max-height: none !important;
+        border-radius: 0 !important;
+        z-index: 2100 !important;
+        padding: 0 !important;
+        background-color: white !important;
+        /* Ensure opacity */
+        display: flex !important;
+        flex-direction: column;
+    }
+
+
+    /* Reset padding for expanded view if needed, or keep 15px */
+    .road-info-sidebar.mobile-bottom-sheet.expanded #road-info-content {
+        flex: 1;
+        overflow-y: auto;
+        /* Allow scrolling */
+        /* padding: 15px !important; -- kept from previous rule */
+    }
 
     .btn-mobile-edit:active {
         transform: scale(0.95);
