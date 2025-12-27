@@ -114,7 +114,7 @@ class MapManager {
             const button = L.DomUtil.create('a', 'leaflet-control-locate', container);
             button.href = '#';
             button.title = 'Pokaż moją lokalizację';
-            button.innerHTML = '<i class="fas fa-location-arrow"></i>';
+            button.innerHTML = '<i class="fas fa-crosshairs"></i>';
             button.style.cssText = `
                 width: 34px;
                 height: 34px;
