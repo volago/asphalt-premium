@@ -591,6 +591,10 @@ class MapManager {
      * Show road information in sidebar
      * @param {Object} properties - Road properties
      */
+    /**
+     * Show road information in sidebar
+     * @param {Object} properties - Road properties
+     */
     showRoadInfo(properties) {
         const sidebar = document.getElementById('road-info-sidebar');
         const content = document.getElementById('road-info-content');
@@ -599,20 +603,98 @@ class MapManager {
 
         const name = properties.name || 'Droga bez nazwy';
         const smoothness = properties.smoothness || null;
-        const highway = properties.highway || 'nieznany typ';
         const osmId = properties.osm_id;
 
         // Reset selected smoothness
         this.selectedSmoothnessValue = smoothness;
 
-        // Update the header with the road name and info icon
-        const header = document.getElementById('road-info-sidebar').querySelector('.road-info-header h3');
+        // Determine layout mode based on screen width
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+            this.renderMobileSummary(sidebar, content, properties);
+        } else {
+            this.renderFullEditor(sidebar, content, properties);
+        }
+
+        // Initialize tech info icon if header exists (desktop or after expansion)
+        this.initTechInfoIcon(properties);
+
+        // Ensure sidebar is visible
+        sidebar.style.display = 'flex';
+    }
+
+    renderMobileSummary(sidebar, content, properties) {
+        const name = properties.name || 'Droga bez nazwy';
+
+        // Determine style type from raw property
+        const styleType = this.getRoadStyleType(properties.smoothness);
+
+        // Prepare text label
+        const smoothnessLabel = properties.smoothness ?
+            (CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === properties.smoothness)?.label || properties.smoothness)
+            : 'brak danych';
+
+        // Add mobile styling class
+        sidebar.classList.add('mobile-bottom-sheet');
+        sidebar.classList.remove('expanded');
+
+        // Hide standard header in mobile summary mode
+        const header = sidebar.querySelector('.road-info-header');
+        if (header) header.style.display = 'none';
+
+        // Get style from configuration
+        const styleConfig = CONFIG.ROAD_STYLES[styleType] || CONFIG.ROAD_STYLES.unknown;
+
+        const strokeColor = styleConfig.color;
+        const borderStyle = styleConfig.dashArray ? 'dashed' : 'solid';
+
+        content.innerHTML = `
+            <div class="mobile-summary-content">
+                <div class="mobile-summary-info">
+                    <h3 class="mobile-road-name">${name}</h3>
+                    <div class="mobile-quality-line" style="
+                        background: none; 
+                        border-top: 4px ${borderStyle} ${strokeColor}; 
+                        height: 0; 
+                        width: 60px;
+                        margin-top: 8px;">
+                    </div>
+                </div>
+                <button class="btn-mobile-edit" id="mobile-edit-btn">
+                    <i class="fas fa-pen"></i>
+                    Edytuj
+                </button>
+            </div>
+        `;
+
+        // Add event listener to expand to full editor
+        const editBtn = document.getElementById('mobile-edit-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                this.renderFullEditor(sidebar, content, properties);
+                sidebar.classList.add('expanded');
+            });
+        }
+    }
+
+    renderFullEditor(sidebar, content, properties) {
+        const name = properties.name || 'Droga bez nazwy';
+        const smoothness = properties.smoothness || null;
+        const osmId = properties.osm_id;
+
+        // Show standard header
+        const header = sidebar.querySelector('.road-info-header');
         if (header) {
-            header.innerHTML = `
-                ${name}
-                <i class="fas fa-info-circle road-info-icon" id="road-tech-info-icon" 
-                   title="Informacje techniczne"></i>
-            `;
+            header.style.display = 'flex';
+            const headerTitle = header.querySelector('h3');
+            if (headerTitle) {
+                headerTitle.innerHTML = `
+                    ${name}
+                    <i class="fas fa-info-circle road-info-icon" id="road-tech-info-icon" 
+                       title="Informacje techniczne"></i>
+                `;
+            }
         }
 
         content.innerHTML = `
@@ -622,16 +704,49 @@ class MapManager {
             ${this.renderBottomActions(osmId, smoothness)}
         `;
 
-        sidebar.style.display = 'flex';
-
         // Initialize close button if not already done
         this.initRoadInfoSidebar();
 
         // Initialize smoothness editor controls
         this.initSmoothnessEditor(osmId, smoothness);
 
-        // Initialize tech info icon
+        // Re-init tech info icon as header was touched
         this.initTechInfoIcon(properties);
+    }
+
+    /**
+     * Hide road information sidebar
+     */
+    hideRoadInfo() {
+        const sidebar = document.getElementById('road-info-sidebar');
+        if (sidebar) {
+            sidebar.style.display = 'none';
+            // Reset classes
+            sidebar.classList.remove('mobile-bottom-sheet', 'expanded');
+            // Reset header display
+            const header = sidebar.querySelector('.road-info-header');
+            if (header) {
+                header.style.display = 'flex';
+                // Reset header title
+                const headerTitle = header.querySelector('h3');
+                if (headerTitle) headerTitle.textContent = 'Informacje o drodze';
+            }
+        }
+    }
+
+    /**
+     * Initialize road info sidebar controls
+     */
+    initRoadInfoSidebar() {
+        const closeBtn = document.getElementById('road-info-close');
+
+        // Avoid multiple event listeners
+        if (closeBtn && !closeBtn.dataset.initialized) {
+            closeBtn.addEventListener('click', () => {
+                this.clearSelection();
+            });
+            closeBtn.dataset.initialized = 'true';
+        }
     }
 
     /**
@@ -724,35 +839,7 @@ class MapManager {
         });
     }
 
-    /**
-     * Hide road information sidebar
-     */
-    hideRoadInfo() {
-        const sidebar = document.getElementById('road-info-sidebar');
-        if (sidebar) {
-            sidebar.style.display = 'none';
-            // Reset header title
-            const header = sidebar.querySelector('.road-info-header h3');
-            if (header) {
-                header.textContent = 'Informacje o drodze';
-            }
-        }
-    }
 
-    /**
-     * Initialize road info sidebar controls
-     */
-    initRoadInfoSidebar() {
-        const closeBtn = document.getElementById('road-info-close');
-
-        // Avoid multiple event listeners
-        if (closeBtn && !closeBtn.dataset.initialized) {
-            closeBtn.addEventListener('click', () => {
-                this.clearSelection();
-            });
-            closeBtn.dataset.initialized = 'true';
-        }
-    }
 
     /* ==========================================
        SMOOTHNESS EDITOR
