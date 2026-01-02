@@ -18,8 +18,10 @@ class MapManager {
         };
         this.oauth = null;
         this.osmApi = null;
+        this.overpassApi = null;
         this.selectedSmoothnessValue = null;
         this.mobileFilterControl = null;
+        this.loadedWayIds = new Set(); // Track loaded way IDs to avoid duplicates
     }
 
     /**
@@ -30,6 +32,10 @@ class MapManager {
     setOAuthClient(oauth, osmApi) {
         this.oauth = oauth;
         this.osmApi = osmApi;
+    }
+
+    setOverpassClient(overpassApi) {
+        this.overpassApi = overpassApi;
     }
 
     /* ==========================================
@@ -58,11 +64,19 @@ class MapManager {
         // Initialize roads layer
         this.roadsLayer = L.featureGroup().addTo(this.map);
 
+        // Restore map state from localStorage
+        this.restoreMapState();
+
         // Add map controls
         this.addCustomControls();
 
         // Bind map events
         this.bindMapEvents();
+
+        // Save state on moveend
+        this.map.on('moveend', () => {
+            this.saveMapState();
+        });
 
         console.log('Map initialized successfully');
         return this.map;
@@ -137,6 +151,9 @@ class MapManager {
             return container;
         };
         locateControl.addTo(this.map);
+
+        // Load visible roads control
+        this.addLoadRoadsControl();
     }
 
     locateUser() {
@@ -1214,6 +1231,165 @@ class MapManager {
             this.map.remove();
             this.map = null;
             this.roadsLayer = null;
+        }
+    }
+    /* ==========================================
+       VIEWPORT ROAD LOADING
+       ========================================== */
+
+    addLoadRoadsControl() {
+        if (!this.map) return;
+
+        const container = L.DomUtil.create('div', 'map-load-control');
+        const button = L.DomUtil.create('button', 'btn-load-roads', container);
+
+        button.innerHTML = '<i class="fas fa-cloud-download-alt"></i> <span>Wczytaj drogi</span>';
+        button.title = 'Wczytaj drogi z widocznego obszaru';
+
+        // Initial state check
+        this.updateLoadButtonState(button);
+
+        // Zoom listener to update state
+        this.map.on('zoomend', () => {
+            this.updateLoadButtonState(button);
+        });
+
+        // Click handler
+        button.addEventListener('click', (e) => {
+            L.DomEvent.stop(e);
+            if (!button.disabled) {
+                this.loadVisibleRoads(button);
+            }
+        });
+
+        // Prevent map clicks
+        L.DomEvent.disableClickPropagation(container);
+
+        // Append to map container (custom positioning)
+        this.map.getContainer().appendChild(container);
+        this.loadRoadsButton = button;
+    }
+
+    updateLoadButtonState(button) {
+        if (!button) return;
+        const zoom = this.map.getZoom();
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const minLoadZoom = isMobile ? CONFIG.MAP.MIN_LOAD_ZOOM_MOBILE : CONFIG.MAP.MIN_LOAD_ZOOM;
+
+        if (zoom < minLoadZoom) {
+            button.disabled = true;
+            button.classList.add('disabled');
+            button.title = `Przybliż mapę, aby wczytać drogi (min. zoom ${minLoadZoom})`;
+        } else {
+            button.disabled = false;
+            button.classList.remove('disabled');
+            button.title = 'Wczytaj drogi z widocznego obszaru';
+        }
+    }
+
+    async loadVisibleRoads(button) {
+        if (this.isLoading) return;
+
+        // Ensure OverpassAPI is available
+        if (!this.overpassApi) {
+            console.error('OverpassAPI client not initialized in MapManager');
+            alert('Błąd wewnętrzny: Moduł OverpassAPI nie jest dostępny.');
+            return;
+        }
+
+        const zoom = this.map.getZoom();
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const minLoadZoom = isMobile ? CONFIG.MAP.MIN_LOAD_ZOOM_MOBILE : CONFIG.MAP.MIN_LOAD_ZOOM;
+
+        if (zoom < minLoadZoom) {
+            alert(`Obszar jest zbyt duży. Przybliż mapę, aby wczytać drogi (wymagany zoom ${minLoadZoom}+).`);
+            return;
+        }
+
+        try {
+            this.isLoading = true;
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Wczytuję...</span>';
+            button.disabled = true;
+
+            const bounds = this.map.getBounds();
+            // Leaflet bounds: [west, south, east, north]
+            const bbox = [
+                bounds.getWest(),
+                bounds.getSouth(),
+                bounds.getEast(),
+                bounds.getNorth()
+            ];
+
+            // Fetch data from OverpassAPI (returns GeoJSON)
+            const geoJson = await this.overpassApi.fetchRoadsInBBox(bbox);
+
+            let addedCount = 0;
+            const features = geoJson.features || [];
+
+            for (const feature of features) {
+                const id = feature.properties.osm_id;
+
+                // Skip if already loaded
+                if (this.loadedWayIds.has(id.toString())) continue;
+
+                // Create and add layer
+                // feature is already in the format expected by createRoadLayer
+                const layer = this.createRoadLayer(feature);
+                this.roadsLayer.addLayer(layer);
+
+                this.loadedWayIds.add(id.toString());
+                addedCount++;
+            }
+
+            console.log(`Loaded ${addedCount} new roads.`);
+
+            if (addedCount === 0) {
+                alert('Nie znaleziono nowych dróg w tym obszarze (lub już są wczytane).');
+            }
+
+        } catch (error) {
+            console.error('Error loading roads:', error);
+            // Handle Overpass specific errors
+            if (error.message.includes('timeout') || error.message.includes('size')) {
+                alert('Serwer Overpass zwrócił błąd (zbyt duży obszar lub timeout). \nProszę przybliżyć mapę.');
+            } else {
+                alert('Wystąpił błąd podczas wczytywania dróg: ' + error.message);
+            }
+        } finally {
+            this.isLoading = false;
+            if (button) {
+                // Restore button state
+                button.innerHTML = '<i class="fas fa-cloud-download-alt"></i> <span>Wczytaj drogi</span>';
+                button.disabled = false;
+                this.updateLoadButtonState(button);
+            }
+        }
+    }
+
+    saveMapState() {
+        if (!this.map) return;
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        const state = {
+            lat: center.lat,
+            lng: center.lng,
+            zoom: zoom
+        };
+        localStorage.setItem('mapState', JSON.stringify(state));
+    }
+
+    restoreMapState() {
+        const savedState = localStorage.getItem('mapState');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                if (state.lat && state.lng && state.zoom) {
+                    this.map.setView([state.lat, state.lng], state.zoom);
+                }
+            } catch (e) {
+                console.error('Failed to parse saved map state', e);
+            }
         }
     }
 }

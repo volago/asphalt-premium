@@ -11,11 +11,11 @@ class OverpassAPI {
         this.retryAttempts = 2; // Reduce retry attempts
         this.retryDelay = 3000; // 3 seconds delay
     }
-    
+
     /* ==========================================
        MAIN API METHODS
        ========================================== */
-    
+
     /**
      * Fetch roads data for a given voivodeship
      * @param {string} voivodeshipName - Name of the voivodeship in Polish
@@ -23,27 +23,51 @@ class OverpassAPI {
      */
     async fetchRoads(voivodeshipName) {
         console.log(`Fetching roads for voivodeship: ${voivodeshipName}`);
-        
+
         const query = this.buildRoadsQuery(voivodeshipName);
-        
+
         try {
             const data = await this.executeQuery(query);
             const geoJson = this.convertToGeoJSON(data);
-            
+
             console.log(`Fetched ${geoJson.features.length} roads from OverpassAPI`);
-            
+
             return geoJson;
-            
+
         } catch (error) {
             console.error('Failed to fetch roads from OverpassAPI:', error);
             throw new Error(`OverpassAPI request failed: ${error.message}`);
         }
     }
-    
+
+    /**
+     * Fetch roads data for a given bounding box
+     * @param {Array} bbox - [west, south, east, north]
+     * @returns {Promise<Object>} GeoJSON FeatureCollection
+     */
+    async fetchRoadsInBBox(bbox) {
+        console.log(`Fetching roads for bbox: ${bbox.join(',')}`);
+
+        const query = this.buildRoadsQueryForBBox(bbox);
+
+        try {
+            const data = await this.executeQuery(query);
+            const geoJson = this.convertToGeoJSON(data);
+
+            console.log(`Fetched ${geoJson.features.length} roads from OverpassAPI BBox`);
+
+            return geoJson;
+
+        } catch (error) {
+            console.error('Failed to fetch roads from OverpassAPI BBox:', error);
+            throw new Error(`OverpassAPI request failed: ${error.message}`);
+        }
+    }
+
     /* ==========================================
        QUERY BUILDING
        ========================================== */
-    
+
     /**
      * Build Overpass QL query for roads by voivodeship name
      * @param {string} voivodeshipName - Name of the voivodeship in Polish
@@ -52,7 +76,7 @@ class OverpassAPI {
     buildRoadsQuery(voivodeshipName) {
         // Build search pattern for voivodeship name (both Polish and English)
         const searchPattern = this.buildVoivodeshipSearchPattern(voivodeshipName);
-        
+
         // Query for roads within specific voivodeship boundaries
         // Based on proven working pattern for administrative boundaries
         const query = `
@@ -77,14 +101,47 @@ map_to_area->.voiv_area;
 );
 out geom;
         `.trim();
-        
+
         console.log('Generated Overpass query for voivodeship:', voivodeshipName);
         console.log('Search pattern:', searchPattern);
         console.log('Query:', query);
-        
+
         return query;
     }
-    
+
+    /**
+     * Build Overpass QL query for roads within a bounding box
+     * @param {Array} bbox - [west, south, east, north]
+     * @returns {string} Overpass QL query
+     */
+    buildRoadsQueryForBBox(bbox) {
+        // OSM/Leaflet bbox: [west, south, east, north]
+        // Overpass global bbox: [bbox:south,west,north,east]
+        const [west, south, east, north] = bbox;
+
+        // Use global bbox setting so it applies to all statements
+        // AND use query structure requested by user
+        const query = `
+[out:json][timeout:25][bbox:${south},${west},${north},${east}];
+
+(
+  // Roads WITH smoothness data
+  way["highway"="tertiary"]["smoothness"];
+  way["highway"="unclassified"]["smoothness"];
+  
+  // Roads WITHOUT smoothness (for coverage analysis - will be blue)
+  way["highway"="tertiary"][!"smoothness"];
+  way["highway"="unclassified"][!"smoothness"];
+);
+out geom;
+        `.trim();
+
+        console.log('Generated Overpass query for BBox:', bbox);
+        console.log('Query:', query);
+
+        return query;
+    }
+
     /**
      * Build search pattern for voivodeship name matching
      * @param {string} voivodeshipName - Name of the voivodeship in Polish
@@ -110,14 +167,14 @@ out geom;
             'wielkopolskie': 'województwo wielkopolskie|greater poland voivodeship|wielkopolskie',
             'zachodniopomorskie': 'województwo zachodniopomorskie|west pomeranian voivodeship|zachodniopomorskie'
         };
-        
+
         return voivodeshipPatterns[voivodeshipName] || voivodeshipName;
     }
-    
+
     /* ==========================================
        API COMMUNICATION
        ========================================== */
-    
+
     /**
      * Execute Overpass query with retry logic and server fallback
      * @param {string} query - Overpass QL query
@@ -125,36 +182,36 @@ out geom;
      */
     async executeQuery(query) {
         let lastError;
-        
+
         // Try each API server
         for (let serverIndex = 0; serverIndex < this.apiUrls.length; serverIndex++) {
             this.currentApiIndex = serverIndex;
             const currentUrl = this.apiUrls[this.currentApiIndex];
-            
+
             console.log(`Trying OverpassAPI server ${serverIndex + 1}/${this.apiUrls.length}: ${currentUrl}`);
-            
+
             for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
                 try {
                     console.log(`OverpassAPI attempt ${attempt}/${this.retryAttempts} on server ${serverIndex + 1}`);
-                    
+
                     const response = await this.makeRequest(query);
-                    
+
                     if (!response.elements || response.elements.length === 0) {
                         console.warn('OverpassAPI returned no data');
                     }
-                    
+
                     console.log(`Success on server ${serverIndex + 1}, attempt ${attempt}`);
                     return response;
-                    
+
                 } catch (error) {
                     lastError = error;
                     console.warn(`OverpassAPI server ${serverIndex + 1}, attempt ${attempt} failed:`, error.message);
-                    
+
                     // If it's a server error (5xx) or timeout, try next server
                     if (error.message.includes('50') || error.message.includes('timeout')) {
                         break; // Try next server
                     }
-                    
+
                     if (attempt < this.retryAttempts) {
                         console.log(`Retrying in ${this.retryDelay / 1000} seconds...`);
                         await this.delay(this.retryDelay);
@@ -162,10 +219,10 @@ out geom;
                 }
             }
         }
-        
+
         throw lastError;
     }
-    
+
     /**
      * Make HTTP request to OverpassAPI
      * @param {string} query - Overpass QL query
@@ -174,9 +231,9 @@ out geom;
     async makeRequest(query) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-        
+
         const currentUrl = this.apiUrls[this.currentApiIndex];
-        
+
         try {
             const response = await fetch(currentUrl, {
                 method: 'POST',
@@ -187,41 +244,41 @@ out geom;
                 body: `data=${encodeURIComponent(query)}`,
                 signal: controller.signal
             });
-            
+
             clearTimeout(timeoutId);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
                 throw new Error('Invalid content type received from OverpassAPI');
             }
-            
+
             const data = await response.json();
-            
+
             if (data.remark && data.remark.includes('error')) {
                 throw new Error(`OverpassAPI error: ${data.remark}`);
             }
-            
+
             return data;
-            
+
         } catch (error) {
             clearTimeout(timeoutId);
-            
+
             if (error.name === 'AbortError') {
                 throw new Error('Request timeout');
             }
-            
+
             throw error;
         }
     }
-    
+
     /* ==========================================
        DATA CONVERSION
        ========================================== */
-    
+
     /**
      * Convert Overpass response to GeoJSON
      * @param {Object} overpassData - Raw Overpass response
@@ -234,9 +291,9 @@ out geom;
                 features: []
             };
         }
-        
+
         const features = [];
-        
+
         overpassData.elements.forEach(element => {
             if (element.type === 'way' && element.geometry) {
                 const feature = this.convertWayToFeature(element);
@@ -245,7 +302,7 @@ out geom;
                 }
             }
         });
-        
+
         return {
             type: 'FeatureCollection',
             features: features,
@@ -257,7 +314,7 @@ out geom;
             }
         };
     }
-    
+
     /**
      * Convert Overpass way element to GeoJSON feature
      * @param {Object} way - Overpass way element
@@ -267,19 +324,19 @@ out geom;
         if (!way.geometry || way.geometry.length < 2) {
             return null;
         }
-        
+
         // Extract coordinates
         const coordinates = way.geometry.map(node => [node.lon, node.lat]);
-        
+
         // Process tags
         const properties = this.processWayTags(way.tags || {});
-        
+
         // Add metadata
         properties.osm_id = way.id;
         properties.osm_type = 'way';
         properties.osm_version = way.version;
         properties.osm_timestamp = way.timestamp;
-        
+
         return {
             type: 'Feature',
             geometry: {
@@ -289,7 +346,7 @@ out geom;
             properties: properties
         };
     }
-    
+
     /**
      * Process and normalize OSM tags
      * @param {Object} tags - Raw OSM tags
@@ -297,29 +354,29 @@ out geom;
      */
     processWayTags(tags) {
         const properties = {};
-        
+
         // Required properties
         properties.highway = tags.highway || 'unknown';
         properties.name = tags.name || tags['name:pl'] || tags['name:en'] || null;
-        
+
         // Road quality indicators - ONLY smoothness
         properties.smoothness = this.normalizeSmoothness(tags.smoothness);
-        
+
         // Additional road properties
         properties.maxspeed = tags.maxspeed || null;
         properties.lanes = tags.lanes || null;
         properties.width = tags.width || null;
         properties.oneway = tags.oneway === 'yes';
-        
+
         // Administrative info
         properties.ref = tags.ref || null;
         properties.operator = tags.operator || null;
-        
+
         // NO surface inference - only explicit smoothness data
-        
+
         return properties;
     }
-    
+
     /**
      * Normalize smoothness values
      * @param {string} smoothness - Raw smoothness value
@@ -327,9 +384,9 @@ out geom;
      */
     normalizeSmoothness(smoothness) {
         if (!smoothness) return null;
-        
+
         const normalized = smoothness.toLowerCase().trim();
-        
+
         // Map common variations to standard values
         const mappings = {
             'excellent': 'excellent',
@@ -341,7 +398,7 @@ out geom;
             'horrible': 'horrible',
             'very_horrible': 'very_horrible',
             'impassable': 'impassable',
-            
+
             // Common variations
             'perfect': 'excellent',
             'smooth': 'good',
@@ -349,10 +406,10 @@ out geom;
             'very_rough': 'very_bad',
             'poor': 'bad'
         };
-        
+
         return mappings[normalized] || normalized;
     }
-    
+
     /**
      * Infer smoothness from surface type
      * @param {string} surface - Surface type
@@ -360,7 +417,7 @@ out geom;
      */
     inferSmoothnessFromSurface(surface) {
         if (!surface) return null;
-        
+
         const surfaceQuality = {
             'asphalt': 'good',
             'concrete': 'good',
@@ -381,14 +438,14 @@ out geom;
             'sand': 'very_bad',
             'mud': 'horrible'
         };
-        
+
         return surfaceQuality[surface.toLowerCase()] || null;
     }
-    
+
     /* ==========================================
        UTILITY METHODS
        ========================================== */
-    
+
     /**
      * Create delay promise
      * @param {number} ms - Delay in milliseconds
@@ -397,20 +454,20 @@ out geom;
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    
+
     /**
      * Validate bounding box
      * @param {Array} bbox - Bounding box [west, south, east, north]
      * @returns {boolean} True if valid
      */
     isValidBbox(bbox) {
-        return Array.isArray(bbox) && 
-               bbox.length === 4 && 
-               bbox.every(coord => typeof coord === 'number') &&
-               bbox[0] < bbox[2] && // west < east
-               bbox[1] < bbox[3];   // south < north
+        return Array.isArray(bbox) &&
+            bbox.length === 4 &&
+            bbox.every(coord => typeof coord === 'number') &&
+            bbox[0] < bbox[2] && // west < east
+            bbox[1] < bbox[3];   // south < north
     }
-    
+
     /**
      * Get API status
      * @returns {Promise<Object>} API status information
@@ -421,7 +478,7 @@ out geom;
                 method: 'GET',
                 timeout: 5000
             });
-            
+
             if (response.ok) {
                 return {
                     available: true,
@@ -435,7 +492,7 @@ out geom;
                     message: response.statusText
                 };
             }
-            
+
         } catch (error) {
             return {
                 available: false,

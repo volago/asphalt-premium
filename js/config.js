@@ -20,6 +20,8 @@ const CONFIG = {
         DEFAULT_ZOOM: 8,
         MIN_ZOOM: 6,
         MAX_ZOOM: 18,
+        MIN_LOAD_ZOOM: 13,
+        MIN_LOAD_ZOOM_MOBILE: 11,
         TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     },

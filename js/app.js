@@ -52,8 +52,10 @@ class AsfaltPremiumApp {
         this.initMap();
 
         // Pass OAuth instances to map manager
+        // Pass OAuth and Overpass instances to map manager
         if (this.mapManager) {
             this.mapManager.setOAuthClient(this.oauth, this.osmApi);
+            this.mapManager.setOverpassClient(this.overpass);
         }
 
         // Setup responsive UI after map is initialized
