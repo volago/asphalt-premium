@@ -12,6 +12,7 @@ Asphalt Premium to aplikacja internetowa, która wyświetla interaktywną mapę 
 - **Interaktywna mapa** - pełnoekranowa mapa Polski oparta na Leaflet.js
 - **Filtrowanie według województw** - dane dla wszystkich 16 województw
 - **Typy dróg** - wyświetlanie dróg trzeciorzędnych (tertiary) i niesklasyfikowanych (unclassified)
+- **Wyszukiwanie lokalne** - pobieranie dróg dla widocznego obszaru mapy (niezależnie od województwa)
 - **Kolorystyka dróg** według jakości nawierzchni:
   - **Czarna linia ciągła** - doskonała jakość (excellent)
   - **Czarna linia przerywana** - dobra jakość (good)  
@@ -128,9 +129,10 @@ Jeśli chcesz włączyć funkcję edycji dróg bezpośrednio z aplikacji:
    - Lista zawiera wszystkie 16 województw z oznaczeniami rozmiaru
    
 3. **Ładowanie danych:**
-   - Po wybraniu województwa dane ładują się automatycznie z cache
-   - Kliknij przycisk "Odśwież" aby pobrać świeże dane z OverpassAPI
-   - Przy pierwszym pobraniu dane są zapisywane w IndexedDB (cache 3 dni)
+   - **Metoda A (Województwa):** Wybierz województwo z listy. Dane załadują się automatycznie, a mapa dopasuje się do granic regionu.
+   - **Metoda B (Lokalnie):** Przesuń mapę w interesujące Cię miejsce (wymagany zoom > 11) i kliknij przycisk "Wczytaj drogi" widoczny na mapie.
+   - **Odświeżanie:** Kliknij "Odśwież" w panelu bocznym. Pozycja mapy zostanie zachowana (nie resetuje widoku).
+   - **Cache:** Dane są zapisywane w IndexedDB (cache 3 dni) dla szybkiego dostępu offline.
 
 4. **Nawigacja po mapie:**
    - Użyj przycisków zoom lub scroll myszy do zmiany przybliżenia
@@ -357,9 +359,8 @@ Projekt jest otwarty na kontrybucje! Jeśli chcesz pomóc:
 
 ### Planowane funkcjonalności (zobacz TODO.md)
 - Analityka użytkowania
-- Wyszukiwanie dróg w bieżącym widoku (zamiast po województwie)
-- Zachowanie pozycji mapy po odświeżeniu
 - Eksport danych do różnych formatów
+- Statystyki dla widocznego obszaru (obecnie per województwo)
 
 ## Licencja
 
