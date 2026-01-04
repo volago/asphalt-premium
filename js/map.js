@@ -538,6 +538,12 @@ class MapManager {
         this.showRoadInfo(road.feature.properties);
 
         console.log('Road selected:', road.feature.properties.osm_id);
+
+        // Hide and disable tooltip for selected road
+        if (road._clickableLine) {
+            road._clickableLine.closeTooltip();
+            road._clickableLine.unbindTooltip();
+        }
     }
 
     /**
@@ -556,6 +562,15 @@ class MapManager {
 
             // Hide road info sidebar
             this.hideRoadInfo();
+
+            // Restore tooltip
+            if (this.selectedRoad._clickableLine) {
+                const tooltipContent = this.createRoadTooltip(this.selectedRoad.feature.properties);
+                this.selectedRoad._clickableLine.bindTooltip(tooltipContent, {
+                    sticky: true,
+                    className: 'custom-tooltip'
+                });
+            }
 
             this.selectedRoad = null;
         }

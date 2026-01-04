@@ -71,7 +71,9 @@ body {
     line-height: 1.6;
     color: var(--dark-gray);
     background-color: var(--light-gray);
-    overflow-x: hidden;
+    overflow: hidden; /* Prevent body scroll */
+    height: 100%;     /* Ensure full height */
+    width: 100%;      /* Ensure full width */
 }
 
 /* ==========================================
@@ -201,8 +203,11 @@ body {
 
 .main-content {
     margin-top: var(--toolbar-height);
+    /* Use dvh (dynamic viewport height) if supported, fallback to vh */
     height: calc(100vh - var(--toolbar-height));
+    height: calc(100dvh - var(--toolbar-height));
     position: relative;
+    overflow: hidden; /* Ensure content doesn't cause scroll on main container */
 }
 
 .page {
