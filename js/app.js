@@ -70,7 +70,7 @@ class AsfaltPremiumApp {
                         <i class="fas fa-map-marked-alt"></i>
                         Przeglądaj mapę
                     </button>
-                    <p class="welcome-hint">Kliknij gdziekolwiek poza oknem, aby zamknąć</p>
+
                 </div>
             `;
             document.body.appendChild(overlay);
