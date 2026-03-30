@@ -38,6 +38,70 @@ class MapManager {
         this.overpassApi = overpassApi;
     }
 
+    /**
+     * Show a toast notification (replaces alert())
+     * @param {string} message - Message to display
+     * @param {'success'|'error'|'warning'|'info'} type - Toast type
+     * @param {number} duration - Duration in ms (default 4000)
+     */
+    showToast(message, type = 'info', duration = 4000) {
+        // Remove existing toasts of same type
+        document.querySelectorAll(`.map-toast.map-toast-${type}`).forEach(el => el.remove());
+
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+        const colors = {
+            success: { bg: '#f0fdf4', border: '#22c55e', text: '#15803d', icon: '#22c55e' },
+            error:   { bg: '#fef2f2', border: '#ef4444', text: '#dc2626', icon: '#ef4444' },
+            warning: { bg: '#fffbeb', border: '#f59e0b', text: '#d97706', icon: '#f59e0b' },
+            info:    { bg: '#f0f9ff', border: '#3b82f6', text: '#1e40af', icon: '#3b82f6' }
+        };
+        const c = colors[type] || colors.info;
+
+        const toast = document.createElement('div');
+        toast.className = `map-toast map-toast-${type}`;
+        toast.style.cssText = [
+            'position:fixed', 'top:5rem', 'right:1rem', 'z-index:100000',
+            `min-width:260px`, 'max-width:380px',
+            `background:${c.bg}`, `border-left:4px solid ${c.border}`,
+            `color:${c.text}`, 'border-radius:10px',
+            'box-shadow:0 8px 32px rgba(0,0,0,0.15)',
+            'display:flex', 'align-items:flex-start', 'gap:10px',
+            'padding:14px 16px', 'font-size:14px', 'font-family:inherit',
+            'cursor:pointer', 'transition:all 0.3s ease',
+            'backdrop-filter:blur(10px)',
+            'opacity:0', 'transform:translateX(30px)'
+        ].join(';');
+
+        toast.innerHTML = `
+            <span style="flex-shrink:0;font-size:16px;font-weight:700;color:${c.icon};margin-top:1px">${icons[type]}</span>
+            <span style="flex:1;line-height:1.45">${message}</span>
+            <button style="background:none;border:none;cursor:pointer;color:${c.text};opacity:0.5;font-size:16px;padding:0;margin-left:4px;line-height:1" aria-label="Zamknij">×</button>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        });
+
+        const dismiss = () => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(30px)';
+            setTimeout(() => toast.remove(), 300);
+        };
+
+        toast.addEventListener('click', dismiss);
+        const timerId = setTimeout(dismiss, duration);
+        toast.addEventListener('click', () => clearTimeout(timerId));
+    }
+
     /* ==========================================
        MAP INITIALIZATION
        ========================================== */
@@ -263,7 +327,7 @@ class MapManager {
         });
 
         this.map.on('locationerror', (e) => {
-            alert('Nie udało się ustalić Twojej lokalizacji: ' + e.message);
+            this.showToast('Nie udało się ustalić Twojej lokalizacji: ' + e.message, 'warning');
         });
     }
 
@@ -1026,13 +1090,13 @@ class MapManager {
      */
     async saveSmoothnessEdit(wayId, oldSmoothness) {
         if (!this.selectedSmoothnessValue) {
-            alert('Proszę wybrać jakość nawierzchni');
+            this.showToast('Proszę wybrać jakość nawierzchni', 'warning');
             return;
         }
 
         // Check if value changed
         if (this.selectedSmoothnessValue === oldSmoothness) {
-            alert('Wybrano tę samą wartość. Nie ma zmian do zapisania.');
+            this.showToast('Wybrano tę samą wartość. Nie ma zmian do zapisania.', 'info');
             return;
         }
 
@@ -1073,7 +1137,7 @@ class MapManager {
             console.error('Failed to save smoothness:', error);
 
             // Show error message
-            alert(`Błąd podczas zapisywania: ${error.message}`);
+            this.showToast(`Błąd podczas zapisywania: ${error.message}`, 'error', 6000);
 
             // Re-enable save button
             const saveBtn = document.getElementById('save-smoothness-btn');
@@ -1210,13 +1274,11 @@ class MapManager {
      * @param {Object} result - Save result
      */
     showSuccessMessage(result) {
-        const message = `Sukces! Jakość nawierzchni została zaktualizowana.\n\n` +
-            `Droga: ${result.wayId}\n` +
-            `Nowa wartość: ${result.newSmoothness}\n` +
-            `Changeset: ${result.changesetId}\n\n` +
-            `Zmiany są widoczne lokalnie. Po odświeżeniu załadują się dane z OSM.`;
-
-        alert(message);
+        this.showToast(
+            `✓ Jakość nawierzchni zaktualizowana! Changeset: ${result.changesetId}`,
+            'success',
+            6000
+        );
     }
 
     /* ==========================================
@@ -1308,7 +1370,7 @@ class MapManager {
         // Ensure OverpassAPI is available
         if (!this.overpassApi) {
             console.error('OverpassAPI client not initialized in MapManager');
-            alert('Błąd wewnętrzny: Moduł OverpassAPI nie jest dostępny.');
+            this.showToast('Błąd wewnętrzny: Moduł OverpassAPI nie jest dostępny.', 'error');
             return;
         }
 
@@ -1317,7 +1379,7 @@ class MapManager {
         const minLoadZoom = isMobile ? CONFIG.MAP.MIN_LOAD_ZOOM_MOBILE : CONFIG.MAP.MIN_LOAD_ZOOM;
 
         if (zoom < minLoadZoom) {
-            alert(`Obszar jest zbyt duży. Przybliż mapę, aby wczytać drogi (wymagany zoom ${minLoadZoom}+).`);
+            this.showToast(`Obszar jest zbyt duży. Przybliż mapę, aby wczytać drogi (wymagany zoom ${minLoadZoom}+).`, 'warning');
             return;
         }
 
@@ -1360,16 +1422,16 @@ class MapManager {
             console.log(`Loaded ${addedCount} new roads.`);
 
             if (addedCount === 0) {
-                alert('Nie znaleziono nowych dróg w tym obszarze (lub już są wczytane).');
+                this.showToast('Nie znaleziono nowych dróg w tym obszarze (lub już są wczytane).', 'info');
             }
 
         } catch (error) {
             console.error('Error loading roads:', error);
             // Handle Overpass specific errors
             if (error.message.includes('timeout') || error.message.includes('size')) {
-                alert('Serwer Overpass zwrócił błąd (zbyt duży obszar lub timeout). \nProszę przybliżyć mapę.');
+                this.showToast('Serwer Overpass zwrócił błąd (zbyt duży obszar lub timeout). Proszę przybliżyć mapę.', 'error', 6000);
             } else {
-                alert('Wystąpił błąd podczas wczytywania dróg: ' + error.message);
+                this.showToast('Wystąpił błąd podczas wczytywania dróg: ' + error.message, 'error', 6000);
             }
         } finally {
             this.isLoading = false;

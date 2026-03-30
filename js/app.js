@@ -21,17 +21,93 @@ class AsfaltPremiumApp {
     }
 
     /**
-     * Determine if about overlay should be shown (first visit)
+     * Determine if first visit (show welcome popup once)
      */
-    shouldShowAboutOverlay() {
+    isFirstVisit() {
         const hasVisited = localStorage.getItem('asphalt_premium_visited');
         if (!hasVisited) {
-            // First visit - show about overlay
             localStorage.setItem('asphalt_premium_visited', 'true');
             return true;
         }
-        // Returning user - don't show overlay
         return false;
+    }
+
+    /**
+     * Show stylish welcome popup on first visit
+     */
+    showWelcomePopup() {
+        try {
+            const overlay = document.createElement('div');
+            overlay.id = 'welcome-popup-overlay';
+            overlay.innerHTML = `
+                <div class="welcome-popup" id="welcome-popup" role="dialog" aria-modal="true" aria-label="Witaj w Asfalt Premium">
+                    <div class="welcome-popup-header">
+                        <img src="assets/logo.jpg" alt="Asfalt Premium logo" class="welcome-logo">
+                        <div class="welcome-brand">
+                            <span class="welcome-brand-name">Asfalt Premium</span>
+                            <span class="welcome-brand-tag">Mapa jakości dróg</span>
+                        </div>
+                    </div>
+                    <h2 class="welcome-title">Witaj!&nbsp;👋</h2>
+                    <p class="welcome-desc">Społecznościowa mapa nawierzchni dróg asfaltowych w Polsce &mdash; tworzona przez rowerzystów dla rowerzystów.</p>
+                    <ul class="welcome-features">
+                        <li>
+                            <span class="welcome-feature-icon" style="background:linear-gradient(135deg,#2563eb,#1e40af)">🗺️</span>
+                            <div>
+                                <strong>Przeglądaj trasy</strong>
+                                <span>Odkrywaj drogi ocenione przez społeczność i planuj bezpieczne przejażdżki.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="welcome-feature-icon" style="background:linear-gradient(135deg,#16a34a,#15803d)">⭐</span>
+                            <div>
+                                <strong>Dodaj jakość znanych tras</strong>
+                                <span>Zaloguj się przez OSM i oceń nawierzchnię dróg, które znasz.</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <button class="welcome-cta" id="welcome-start-btn">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Przeglądaj mapę
+                    </button>
+                    <p class="welcome-hint">Kliknij gdziekolwiek poza oknem, aby zamknąć</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Double rAF: ensures browser has painted the element before transition starts
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    overlay.classList.add('welcome-visible');
+                });
+            });
+
+            const close = () => {
+                overlay.classList.remove('welcome-visible');
+                overlay.classList.add('welcome-hiding');
+                setTimeout(() => {
+                    if (overlay.parentNode) overlay.remove();
+                }, 400);
+            };
+
+            const startBtn = document.getElementById('welcome-start-btn');
+            if (startBtn) startBtn.addEventListener('click', close);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close();
+            });
+
+            document.addEventListener('keydown', function onKey(e) {
+                if (e.key === 'Escape') {
+                    close();
+                    document.removeEventListener('keydown', onKey);
+                }
+            });
+
+            console.log('[Welcome] Popup displayed');
+        } catch (err) {
+            console.error('[Welcome] Failed to show popup:', err);
+        }
     }
 
     async init() {
@@ -67,9 +143,9 @@ class AsfaltPremiumApp {
         // Set initial page state
         this.setInitialPageState();
 
-        // Show about overlay if first visit (but not if OAuth callback)
-        if (!isOAuthCallback && this.shouldShowAboutOverlay()) {
-            this.showAboutOverlay();
+        // Show welcome popup if first visit (but not if OAuth callback)
+        if (!isOAuthCallback && this.isFirstVisit()) {
+            setTimeout(() => this.showWelcomePopup(), 600);
         }
 
         // Bind events
