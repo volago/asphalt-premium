@@ -241,7 +241,7 @@ const CONFIG = {
             value: 'excellent',
             label: 'Doskonała',
             labelEn: 'Excellent',
-            description: 'Idealny asfalt, nowy dywan. Asfalt premium, można jździć do końca życia.',
+            description: 'Idealny asfalt, nowy dywan. Asfalt premium, można jeździć do końca życia.',
             image: 'excellent.jpg',
             common: true
         },
@@ -257,7 +257,7 @@ const CONFIG = {
             value: 'intermediate',
             label: 'Średnia',
             labelEn: 'Intermediate',
-            description: 'Zaczyna się robić niemiło, na drodze nierówności i trzęsie rowerem. Tu już niebardzo chcemy jeździć.',
+            description: 'Zaczyna się robić niemiło, na drodze nierówności i trzęsie rowerem. Tu już nie bardzo chcemy jeździć.',
             image: 'intermediate.jpg',
             common: true
         },
