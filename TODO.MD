@@ -10,4 +10,4 @@
 
 3. Powiadamianie użytkownika o wdrażanych zmianach
 **Problem**: Użytkownicy nie wiedzą nic o kolejnych releaseach i wprowadzanych zmianach.
-**Proponowane rozwiązanie**: Dodać przycisk "Nowości" w menu, który wyświetli listę ostatnich zmian.
+**Proponowane rozwiązanie**: Dodać przycisk "Nowości" w menu, który wyświetli listę ostatnich zmian. Dodatkowo jeśli są jakieś nowości, których użytkownik jeszcze nie widział, to na przycisku pojawi się kropka informująca o tym (standard komunikowania nowości w internecie).
