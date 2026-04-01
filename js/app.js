@@ -15,7 +15,9 @@ class AsfaltPremiumApp {
         this.osmApi = null;
         this.isMobile = false;
         this.mobileMediaQuery = null;
+        this.mobileMediaQuery = null;
         this.mobileFilterControl = null;
+        this.newsManager = new NewsManager();
 
         this.init();
     }
@@ -39,59 +41,58 @@ class AsfaltPremiumApp {
         try {
             const overlay = document.createElement('div');
             overlay.id = 'welcome-popup-overlay';
+            overlay.className = 'modal-overlay';
             overlay.innerHTML = `
-                <div class="welcome-popup" id="welcome-popup" role="dialog" aria-modal="true" aria-label="Witaj w Asfalt Premium">
-                    <div class="welcome-popup-header">
-                        <img src="assets/logo.jpg" alt="Asfalt Premium logo" class="welcome-logo">
-                        <div class="welcome-brand">
-                            <span class="welcome-brand-name">Asfalt Premium</span>
-                            <span class="welcome-brand-tag">Mapa jakości dróg</span>
+                <div class="modal" id="welcome-popup" role="dialog" aria-modal="true" aria-label="Witaj w Asfalt Premium">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <img src="assets/logo.jpg" alt="Asfalt Premium logo" style="width:24px; height:24px; border-radius:4px;">
+                            <h2>Witaj!&nbsp;👋</h2>
                         </div>
+                        <button class="modal-close" id="welcome-close-btn" aria-label="Zamknij">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <h2 class="welcome-title">Witaj!&nbsp;👋</h2>
-                    <p class="welcome-desc">Społecznościowa mapa nawierzchni dróg asfaltowych w Polsce &mdash; tworzona przez rowerzystów dla rowerzystów.</p>
-                    <ul class="welcome-features">
-                        <li>
-                            <span class="welcome-feature-icon" style="background:linear-gradient(135deg,#2563eb,#1e40af)">🗺️</span>
-                            <div>
-                                <strong>Przeglądaj trasy</strong>
-                                <span>Odkrywaj drogi ocenione przez społeczność i planuj bezpieczne przejażdżki.</span>
+                    <div class="modal-body">
+                        <p style="font-size:1.1rem; color:var(--dark-gray); margin-bottom:1.5rem;">Społecznościowa mapa nawierzchni dróg asfaltowych w Polsce &mdash; tworzona przez rowerzystów dla rowerzystów.</p>
+                        
+                        <div style="display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2rem;">
+                            <div style="display:flex; gap:1rem; align-items:flex-start;">
+                                <span style="background:linear-gradient(135deg,#2563eb,#1e40af); padding:6px; border-radius:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(37,99,235,0.3);">🗺️</span>
+                                <div>
+                                    <strong style="display:block; font-size:1.05rem; color:var(--dark-gray); margin-bottom:4px;">Przeglądaj trasy</strong>
+                                    <span style="font-size:0.9rem; color:var(--secondary-gray); line-height:1.5; display:block;">Odkrywaj drogi ocenione przez społeczność i planuj bezpieczne przejażdżki.</span>
+                                </div>
                             </div>
-                        </li>
-                        <li>
-                            <span class="welcome-feature-icon" style="background:linear-gradient(135deg,#16a34a,#15803d)">⭐</span>
-                            <div>
-                                <strong>Dodaj jakość znanych tras</strong>
-                                <span>Zaloguj się przez OSM i oceń nawierzchnię dróg, które znasz.</span>
+                            <div style="display:flex; gap:1rem; align-items:flex-start;">
+                                <span style="background:linear-gradient(135deg,#16a34a,#15803d); padding:6px; border-radius:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(22,163,74,0.3);">⭐</span>
+                                <div>
+                                    <strong style="display:block; font-size:1.05rem; color:var(--dark-gray); margin-bottom:4px;">Dodaj jakość znanych tras</strong>
+                                    <span style="font-size:0.9rem; color:var(--secondary-gray); line-height:1.5; display:block;">Zaloguj się przez OSM i oceń nawierzchnię dróg, które znasz.</span>
+                                </div>
                             </div>
-                        </li>
-                    </ul>
-                    <button class="welcome-cta" id="welcome-start-btn">
-                        <i class="fas fa-map-marked-alt"></i>
-                        Przeglądaj mapę
-                    </button>
+                        </div>
 
+                        <button class="btn-cta" id="welcome-start-btn">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Przeglądaj mapę
+                        </button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(overlay);
 
-            // Double rAF: ensures browser has painted the element before transition starts
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    overlay.classList.add('welcome-visible');
-                });
-            });
-
             const close = () => {
-                overlay.classList.remove('welcome-visible');
-                overlay.classList.add('welcome-hiding');
+                overlay.classList.add('modal-hiding');
                 setTimeout(() => {
                     if (overlay.parentNode) overlay.remove();
-                }, 400);
+                }, 250);
             };
 
             const startBtn = document.getElementById('welcome-start-btn');
             if (startBtn) startBtn.addEventListener('click', close);
+            const closeBtn = document.getElementById('welcome-close-btn');
+            if (closeBtn) closeBtn.addEventListener('click', close);
 
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) close();
@@ -163,6 +164,9 @@ class AsfaltPremiumApp {
         }
 
         console.log('Asfalt Premium App initialized');
+
+        // Init News
+        this.newsManager.init();
     }
 
     /**
@@ -445,17 +449,20 @@ class AsfaltPremiumApp {
         // Handle navigation button clicks (both desktop and mobile)
         navButtons.forEach(button => {
             button.addEventListener('click', (e) => {
-                const targetPage = e.target.closest('.nav-btn').dataset.page;
+                const navBtnMatch = e.target.closest('.nav-btn');
+                const targetPage = navBtnMatch ? navBtnMatch.dataset.page : null;
 
-                // Update active state
-                navButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+                // Only update active state if the button navigates to a specific page
+                if (targetPage) {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
 
-                // Handle page navigation
-                if (targetPage === 'about') {
-                    this.showAboutOverlay();
-                } else if (targetPage === 'map') {
-                    this.hideAboutOverlay();
+                    // Handle page navigation
+                    if (targetPage === 'about') {
+                        this.showAboutOverlay();
+                    } else if (targetPage === 'map') {
+                        this.hideAboutOverlay();
+                    }
                 }
 
                 // Close mobile menu after selection
@@ -1023,6 +1030,9 @@ class AsfaltPremiumApp {
                 }
             }
         });
+
+        // Initialize NewsManager
+        this.newsManager = new NewsManager();
     }
 }
 

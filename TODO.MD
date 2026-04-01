@@ -7,7 +7,3 @@
 2. Zaznaczanie wielu dróg na mapie i edycja ich jakości hurtowo
 **Problem**: Użytkownik zgłosił, że obecnie można ocenić jakość dróg tylko pojedynczo. Chciałby móc zaznaczyć wiele dróg na mapie i ocenić ich jakość hurtowo.
 **Proponowane rozwiązanie**: Po zaznaczeniu danego odcinka drogi należy umożliwoć kliknięcie na kolejne odcinki drogi (w przytrzymanym Ctrl) i po zakończeniu zaznaczania. Kiedy użytkownik zaznaczy wiele dróg i naciśnie przycisk zapisujący, to wszystkie zmiany zostaną zapisane w jednym changesecie. Warto też dodać możliwość usunięcia pojedynczego odcinka z zaznaczenia (w przytrzymanym Ctrl). Dodatkowo trzeba jakoś poinformować użytkownika o tym, że może zaznaczyć dodatkowe odcinki drogi do edycji. Może po zaznaczeniu jednego odcinka pokazać jakiś komunikat w lewym dolnym rogu mapy informujący o tym, że można zaznaczyć dodatkowe odcinki drogi do edycji.s
-
-3. Powiadamianie użytkownika o wdrażanych zmianach
-**Problem**: Użytkownicy nie wiedzą nic o kolejnych releaseach i wprowadzanych zmianach.
-**Proponowane rozwiązanie**: Dodać przycisk "Nowości" w menu, który wyświetli listę ostatnich zmian. Dodatkowo jeśli są jakieś nowości, których użytkownik jeszcze nie widział, to na przycisku pojawi się kropka informująca o tym (standard komunikowania nowości w internecie).

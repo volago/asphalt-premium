@@ -1,0 +1,46 @@
+/* ==========================================
+   BUTTON: INDICATOR (Notification Dot)
+   ========================================== */
+
+.btn-with-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-indicator-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    animation: indicator-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.btn-with-indicator-mobile {
+    position: relative;
+}
+
+.btn-indicator-dot-mobile {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 10px;
+    height: 10px;
+    margin-left: auto;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    animation: indicator-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes indicator-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    50%       { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}

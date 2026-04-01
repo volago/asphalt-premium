@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asfalt Premium - Jakość dróg w Polsce</title>
     <link rel="icon" type="image/svg+xml" href="favicon.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/btn-cta.css">
+    <link rel="stylesheet" href="styles/btn-indicator.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -57,10 +60,15 @@
             <div class="toolbar-nav-buttons">
                 <button class="nav-btn active" data-page="map">Mapa</button>
                 <button class="nav-btn" data-page="about">O projekcie</button>
+                <button class="nav-btn btn-with-indicator" id="news-btn" title="Co nowego?">
+                    <i class="fas fa-bolt"></i>
+                    Nowości
+                    <span class="btn-indicator-dot" id="news-dot" style="display:none;"></span>
+                </button>
             </div>
 
             <!-- Contact Email (Desktop) -->
-            <a href="mailto:asfaltpremiumpl@gmail.com" class="toolbar-contact-link" title="Napisz do nas">
+            <a href="mailto:vollyey@gmail.com" class="toolbar-contact-link" title="Napisz do nas">
                 <i class="fas fa-envelope"></i>
                 <span>Kontakt</span>
             </a>
@@ -78,7 +86,12 @@
                 <i class="fas fa-info-circle"></i>
                 <span>O projekcie</span>
             </button>
-            <a href="mailto:asfaltpremiumpl@gmail.com" class="mobile-menu-item nav-btn">
+            <button class="mobile-menu-item nav-btn btn-with-indicator-mobile" id="news-btn-mobile">
+                <i class="fas fa-bolt"></i>
+                <span>Nowości</span>
+                <span class="btn-indicator-dot-mobile" id="news-dot-mobile" style="display:none;"></span>
+            </button>
+            <a href="mailto:vollyey@gmail.com" class="mobile-menu-item nav-btn">
                 <i class="fas fa-envelope"></i>
                 <span>Napisz do nas</span>
             </a>
@@ -508,9 +521,9 @@
                                 Masz pytania, sugestie lub chcesz zgłosić problem? Napisz do nas!
                             </p>
                             <div class="contact-email-box">
-                                <a href="mailto:asfaltpremiumpl@gmail.com" class="contact-email-link">
+                                <a href="mailto:vollyey@gmail.com" class="contact-email-link">
                                     <i class="fas fa-envelope"></i>
-                                    <span>asfaltpremiumpl@gmail.com</span>
+                                    <span>vollyey@gmail.com</span>
                                 </a>
                             </div>
                             <p class="contact-note">
@@ -739,6 +752,24 @@
         <div id="modalCaption"></div>
     </div>
 
+    <!-- News (Releases) Modal -->
+    <div id="news-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Nowości">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-bolt" style="color: #f59e0b; font-size: 1.1rem;"></i>
+                    <h2>Co nowego?</h2>
+                </div>
+                <button class="modal-close" id="news-modal-close" aria-label="Zamknij">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="news-modal-body">
+                <!-- Content rendered dynamically from RELEASES.MD -->
+            </div>
+        </div>
+    </div>
+
     <!-- Confirmation Modal -->
     <div id="confirmationModal" class="confirmation-modal" style="display: none;">
         <div class="confirmation-modal-overlay"></div>
@@ -762,10 +793,11 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/cache.js"></script>
-    <script src="js/overpass.js"></script>
     <script src="js/oauth.js"></script>
     <script src="js/osm-api.js"></script>
+    <script src="js/cache.js"></script>
+    <script src="js/overpass.js"></script>
+    <script src="js/news.js"></script>
     <script src="js/map.js"></script>
     <script src="js/app.js"></script>
     <script src="js/image-modal.js"></script>
