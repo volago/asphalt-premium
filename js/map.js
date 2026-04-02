@@ -8,8 +8,9 @@ class MapManager {
         this.map = null;
         this.roadsLayer = null;
         this.currentBounds = null;
-        this.selectedRoad = null;
+        this.selectedRoads = [];
         this.selectedRoadMarkers = [];
+        this.hasShownMultiSelectHint = false;
         this.layerVisibility = {
             excellent: true,
             good: true,
@@ -38,69 +39,7 @@ class MapManager {
         this.overpassApi = overpassApi;
     }
 
-    /**
-     * Show a toast notification (replaces alert())
-     * @param {string} message - Message to display
-     * @param {'success'|'error'|'warning'|'info'} type - Toast type
-     * @param {number} duration - Duration in ms (default 4000)
-     */
-    showToast(message, type = 'info', duration = 4000) {
-        // Remove existing toasts of same type
-        document.querySelectorAll(`.map-toast.map-toast-${type}`).forEach(el => el.remove());
 
-        const icons = {
-            success: '✓',
-            error: '✕',
-            warning: '⚠',
-            info: 'ℹ'
-        };
-        const colors = {
-            success: { bg: '#f0fdf4', border: '#22c55e', text: '#15803d', icon: '#22c55e' },
-            error:   { bg: '#fef2f2', border: '#ef4444', text: '#dc2626', icon: '#ef4444' },
-            warning: { bg: '#fffbeb', border: '#f59e0b', text: '#d97706', icon: '#f59e0b' },
-            info:    { bg: '#f0f9ff', border: '#3b82f6', text: '#1e40af', icon: '#3b82f6' }
-        };
-        const c = colors[type] || colors.info;
-
-        const toast = document.createElement('div');
-        toast.className = `map-toast map-toast-${type}`;
-        toast.style.cssText = [
-            'position:fixed', 'top:5rem', 'right:1rem', 'z-index:100000',
-            `min-width:260px`, 'max-width:380px',
-            `background:${c.bg}`, `border-left:4px solid ${c.border}`,
-            `color:${c.text}`, 'border-radius:10px',
-            'box-shadow:0 8px 32px rgba(0,0,0,0.15)',
-            'display:flex', 'align-items:flex-start', 'gap:10px',
-            'padding:14px 16px', 'font-size:14px', 'font-family:inherit',
-            'cursor:pointer', 'transition:all 0.3s ease',
-            'backdrop-filter:blur(10px)',
-            'opacity:0', 'transform:translateX(30px)'
-        ].join(';');
-
-        toast.innerHTML = `
-            <span style="flex-shrink:0;font-size:16px;font-weight:700;color:${c.icon};margin-top:1px">${icons[type]}</span>
-            <span style="flex:1;line-height:1.45">${message}</span>
-            <button style="background:none;border:none;cursor:pointer;color:${c.text};opacity:0.5;font-size:16px;padding:0;margin-left:4px;line-height:1" aria-label="Zamknij">×</button>
-        `;
-
-        document.body.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(0)';
-        });
-
-        const dismiss = () => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(30px)';
-            setTimeout(() => toast.remove(), 300);
-        };
-
-        toast.addEventListener('click', dismiss);
-        const timerId = setTimeout(dismiss, duration);
-        toast.addEventListener('click', () => clearTimeout(timerId));
-    }
 
     /* ==========================================
        MAP INITIALIZATION
@@ -327,7 +266,7 @@ class MapManager {
         });
 
         this.map.on('locationerror', (e) => {
-            this.showToast('Nie udało się ustalić Twojej lokalizacji: ' + e.message, 'warning');
+            Toast.show('Nie udało się ustalić Twojej lokalizacji: ' + e.message, 'warning');
         });
     }
 
@@ -482,7 +421,7 @@ class MapManager {
         this.roadsLayer.eachLayer(layer => {
             if (layer._visibleLine && layer.styleType) {
                 // Check if this is the selected road
-                const isSelected = (this.selectedRoad && layer === this.selectedRoad);
+                const isSelected = this.selectedRoads.includes(layer);
 
                 if (isSelected) {
                     // Keep selected style for selected road
@@ -575,11 +514,53 @@ class MapManager {
      * @param {Event} e - Click event
      */
     selectRoad(road, e) {
-        // Clear previous selection
-        this.clearSelection();
-
-        // Set as selected
-        this.selectedRoad = road;
+        const isMultiSelect = e && e.originalEvent && (e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+        
+        if (isMultiSelect) {
+            const index = this.selectedRoads.indexOf(road);
+            if (index > -1) {
+                // Deselect
+                this.selectedRoads.splice(index, 1);
+                
+                // Restore original style
+                const originalStyle = this.getRoadStyle(road.styleType);
+                if (road._visibleLine) {
+                    road._visibleLine.setStyle(originalStyle);
+                }
+                
+                // Restore tooltip
+                if (road._clickableLine) {
+                    const tooltipContent = this.createRoadTooltip(road.feature.properties);
+                    road._clickableLine.bindTooltip(tooltipContent, {
+                        sticky: true,
+                        className: 'custom-tooltip'
+                    });
+                }
+                
+                // Re-calculate everything
+                this.removeEndpointMarkers();
+                this.selectedRoads.forEach(r => this.addEndpointMarkers(r));
+                
+                if (this.selectedRoads.length === 0) {
+                    this.hideRoadInfo();
+                } else {
+                    this.showRoadInfo();
+                }
+                return;
+            } else {
+                // Add to selection
+                this.selectedRoads.push(road);
+            }
+        } else {
+            // Single select, clear previous
+            this.clearSelection();
+            this.selectedRoads = [road];
+            
+            if (!this.hasShownMultiSelectHint) {
+                Toast.show('Możesz zaznaczyć kolejne odcinki przytrzymując klawisz Ctrl', 'info', 6000);
+                this.hasShownMultiSelectHint = true;
+            }
+        }
 
         // Apply selected style to the visible line
         const selectedStyle = {
@@ -589,37 +570,48 @@ class MapManager {
             dashArray: null
         };
 
-        if (road._visibleLine) {
-            road._visibleLine.setStyle(selectedStyle);
-            // Bring visible line to front
-            road._visibleLine.bringToFront();
-        }
+        this.selectedRoads.forEach(r => {
+            if (r._visibleLine) {
+                r._visibleLine.setStyle(selectedStyle);
+                r._visibleLine.bringToFront();
+            }
+            if (r._clickableLine) {
+                r._clickableLine.closeTooltip();
+                r._clickableLine.unbindTooltip();
+            }
+        });
 
-        // Add endpoint markers
-        this.addEndpointMarkers(road);
+        // Add endpoint markers for all
+        this.removeEndpointMarkers();
+        this.selectedRoads.forEach(r => this.addEndpointMarkers(r));
 
         // Show road info sidebar
-        this.showRoadInfo(road.feature.properties);
+        this.showRoadInfo();
 
-        console.log('Road selected:', road.feature.properties.osm_id);
-
-        // Hide and disable tooltip for selected road
-        if (road._clickableLine) {
-            road._clickableLine.closeTooltip();
-            road._clickableLine.unbindTooltip();
-        }
+        console.log('Road selected. Total selected:', this.selectedRoads.length);
     }
 
     /**
      * Clear current road selection
      */
     clearSelection() {
-        if (this.selectedRoad) {
-            // Restore original style to the visible line
-            const originalStyle = this.getRoadStyle(this.selectedRoad.styleType);
-            if (this.selectedRoad._visibleLine) {
-                this.selectedRoad._visibleLine.setStyle(originalStyle);
-            }
+        if (this.selectedRoads && this.selectedRoads.length > 0) {
+            this.selectedRoads.forEach(road => {
+                // Restore original style to the visible line
+                const originalStyle = this.getRoadStyle(road.styleType);
+                if (road._visibleLine) {
+                    road._visibleLine.setStyle(originalStyle);
+                }
+
+                // Restore tooltip
+                if (road._clickableLine) {
+                    const tooltipContent = this.createRoadTooltip(road.feature.properties);
+                    road._clickableLine.bindTooltip(tooltipContent, {
+                        sticky: true,
+                        className: 'custom-tooltip'
+                    });
+                }
+            });
 
             // Remove endpoint markers
             this.removeEndpointMarkers();
@@ -627,16 +619,7 @@ class MapManager {
             // Hide road info sidebar
             this.hideRoadInfo();
 
-            // Restore tooltip
-            if (this.selectedRoad._clickableLine) {
-                const tooltipContent = this.createRoadTooltip(this.selectedRoad.feature.properties);
-                this.selectedRoad._clickableLine.bindTooltip(tooltipContent, {
-                    sticky: true,
-                    className: 'custom-tooltip'
-                });
-            }
-
-            this.selectedRoad = null;
+            this.selectedRoads = [];
         }
     }
 
@@ -670,7 +653,7 @@ class MapManager {
         endMarker.bindTooltip('Koniec odcinka', { permanent: false, direction: 'top' });
 
         // Store markers for cleanup
-        this.selectedRoadMarkers = [startMarker, endMarker];
+        this.selectedRoadMarkers.push(startMarker, endMarker);
     }
 
     /**
@@ -691,18 +674,45 @@ class MapManager {
      * Show road information in sidebar
      * @param {Object} properties - Road properties
      */
-    showRoadInfo(properties) {
+    showRoadInfo() {
+        if (!this.selectedRoads || this.selectedRoads.length === 0) return;
+
         const sidebar = document.getElementById('road-info-sidebar');
         const content = document.getElementById('road-info-content');
 
         if (!sidebar || !content) return;
 
-        const name = properties.name || 'Droga bez nazwy';
-        const smoothness = properties.smoothness || null;
-        const osmId = properties.osm_id;
+        const isMulti = this.selectedRoads.length > 1;
+        const firstProps = this.selectedRoads[0].feature.properties;
 
-        // Reset selected smoothness
-        this.selectedSmoothnessValue = smoothness;
+        // Calculate common smoothness
+        let commonSmoothness = firstProps.smoothness;
+        for (let i = 1; i < this.selectedRoads.length; i++) {
+            if (this.selectedRoads[i].feature.properties.smoothness !== commonSmoothness) {
+                commonSmoothness = 'mixed';
+                break;
+            }
+        }
+        
+        let name = firstProps.name || 'Droga bez nazwy';
+        let osmId = firstProps.osm_id;
+        
+        if (isMulti) {
+            name = `Zaznaczono odcinków: ${this.selectedRoads.length}`;
+            osmId = 'wiele (' + this.selectedRoads.length + ')';
+        }
+
+        const properties = {
+            name: name,
+            osm_id: osmId,
+            smoothness: commonSmoothness === 'mixed' ? null : commonSmoothness,
+            highway: isMulti ? 'wiele typów dróg' : (firstProps.highway || 'nieznany typ'),
+            isMulti: isMulti,
+            firstOsmId: firstProps.osm_id
+        };
+
+        // Reset selected smoothness. If mixed, it will be null and nothing will be selected
+        this.selectedSmoothnessValue = properties.smoothness;
 
         // Determine layout mode based on screen width
         const isMobile = window.innerWidth <= 768;
@@ -797,14 +807,14 @@ class MapManager {
             <div class="road-info-scrollable">
                 ${this.renderSmoothnessEditor(smoothness, osmId)}
             </div>
-            ${this.renderBottomActions(osmId, smoothness)}
+            ${this.renderBottomActions(properties)}
         `;
 
         // Initialize close button if not already done
         this.initRoadInfoSidebar();
 
         // Initialize smoothness editor controls
-        this.initSmoothnessEditor(osmId, smoothness);
+        this.initSmoothnessEditor();
 
         // Re-init tech info icon as header was touched
         this.initTechInfoIcon(properties);
@@ -947,25 +957,25 @@ class MapManager {
      * @param {string} currentSmoothness - Current smoothness value
      * @returns {string} HTML string
      */
-    renderBottomActions(wayId, currentSmoothness) {
+    renderBottomActions(properties) {
         const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
 
         let html = '<div class="road-info-bottom-actions">';
 
         // Save button - always visible, but disabled if not authenticated
-        const disabledAttr = !isAuthenticated ? 'disabled' : '';
+        const disabledAttr = !isAuthenticated || properties.smoothness === null ? 'disabled' : '';
         const tooltipAttr = !isAuthenticated ? 'title="Zaloguj się do OSM, aby zapisać zmiany"' : '';
 
         html += `
-            <button class="btn-save-smoothness" id="save-smoothness-btn" ${disabledAttr} ${tooltipAttr} disabled>
+            <button class="btn-save-smoothness" id="save-smoothness-btn" ${disabledAttr} ${tooltipAttr}>
                 <i class="fas fa-save"></i>
                 Zapisz
             </button>
         `;
 
-        // Compact OSM edit button
+        // Compact OSM edit button (disable link if multi selection to avoid OSM issue or point to first one)
         html += `
-            <a href="https://www.openstreetmap.org/edit?way=${wayId}" 
+            <a href="https://www.openstreetmap.org/edit?way=${properties.firstOsmId || properties.osm_id}" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="btn-edit-osm-compact"
@@ -1045,7 +1055,7 @@ class MapManager {
      * @param {number} wayId - Way ID
      * @param {string} currentSmoothness - Current smoothness value
      */
-    initSmoothnessEditor(wayId, currentSmoothness) {
+    initSmoothnessEditor() {
         // Handle smoothness option selection
         const options = document.querySelectorAll('.smoothness-option');
         options.forEach(option => {
@@ -1078,32 +1088,57 @@ class MapManager {
         const saveBtn = document.getElementById('save-smoothness-btn');
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
-                this.saveSmoothnessEdit(wayId, currentSmoothness);
+                this.saveSmoothnessEdit();
             });
         }
     }
 
     /**
      * Save smoothness edit to OSM
-     * @param {number} wayId - Way ID
-     * @param {string} oldSmoothness - Old smoothness value
      */
-    async saveSmoothnessEdit(wayId, oldSmoothness) {
+    async saveSmoothnessEdit() {
         if (!this.selectedSmoothnessValue) {
-            this.showToast('Proszę wybrać jakość nawierzchni', 'warning');
+            Toast.show('Proszę wybrać jakość nawierzchni', 'warning');
             return;
         }
 
-        // Check if value changed
-        if (this.selectedSmoothnessValue === oldSmoothness) {
-            this.showToast('Wybrano tę samą wartość. Nie ma zmian do zapisania.', 'info');
+        const isMulti = this.selectedRoads.length > 1;
+
+        // Extract ids and check changes
+        const unchangedIds = [];
+        const toUpdate = [];
+
+        this.selectedRoads.forEach(road => {
+            const props = road.feature.properties;
+            if (props.smoothness === this.selectedSmoothnessValue) {
+                unchangedIds.push(props.osm_id);
+            } else {
+                toUpdate.push({
+                    id: props.osm_id,
+                    oldValue: props.smoothness
+                });
+            }
+        });
+
+        if (toUpdate.length === 0) {
+            Toast.show('Wybrano tę samą wartość dla wszystkich zaznaczonych odcinków. Nie ma zmian do zapisania.', 'info');
             return;
         }
 
-        // Show confirmation dialog
+        // Determine display old value
+        const firstUpdate = toUpdate[0];
+        let displayOldValue = firstUpdate.oldValue || 'brak danych';
+        for(let i=1; i<toUpdate.length; i++) {
+            if (toUpdate[i].oldValue !== firstUpdate.oldValue) {
+                displayOldValue = 'Różne wartości dla zaznaczonych dróg';
+                break;
+            }
+        }
+
+        // Show confirmation dialog:
         const confirmed = await this.showConfirmationDialog(
-            wayId,
-            oldSmoothness,
+            isMulti ? `Wiele odcinków (${toUpdate.length})` : toUpdate[0].id,
+            displayOldValue,
             this.selectedSmoothnessValue
         );
 
@@ -1119,9 +1154,11 @@ class MapManager {
                 saveBtn.innerHTML = '<div class="btn-spinner"></div>Zapisywanie...';
             }
 
-            // Call OSM API
-            const result = await this.osmApi.updateSmoothness(
-                wayId,
+            let result;
+            const wayIds = toUpdate.map(u => u.id);
+            
+            result = await this.osmApi.updateSmoothness(
+                wayIds,
                 this.selectedSmoothnessValue
             );
 
@@ -1131,19 +1168,22 @@ class MapManager {
             this.showSuccessMessage(result);
 
             // Update road locally (eventual consistency)
-            this.updateRoadLocally(wayId, this.selectedSmoothnessValue);
+            wayIds.forEach(id => {
+               this.updateRoadLocally(id, this.selectedSmoothnessValue, false);
+            });
+            this.showRoadInfo(); // Refresh UI once after all updates
 
         } catch (error) {
             console.error('Failed to save smoothness:', error);
 
             // Show error message
-            this.showToast(`Błąd podczas zapisywania: ${error.message}`, 'error', 6000);
+            Toast.show(`Błąd podczas zapisywania: ${error.message}`, 'error', 6000);
 
             // Re-enable save button
             const saveBtn = document.getElementById('save-smoothness-btn');
             if (saveBtn) {
                 saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save"></i>Zapisz zmiany';
+                saveBtn.innerHTML = '<i class="fas fa-save"></i>Zapisz';
             }
         }
     }
@@ -1181,16 +1221,25 @@ class MapManager {
             bodyHTML += '<div class="info-grid">';
             bodyHTML += `<strong>ID drogi:</strong><span>${wayId}</span>`;
             bodyHTML += `<strong>Nowa wartość:</strong><span>${newOption ? newOption.label : newValue} (${newValue})</span>`;
-            if (oldValue) {
+            
+            if (oldValue === 'brak danych') {
+                bodyHTML += `<strong>Poprzednia wartość:</strong><span>Brak przypisanej wartości</span>`;
+            } else if (oldValue === 'Różne wartości dla zaznaczonych dróg') {
+                bodyHTML += `<strong>Poprzednia wartość:</strong><span>Różne wartości dla zaznaczonych dróg</span>`;
+            } else if (oldValue) {
                 bodyHTML += `<strong>Poprzednia wartość:</strong><span>${oldOption ? oldOption.label : oldValue} (${oldValue})</span>`;
             }
             bodyHTML += '</div>';
 
-            if (oldValue) {
+            if (oldValue && oldValue !== 'brak danych') {
+                const warningMsg = oldValue === 'Różne wartości dla zaznaczonych dróg' 
+                    ? 'Zaznaczone drogi mają już przypisaną przynajmniej jedną wartość jakości nawierzchni.'
+                    : 'Ta droga już ma przypisaną jakość nawierzchni.';
+
                 bodyHTML += `
                     <div class="warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Uwaga:</strong> Ta droga już ma przypisaną jakość nawierzchni. 
+                        <strong>Uwaga:</strong> ${warningMsg}
                         Nowa wartość nadpisze obecną.
                     </div>
                 `;
@@ -1235,11 +1284,12 @@ class MapManager {
      * @param {number} wayId - Way ID
      * @param {string} newSmoothness - New smoothness value
      */
-    updateRoadLocally(wayId, newSmoothness) {
-        if (!this.selectedRoad) return;
+    updateRoadLocally(wayId, newSmoothness, refreshUI = true) {
+        const road = this.selectedRoads ? this.selectedRoads.find(r => r.feature.properties.osm_id === wayId) : null;
+        if (!road) return;
 
         // Update the road properties
-        const properties = this.selectedRoad.feature.properties;
+        const properties = road.feature.properties;
         properties.smoothness = newSmoothness;
 
         // Calculate new style
@@ -1247,11 +1297,11 @@ class MapManager {
         const newStyle = this.getRoadStyle(newStyleType);
 
         // Update the road style type
-        this.selectedRoad.styleType = newStyleType;
+        road.styleType = newStyleType;
 
         // Update the visible line style
-        if (this.selectedRoad._visibleLine) {
-            this.selectedRoad._visibleLine.setStyle(newStyle);
+        if (road._visibleLine) {
+            road._visibleLine.setStyle(newStyle);
 
             // If the road is selected, reapply selection style
             const selectedStyle = {
@@ -1260,11 +1310,13 @@ class MapManager {
                 opacity: 1,
                 dashArray: null
             };
-            this.selectedRoad._visibleLine.setStyle(selectedStyle);
+            road._visibleLine.setStyle(selectedStyle);
         }
 
-        // Update the road info panel
-        this.showRoadInfo(properties);
+        // Update the road info panel only if refreshUI is true
+        if (refreshUI) {
+            this.showRoadInfo();
+        }
 
         console.log(`✓ Road ${wayId} updated locally with smoothness: ${newSmoothness} (style: ${newStyleType})`);
     }
@@ -1274,7 +1326,7 @@ class MapManager {
      * @param {Object} result - Save result
      */
     showSuccessMessage(result) {
-        this.showToast(
+        Toast.show(
             `✓ Jakość nawierzchni zaktualizowana! Changeset: ${result.changesetId}`,
             'success',
             6000
@@ -1370,7 +1422,7 @@ class MapManager {
         // Ensure OverpassAPI is available
         if (!this.overpassApi) {
             console.error('OverpassAPI client not initialized in MapManager');
-            this.showToast('Błąd wewnętrzny: Moduł OverpassAPI nie jest dostępny.', 'error');
+            Toast.show('Błąd wewnętrzny: Moduł OverpassAPI nie jest dostępny.', 'error');
             return;
         }
 
@@ -1379,7 +1431,7 @@ class MapManager {
         const minLoadZoom = isMobile ? CONFIG.MAP.MIN_LOAD_ZOOM_MOBILE : CONFIG.MAP.MIN_LOAD_ZOOM;
 
         if (zoom < minLoadZoom) {
-            this.showToast(`Obszar jest zbyt duży. Przybliż mapę, aby wczytać drogi (wymagany zoom ${minLoadZoom}+).`, 'warning');
+            Toast.show(`Obszar jest zbyt duży. Przybliż mapę, aby wczytać drogi (wymagany zoom ${minLoadZoom}+).`, 'warning');
             return;
         }
 
@@ -1422,16 +1474,16 @@ class MapManager {
             console.log(`Loaded ${addedCount} new roads.`);
 
             if (addedCount === 0) {
-                this.showToast('Nie znaleziono nowych dróg w tym obszarze (lub już są wczytane).', 'info');
+                Toast.show('Nie znaleziono nowych dróg w tym obszarze (lub już są wczytane).', 'info');
             }
 
         } catch (error) {
             console.error('Error loading roads:', error);
             // Handle Overpass specific errors
             if (error.message.includes('timeout') || error.message.includes('size')) {
-                this.showToast('Serwer Overpass zwrócił błąd (zbyt duży obszar lub timeout). Proszę przybliżyć mapę.', 'error', 6000);
+                Toast.show('Serwer Overpass zwrócił błąd (zbyt duży obszar lub timeout). Proszę przybliżyć mapę.', 'error', 6000);
             } else {
-                this.showToast('Wystąpił błąd podczas wczytywania dróg: ' + error.message, 'error', 6000);
+                Toast.show('Wystąpił błąd podczas wczytywania dróg: ' + error.message, 'error', 6000);
             }
         } finally {
             this.isLoading = false;
