@@ -168,7 +168,7 @@ const CONFIG = {
 
     // UI Messages
     MESSAGES: {
-        LOADING: 'Ładowanie danych ...',
+        LOADING: 'Ładowanie danych...',
         CACHE_LOADED: 'Dane załadowane z cache',
         DATA_FETCHED: 'Dane pobrane z OverpassAPI',
         ERROR_FETCH: 'Błąd podczas pobierania danych',
