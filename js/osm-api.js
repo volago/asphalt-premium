@@ -317,51 +317,68 @@ class OSMAPIClient {
        ========================================== */
 
     /**
-     * Update smoothness tag for a way
-     * @param {number} wayId - Way ID
+     * Update smoothness tag for one or multiple ways in one changeset
+     * @param {number|Array<number>} wayIds - Way ID or Array of Way IDs
      * @param {string} smoothnessValue - New smoothness value
      * @param {string} comment - Optional custom comment
-     * @returns {Promise<Object>} Result with success status and new version
+     * @returns {Promise<Object>} Result with success status, changesetId, and array of updates
      */
-    async updateSmoothness(wayId, smoothnessValue, comment = null) {
+    async updateSmoothness(wayIds, smoothnessValue, comment = null) {
         let changesetId = null;
 
+        // Ensure wayIds is an array
+        const ids = Array.isArray(wayIds) ? wayIds : [wayIds];
+
         try {
-            console.log(`Updating smoothness for way ${wayId} to: ${smoothnessValue}`);
-
-            // Get current way data
-            const wayData = await this.getWayDetails(wayId);
-
-            // Store old smoothness value
-            const oldSmoothness = wayData.tags.smoothness || null;
-
-            // Update smoothness tag
-            wayData.tags.smoothness = smoothnessValue;
+            console.log(`Updating smoothness for ways ${ids.join(', ')} to: ${smoothnessValue}`);
 
             // Create changeset
-            const changesetComment = comment ||
-                (oldSmoothness
-                    ? `Updated smoothness from ${oldSmoothness} to ${smoothnessValue}`
-                    : `Added smoothness tag: ${smoothnessValue}`);
+            const changesetComment = comment || (ids.length === 1 
+                ? `Updated smoothness to ${smoothnessValue}` 
+                : `Updated smoothness to ${smoothnessValue} for multiple ways`);
 
             changesetId = await this.createChangeset(changesetComment, {
                 'source': 'survey',
                 'description': 'Road quality assessment via Asfalt Premium'
             });
 
-            // Update way
-            const newVersion = await this.updateWay(wayId, wayData, changesetId);
+            const results = [];
+
+            // Update each way
+            for (const wayId of ids) {
+                // Get current way data
+                const wayData = await this.getWayDetails(wayId);
+
+                // Store old smoothness value
+                const oldSmoothness = wayData.tags.smoothness || null;
+
+                // Update smoothness tag
+                wayData.tags.smoothness = smoothnessValue;
+
+                // Update way
+                const newVersion = await this.updateWay(wayId, wayData, changesetId);
+
+                results.push({
+                    wayId: wayId,
+                    newVersion: newVersion,
+                    oldSmoothness: oldSmoothness,
+                    newSmoothness: smoothnessValue
+                });
+            }
 
             // Close changeset
             await this.closeChangeset(changesetId);
 
+            // To maintain compatibility with callers expecting a single object result (plus updates array)
             return {
                 success: true,
-                wayId: wayId,
-                newVersion: newVersion,
-                oldSmoothness: oldSmoothness,
-                newSmoothness: smoothnessValue,
-                changesetId: changesetId
+                changesetId: changesetId,
+                updates: results,
+                // also mapping top-level values for 1-element updates (legacy support)
+                wayId: ids.length === 1 ? ids[0] : undefined,
+                newVersion: ids.length === 1 ? results[0].newVersion : undefined,
+                oldSmoothness: ids.length === 1 ? results[0].oldSmoothness : undefined,
+                newSmoothness: smoothnessValue
             };
 
         } catch (error) {
