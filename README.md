@@ -44,7 +44,6 @@
 Procent dróg **bez** oceny jakości (`smoothness`) w poszczególnych województwach:
 
 | Województwo | 2025-09-11 | 2026-04-04 |
-| --- | pierwszy odczyt | 3 dni po premierze |
 | --- | --- | --- |
 | Podlaskie | 82,4% | 82,1% |
 | Mazowieckie | 82,9% | 81,5% |
@@ -62,6 +61,9 @@ Procent dróg **bez** oceny jakości (`smoothness`) w poszczególnych województ
 | Wielkopolskie | 92,6% | 91,2% |
 | Łódzkie | 93,4% | 92,8% |
 | Lubuskie | 95,8% | 95,6% |
+
+- 2025-09-11 - pierwszy odczyt
+- 2026-04-04 - 3 dni po premierze na forum VeloPlaner
 
 🎯 **Cel projektu**: zmniejszyć te wartości poprzez zachęcenie społeczności do dodawania ocen jakości dróg!
 

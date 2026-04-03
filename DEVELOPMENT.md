@@ -6,9 +6,9 @@
 
 Projekt służy małemu celowi, jakim jest zebranie danych o jakości asfaltu na drogach w Polsce. Zatem postawiłem na najprostrzą technologię, czyli static web. Logowanie i magazyn danych jest zapewniony przez OpenStreetMap.
 
-PoC był zrobiony w czystym vibe-code ;) Obecnie w każdej zmianie starma się poprawiać architekrurę, bo osiągnięta została pewna masa krytyczna, a użytkownicy nie zwalniają z nowymi pomysłami.
+PoC był zrobiony w czystym vibe-code ;) Obecnie w każdej zmianie staram się poprawiać architekturę, bo osiągnięta została pewna masa krytyczna, a użytkownicy nie zwalniają z nowymi pomysłami.
 
-Nowe feature'y należy zatem implementować z poszanowaniem choć podstawowych zasad inżynierii oprogramowania. 
+Nowe feature'y należy zatem implementować z poszanowaniem choć podstawowych zasad inżynierii oprogramowania.
 
 
 ## Technologie
