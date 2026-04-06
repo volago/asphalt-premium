@@ -2731,6 +2731,21 @@ a.btn-help-link:active {
     margin-right: var(--spacing-xs);
 }
 
+.confirmation-modal-body .info-note {
+    padding: var(--spacing-md);
+    background: #eff6ff;
+    border-left: 4px solid var(--primary-blue);
+    border-radius: var(--border-radius-sm);
+    margin: var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
+    color: #1e40af;
+}
+
+.confirmation-modal-body .info-note i {
+    color: var(--primary-blue);
+    margin-right: var(--spacing-xs);
+}
+
 .confirmation-modal-body .info-grid {
     display: grid;
     grid-template-columns: auto 1fr;

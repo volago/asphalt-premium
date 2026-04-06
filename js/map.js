@@ -1140,7 +1140,8 @@ class MapManager {
         const confirmed = await this.showConfirmationDialog(
             isMulti ? `Wiele odcinków (${toUpdate.length})` : toUpdate[0].id,
             displayOldValue,
-            this.selectedSmoothnessValue
+            this.selectedSmoothnessValue,
+            unchangedIds.length
         );
 
         if (!confirmed) {
@@ -1196,7 +1197,7 @@ class MapManager {
      * @param {string} newValue - New smoothness value
      * @returns {Promise<boolean>} True if confirmed
      */
-    showConfirmationDialog(wayId, oldValue, newValue) {
+    showConfirmationDialog(wayId, oldValue, newValue, skippedCount = 0) {
         return new Promise((resolve) => {
             const modal = document.getElementById('confirmationModal');
             const title = document.getElementById('confirmationModalTitle');
@@ -1242,6 +1243,15 @@ class MapManager {
                         <i class="fas fa-exclamation-triangle"></i>
                         <strong>Uwaga:</strong> ${warningMsg}
                         Nowa wartość nadpisze obecną.
+                    </div>
+                `;
+            }
+
+            if (skippedCount > 0) {
+                bodyHTML += `
+                    <div class="info-note">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>${skippedCount}</strong> ${skippedCount === 1 ? 'odcinek został pominięty, bo już ma' : skippedCount < 5 ? 'odcinki zostały pominięte, bo już mają' : 'odcinków zostało pominiętych, bo już ma'} wybraną wartość.
                     </div>
                 `;
             }
