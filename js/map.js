@@ -1137,12 +1137,12 @@ class MapManager {
         }
 
         // Show confirmation dialog:
-        const confirmed = await this.showConfirmationDialog(
-            isMulti ? `Wiele odcinków (${toUpdate.length})` : toUpdate[0].id,
-            displayOldValue,
-            this.selectedSmoothnessValue,
-            unchangedIds.length
-        );
+        const confirmed = await ConfirmationModal.show({
+            wayId: isMulti ? `Wiele odcinków (${toUpdate.length})` : toUpdate[0].id,
+            oldValue: displayOldValue,
+            newValue: this.selectedSmoothnessValue,
+            skippedCount: unchangedIds.length
+        });
 
         if (!confirmed) {
             return;
@@ -1188,106 +1188,6 @@ class MapManager {
                 saveBtn.innerHTML = '<i class="fas fa-save"></i>Zapisz';
             }
         }
-    }
-
-    /**
-     * Show confirmation dialog
-     * @param {number} wayId - Way ID
-     * @param {string} oldValue - Old smoothness value
-     * @param {string} newValue - New smoothness value
-     * @returns {Promise<boolean>} True if confirmed
-     */
-    showConfirmationDialog(wayId, oldValue, newValue, skippedCount = 0) {
-        return new Promise((resolve) => {
-            const modal = document.getElementById('confirmationModal');
-            const title = document.getElementById('confirmationModalTitle');
-            const body = document.getElementById('confirmationModalBody');
-            const confirmBtn = document.getElementById('confirmationModalConfirm');
-            const cancelBtn = document.getElementById('confirmationModalCancel');
-            const closeBtn = document.getElementById('confirmationModalClose');
-
-            if (!modal) {
-                resolve(false);
-                return;
-            }
-
-            // Set title
-            title.textContent = 'Potwierdź zapisanie zmian';
-
-            // Build body content
-            const oldOption = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === oldValue);
-            const newOption = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === newValue);
-
-            let bodyHTML = '<p>Czy na pewno chcesz zapisać następujące zmiany w OpenStreetMap?</p>';
-
-            bodyHTML += '<div class="info-grid">';
-            bodyHTML += `<strong>ID drogi:</strong><span>${wayId}</span>`;
-            bodyHTML += `<strong>Nowa wartość:</strong><span>${newOption ? newOption.label : newValue} (${newValue})</span>`;
-            
-            if (oldValue === 'brak danych') {
-                bodyHTML += `<strong>Poprzednia wartość:</strong><span>Brak przypisanej wartości</span>`;
-            } else if (oldValue === 'Różne wartości dla zaznaczonych dróg') {
-                bodyHTML += `<strong>Poprzednia wartość:</strong><span>Różne wartości dla zaznaczonych dróg</span>`;
-            } else if (oldValue) {
-                bodyHTML += `<strong>Poprzednia wartość:</strong><span>${oldOption ? oldOption.label : oldValue} (${oldValue})</span>`;
-            }
-            bodyHTML += '</div>';
-
-            if (oldValue && oldValue !== 'brak danych') {
-                const warningMsg = oldValue === 'Różne wartości dla zaznaczonych dróg' 
-                    ? 'Zaznaczone drogi mają już przypisaną przynajmniej jedną wartość jakości nawierzchni.'
-                    : 'Ta droga już ma przypisaną jakość nawierzchni.';
-
-                bodyHTML += `
-                    <div class="warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Uwaga:</strong> ${warningMsg}
-                        Nowa wartość nadpisze obecną.
-                    </div>
-                `;
-            }
-
-            if (skippedCount > 0) {
-                bodyHTML += `
-                    <div class="info-note">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>${skippedCount}</strong> ${skippedCount === 1 ? 'odcinek został pominięty, bo już ma' : skippedCount < 5 ? 'odcinki zostały pominięte, bo już mają' : 'odcinków zostało pominiętych, bo już ma'} wybraną wartość.
-                    </div>
-                `;
-            }
-
-            bodyHTML += '<p>Zmiana zostanie natychmiast zapisana w bazie OpenStreetMap.</p>';
-
-            body.innerHTML = bodyHTML;
-
-            // Show modal
-            modal.style.display = 'flex';
-
-            // Handle confirm
-            const handleConfirm = () => {
-                cleanup();
-                resolve(true);
-            };
-
-            // Handle cancel
-            const handleCancel = () => {
-                cleanup();
-                resolve(false);
-            };
-
-            // Cleanup function
-            const cleanup = () => {
-                modal.style.display = 'none';
-                confirmBtn.removeEventListener('click', handleConfirm);
-                cancelBtn.removeEventListener('click', handleCancel);
-                closeBtn.removeEventListener('click', handleCancel);
-            };
-
-            // Add event listeners
-            confirmBtn.addEventListener('click', handleConfirm);
-            cancelBtn.addEventListener('click', handleCancel);
-            closeBtn.addEventListener('click', handleCancel);
-        });
     }
 
     /**
