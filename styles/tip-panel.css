@@ -1,0 +1,121 @@
+/* ==========================================
+   TIP PANEL - Asfalt Premium
+   Persistent dismissible hint panel
+   ========================================== */
+
+.map-tip-panel {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 280px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    border-left: 4px solid var(--primary-blue);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 14px 16px;
+    animation: tipSlideUp 0.4s ease-out;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.map-tip-panel.hiding {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+@keyframes tipSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.map-tip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.map-tip-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+.map-tip-title i {
+    font-size: 14px;
+}
+
+.map-tip-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--medium-gray);
+    font-size: 12px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+}
+
+.map-tip-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--dark-gray);
+}
+
+.map-tip-body {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--secondary-gray);
+}
+
+.map-tip-body kbd {
+    display: inline-block;
+    background: #f1f5f9;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: var(--font-family);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+}
+
+.map-tip-dismiss {
+    display: block;
+    margin-top: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 11.5px;
+    color: var(--medium-gray);
+    padding: 0;
+    transition: color 0.15s ease;
+}
+
+.map-tip-dismiss:hover {
+    color: var(--primary-blue);
+}
+
+/* Hide tip panel on mobile — Ctrl doesn't apply */
+@media (max-width: 768px) {
+    .map-tip-panel {
+        display: none !important;
+    }
+}

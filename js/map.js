@@ -223,6 +223,8 @@ class MapManager {
         this.map.on('click', (e) => {
             // Only clear if click was not on a road
             if (!e.originalEvent.defaultPrevented) {
+                // Don't deselect when Ctrl/Cmd is held (multi-select mode)
+                if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) return;
                 this.clearSelection();
             }
         });
@@ -543,6 +545,7 @@ class MapManager {
                 
                 if (this.selectedRoads.length === 0) {
                     this.hideRoadInfo();
+                    TipPanel.dismiss('multiselect', false);
                 } else {
                     this.showRoadInfo();
                 }
@@ -556,10 +559,7 @@ class MapManager {
             this.clearSelection();
             this.selectedRoads = [road];
             
-            if (!this.hasShownMultiSelectHint) {
-                Toast.show('Możesz zaznaczyć kolejne odcinki przytrzymując klawisz Ctrl', 'info', 6000);
-                this.hasShownMultiSelectHint = true;
-            }
+            this.showMultiSelectTip();
         }
 
         // Apply selected style to the visible line
@@ -620,6 +620,7 @@ class MapManager {
             this.hideRoadInfo();
 
             this.selectedRoads = [];
+            TipPanel.dismiss('multiselect', false);
         }
     }
 
@@ -1332,6 +1333,19 @@ class MapManager {
             6000
         );
     }
+
+    /* ==========================================
+       TIP PANEL (Multi-select hint)
+       ========================================== */
+
+    showMultiSelectTip() {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const keyLabel = isMac ? '⌘ Cmd' : 'Ctrl';
+        TipPanel.show('multiselect',
+            `Przytrzymaj <kbd>${keyLabel}</kbd> i klikaj drogi, aby zaznaczyć wiele odcinków naraz i edytować je hurtowo.`
+        );
+    }
+
 
     /* ==========================================
        UTILITY METHODS
