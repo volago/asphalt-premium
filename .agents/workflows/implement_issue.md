@@ -17,4 +17,6 @@ Wykonaj poniższe kroki, aby poprawnie zaimplementować kolejną z zaplanowanych
 
 6. Jeśli zmiana jest na poziomi major lub minor, to zaktualizuj plik `RELEASES.MD` by uwzględnić właśnie dodaną nową możliwość lub optymalizację. Jeśli nie masz pewności jakiego rozmiatu jest zmiana, to dopytaj.
 
-7. **Raport**: Zaprezentuj podsumowanie wykonanego zadania (np. poprzez `walkthrough.md`).
+7. Jeśli trzeba, to uakrualnij pliki `README.md`, `INSTRUKCJA.md` oraz `DEVELOPMENT.md`
+
+8. **Raport**: Zaprezentuj podsumowanie wykonanego zadania (np. poprzez `walkthrough.md`).
