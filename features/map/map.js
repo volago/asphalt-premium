@@ -712,8 +712,6 @@ class MapManager {
             firstOsmId: firstProps.osm_id
         };
 
-        // Reset selected smoothness. If mixed, it will be null and nothing will be selected
-        this.selectedSmoothnessValue = properties.smoothness;
 
         // Determine layout mode based on screen width
         const isMobile = window.innerWidth <= 768;
@@ -806,16 +804,25 @@ class MapManager {
 
         content.innerHTML = `
             <div class="road-info-scrollable">
-                ${this.renderSmoothnessEditor(smoothness, osmId)}
+                ${SmoothnessEditor.render(smoothness)}
             </div>
-            ${this.renderBottomActions(properties)}
+            ${SmoothnessEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
         `;
 
         // Initialize close button if not already done
         this.initRoadInfoSidebar();
 
-        // Initialize smoothness editor controls
-        this.initSmoothnessEditor();
+        // Pass selectedRoads and API refs to SmoothnessEditor via init()
+        SmoothnessEditor.init({
+            currentSmoothness: smoothness,
+            selectedRoads:     this.selectedRoads,
+            osmApi:            this.osmApi,
+            oauth:             this.oauth,
+            onSaveSuccess:     ({ updatedIds, newValue }) => {
+                updatedIds.forEach(id => this.updateRoadLocally(id, newValue, false));
+                this.showRoadInfo();
+            }
+        });
 
         // Re-init tech info icon as header was touched
         this.initTechInfoIcon(properties);
@@ -856,15 +863,6 @@ class MapManager {
         }
     }
 
-    /**
-     * Get smoothness label in Polish
-     * @param {string} smoothness - Smoothness value
-     * @returns {string} Polish label
-     */
-    getSmoothnessLabel(smoothness) {
-        const option = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === smoothness);
-        return option ? `${option.label} (${smoothness})` : smoothness;
-    }
 
     /**
      * Initialize tech info icon click handler
@@ -945,256 +943,6 @@ class MapManager {
             }
         });
     }
-
-
-
-    /* ==========================================
-       SMOOTHNESS EDITOR
-       ========================================== */
-
-    /**
-     * Render bottom actions bar with save/login and OSM edit button
-     * @param {number} wayId - Way ID
-     * @param {string} currentSmoothness - Current smoothness value
-     * @returns {string} HTML string
-     */
-    renderBottomActions(properties) {
-        const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
-
-        let html = '<div class="road-info-bottom-actions">';
-
-        // Save button - always visible, but disabled if not authenticated
-        const disabledAttr = !isAuthenticated || properties.smoothness === null ? 'disabled' : '';
-        const tooltipAttr = !isAuthenticated ? 'title="Zaloguj się do OSM, aby zapisać zmiany"' : '';
-
-        html += `
-            <button class="btn-save-smoothness" id="save-smoothness-btn" ${disabledAttr} ${tooltipAttr}>
-                <i class="fas fa-save"></i>
-                Zapisz
-            </button>
-        `;
-
-        // Compact OSM edit button (disable link if multi selection to avoid OSM issue or point to first one)
-        html += `
-            <a href="https://www.openstreetmap.org/edit?way=${properties.firstOsmId || properties.osm_id}" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="btn-edit-osm-compact"
-               title="Edytuj w edytorze OSM">
-                <i class="fas fa-external-link-alt"></i>
-                OSM
-            </a>
-        `;
-
-        html += '</div>';
-
-        return html;
-    }
-
-    /**
-     * Render smoothness editor HTML
-     * @param {string} currentSmoothness - Current smoothness value
-     * @param {number} wayId - Way ID
-     * @returns {string} HTML string
-     */
-    renderSmoothnessEditor(currentSmoothness, wayId) {
-        const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
-
-        // Only show 5 main options: excellent, good, intermediate, bad, very_bad
-        const mainOptions = CONFIG.SMOOTHNESS_OPTIONS.filter(opt =>
-            ['excellent', 'good', 'intermediate', 'bad', 'very_bad'].includes(opt.value)
-        );
-
-        let html = `
-            <div class="smoothness-editor">
-                <h4>
-                    <i class="fas fa-edit"></i>
-                    Edycja jakości nawierzchni
-                </h4>
-                <div class="smoothness-editor-info">
-                    Wybierz jakość nawierzchni tej drogi. Twoja ocena zostanie zapisana w OpenStreetMap.
-                </div>
-        `;
-
-        // Main options gallery (5 options only)
-        html += '<div class="smoothness-gallery">';
-        for (const option of mainOptions) {
-            const selected = option.value === currentSmoothness ? 'selected' : '';
-            const imagePath = `assets/smoothness/${option.image}`;
-
-            // Determine quality class for line indicator
-            let qualityClass = 'unknown';
-            if (option.value === 'excellent') qualityClass = 'excellent';
-            else if (option.value === 'good') qualityClass = 'good';
-            else if (['intermediate', 'bad', 'very_bad'].includes(option.value)) qualityClass = 'poor';
-
-            html += `
-                <div class="smoothness-option ${selected}" data-value="${option.value}">
-                    <div class="smoothness-option-image">
-                        <img src="${imagePath}" alt="${option.label}" 
-                             onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i> ${option.labelEn}'">
-                    </div>
-                    <div class="smoothness-option-content">
-                        <div class="smoothness-option-label-wrapper">
-                            <div class="smoothness-option-label">${option.label}</div>
-                            <div class="smoothness-option-line ${qualityClass}"></div>
-                        </div>
-                        <div class="smoothness-option-description">${option.description}</div>
-                    </div>
-                </div>
-            `;
-        }
-        html += '</div>';
-
-        html += '</div>';
-
-        return html;
-    }
-
-    /**
-     * Initialize smoothness editor event handlers
-     * @param {number} wayId - Way ID
-     * @param {string} currentSmoothness - Current smoothness value
-     */
-    initSmoothnessEditor() {
-        // Handle smoothness option selection
-        const options = document.querySelectorAll('.smoothness-option');
-        options.forEach(option => {
-            option.addEventListener('click', () => {
-                // Remove selected class from all options
-                options.forEach(opt => opt.classList.remove('selected'));
-                // Add selected class to clicked option
-                option.classList.add('selected');
-
-                // Store selected value
-                this.selectedSmoothnessValue = option.dataset.value;
-
-                // Enable save button only if user is authenticated
-                const saveBtn = document.getElementById('save-smoothness-btn');
-                if (saveBtn) {
-                    const isAuthenticated = this.oauth && this.oauth.isAuthenticated();
-                    saveBtn.disabled = !isAuthenticated;
-
-                    // Update tooltip if not authenticated
-                    if (!isAuthenticated) {
-                        saveBtn.title = 'Zaloguj się do OSM, aby zapisać zmiany';
-                    } else {
-                        saveBtn.title = '';
-                    }
-                }
-            });
-        });
-
-        // Handle save button
-        const saveBtn = document.getElementById('save-smoothness-btn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
-                this.saveSmoothnessEdit();
-            });
-        }
-    }
-
-    /**
-     * Save smoothness edit to OSM
-     */
-    async saveSmoothnessEdit() {
-        if (!this.selectedSmoothnessValue) {
-            Toast.show('Proszę wybrać jakość nawierzchni', 'warning');
-            return;
-        }
-
-        const isMulti = this.selectedRoads.length > 1;
-
-        // Extract ids and check changes
-        const unchangedIds = [];
-        const toUpdate = [];
-
-        this.selectedRoads.forEach(road => {
-            const props = road.feature.properties;
-            if (props.smoothness === this.selectedSmoothnessValue) {
-                unchangedIds.push(props.osm_id);
-            } else {
-                toUpdate.push({
-                    id: props.osm_id,
-                    oldValue: props.smoothness
-                });
-            }
-        });
-
-        if (toUpdate.length === 0) {
-            Toast.show('Wybrano tę samą wartość dla wszystkich zaznaczonych odcinków. Nie ma zmian do zapisania.', 'info');
-            return;
-        }
-
-        // Determine display old value
-        const firstUpdate = toUpdate[0];
-        let displayOldValue = firstUpdate.oldValue || 'brak danych';
-        for(let i=1; i<toUpdate.length; i++) {
-            if (toUpdate[i].oldValue !== firstUpdate.oldValue) {
-                displayOldValue = 'Różne wartości dla zaznaczonych dróg';
-                break;
-            }
-        }
-
-        // Show confirmation dialog:
-        const confirmed = await ConfirmationModal.show({
-            wayId: isMulti ? `Wiele odcinków (${toUpdate.length})` : toUpdate[0].id,
-            oldValue: displayOldValue,
-            newValue: this.selectedSmoothnessValue,
-            skippedCount: unchangedIds.length
-        });
-
-        if (!confirmed) {
-            return;
-        }
-
-        try {
-            // Disable save button and show loading
-            const saveBtn = document.getElementById('save-smoothness-btn');
-            if (saveBtn) {
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = '<div class="btn-spinner"></div>Zapisywanie...';
-            }
-
-            let result;
-            const wayIds = toUpdate.map(u => u.id);
-            
-            result = await this.osmApi.updateSmoothness(
-                wayIds,
-                this.selectedSmoothnessValue
-            );
-
-            console.log('Smoothness updated successfully:', result);
-
-            // Show success message
-            this.showSuccessMessage(result);
-
-            // Update road locally (eventual consistency)
-            wayIds.forEach(id => {
-               this.updateRoadLocally(id, this.selectedSmoothnessValue, false);
-            });
-            this.showRoadInfo(); // Refresh UI once after all updates
-
-        } catch (error) {
-            console.error('Failed to save smoothness:', error);
-
-            // Show error message
-            Toast.show(`Błąd podczas zapisywania: ${error.message}`, 'error', 6000);
-
-            // Re-enable save button
-            const saveBtn = document.getElementById('save-smoothness-btn');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save"></i>Zapisz';
-            }
-        }
-    }
-
-    /**
-     * Update road locally after successful save (eventual consistency)
-     * @param {number} wayId - Way ID
-     * @param {string} newSmoothness - New smoothness value
-     */
     updateRoadLocally(wayId, newSmoothness, refreshUI = true) {
         const road = this.selectedRoads ? this.selectedRoads.find(r => r.feature.properties.osm_id === wayId) : null;
         if (!road) return;
@@ -1232,17 +980,6 @@ class MapManager {
         console.log(`✓ Road ${wayId} updated locally with smoothness: ${newSmoothness} (style: ${newStyleType})`);
     }
 
-    /**
-     * Show success message after saving
-     * @param {Object} result - Save result
-     */
-    showSuccessMessage(result) {
-        Toast.show(
-            `✓ Jakość nawierzchni zaktualizowana! Changeset: ${result.changesetId}`,
-            'success',
-            6000
-        );
-    }
 
     /* ==========================================
        TIP PANEL (Multi-select hint)
@@ -1445,58 +1182,11 @@ class MapManager {
             }
         }
     }
+
 }
 
-// Add custom CSS for map popups and tooltips
-const mapStyles = `
-<style>
-.custom-popup .leaflet-popup-content {
-    margin: 8px 12px;
-    line-height: 1.4;
-    min-width: 200px;
+// Export for use in tests
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { MapManager };
 }
 
-.road-popup h4 {
-    margin: 0 0 8px 0;
-    color: var(--primary-blue);
-    font-size: 14px;
-    font-weight: 600;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 4px;
-}
-
-.road-details p {
-    margin: 4px 0;
-    font-size: 12px;
-    color: var(--secondary-gray);
-}
-
-.road-details strong {
-    color: var(--dark-gray);
-}
-
-.custom-tooltip {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border: none !important;
-    color: white !important;
-    font-size: 11px !important;
-    padding: 4px 8px !important;
-    border-radius: 4px !important;
-}
-
-.custom-tooltip::before {
-    border-top-color: rgba(0, 0, 0, 0.8) !important;
-}
-
-.leaflet-container {
-    font-family: var(--font-family);
-}
-
-.map-info-control {
-    pointer-events: none;
-    user-select: none;
-}
-</style>
-`;
-
-document.head.insertAdjacentHTML('beforeend', mapStyles);

@@ -1,0 +1,51 @@
+/* ==========================================
+   MAP.CSS - Styles for Leaflet map popups and tooltips
+   Asfalt Premium
+   ========================================== */
+
+.custom-popup .leaflet-popup-content {
+    margin: 8px 12px;
+    line-height: 1.4;
+    min-width: 200px;
+}
+
+.road-popup h4 {
+    margin: 0 0 8px 0;
+    color: var(--primary-blue);
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 4px;
+}
+
+.road-details p {
+    margin: 4px 0;
+    font-size: 12px;
+    color: var(--secondary-gray);
+}
+
+.road-details strong {
+    color: var(--dark-gray);
+}
+
+.custom-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: none !important;
+    color: white !important;
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+}
+
+.custom-tooltip::before {
+    border-top-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.leaflet-container {
+    font-family: var(--font-family);
+}
+
+.map-info-control {
+    pointer-events: none;
+    user-select: none;
+}
