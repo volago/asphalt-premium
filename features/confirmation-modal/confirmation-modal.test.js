@@ -6,8 +6,8 @@ import path from 'path';
 // tak jak to się dzieje w przypadku <iframe> lub <script> w przeglądarce.
 // W ten sposób omijamy problem braku obsługi ES Modules (export/import) w plikach aplikacji.
 
-const configCode = fs.readFileSync(path.resolve(__dirname, '../js/config.js'), 'utf-8');
-const confirmationModalCode = fs.readFileSync(path.resolve(__dirname, '../js/confirmation-modal.js'), 'utf-8');
+const configCode = fs.readFileSync(path.resolve(__dirname, '../../js/config.js'), 'utf-8');
+const confirmationModalCode = fs.readFileSync(path.resolve(__dirname, './confirmation-modal.js'), 'utf-8');
 
 // Definiujemy globalną zmienną dla CONFIG
 eval(configCode + '\n;globalThis.CONFIG = typeof module !== "undefined" && module.exports ? module.exports : CONFIG;');
