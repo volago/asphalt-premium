@@ -1,0 +1,26 @@
+{
+  "name": "asphalt-premium",
+  "version": "1.0.0",
+  "description": "**Społecznościowa mapa jakości nawierzchni dróg w Polsce** — tworzona przez rowerzystów dla rowerzystów na bazie danych [OpenStreetMap](https://www.openstreetmap.org).",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/volago/asphalt-premium.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/volago/asphalt-premium/issues"
+  },
+  "homepage": "https://github.com/volago/asphalt-premium#readme",
+  "devDependencies": {
+    "happy-dom": "^20.8.9",
+    "jsdom": "^29.0.2",
+    "vitest": "^4.1.4"
+  }
+}
