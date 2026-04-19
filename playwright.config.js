@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: '.',
+  testMatch: '**/*.spec.js',
   fullyParallel: true,
   retries: 0,
   workers: 1, // Jednostkowy worker na początek, żeby widzieć logi poprawnie
