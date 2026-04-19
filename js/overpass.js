@@ -89,15 +89,17 @@ rel
   ["name"~"${searchPattern}"];
 map_to_area->.voiv_area;
 
-// Get roads (tertiary and unclassified) within voivodeship area
+// Query for roads (tertiary and unclassified) with paved surface only
+// Filtering by surface tag prevents showing unpaved roads (gravel, dirt, etc.)
+// where smoothness descriptions and photos would be misleading.
 (
-  // Roads WITH smoothness data
-  way["highway"="tertiary"]["smoothness"](area.voiv_area);
-  way["highway"="unclassified"]["smoothness"](area.voiv_area);
+  // Roads WITH smoothness data AND paved surface
+  way["highway"="tertiary"]["smoothness"]["surface"~"asphalt|concrete|paved"](area.voiv_area);
+  way["highway"="unclassified"]["smoothness"]["surface"~"asphalt|concrete|paved"](area.voiv_area);
   
-  // Roads WITHOUT smoothness (for coverage analysis - will be blue)
-  way["highway"="tertiary"][!"smoothness"](area.voiv_area);
-  way["highway"="unclassified"][!"smoothness"](area.voiv_area);
+  // Roads WITHOUT smoothness but WITH paved surface (for coverage analysis - will be blue)
+  way["highway"="tertiary"][!"smoothness"]["surface"~"asphalt|concrete|paved"](area.voiv_area);
+  way["highway"="unclassified"][!"smoothness"]["surface"~"asphalt|concrete|paved"](area.voiv_area);
 );
 out geom;
         `.trim();
@@ -125,13 +127,13 @@ out geom;
 [out:json][timeout:25][bbox:${south},${west},${north},${east}];
 
 (
-  // Roads WITH smoothness data
-  way["highway"="tertiary"]["smoothness"];
-  way["highway"="unclassified"]["smoothness"];
+  // Roads WITH smoothness data AND paved surface
+  way["highway"="tertiary"]["smoothness"]["surface"~"asphalt|concrete|paved"];
+  way["highway"="unclassified"]["smoothness"]["surface"~"asphalt|concrete|paved"];
   
-  // Roads WITHOUT smoothness (for coverage analysis - will be blue)
-  way["highway"="tertiary"][!"smoothness"];
-  way["highway"="unclassified"][!"smoothness"];
+  // Roads WITHOUT smoothness but WITH paved surface (for coverage analysis - will be blue)
+  way["highway"="tertiary"][!"smoothness"]["surface"~"asphalt|concrete|paved"];
+  way["highway"="unclassified"][!"smoothness"]["surface"~"asphalt|concrete|paved"];
 );
 out geom;
         `.trim();
