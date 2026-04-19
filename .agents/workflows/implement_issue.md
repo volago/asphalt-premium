@@ -12,6 +12,7 @@ Wykonaj poniższe kroki, aby poprawnie zaimplementować kolejną z zaplanowanych
 
 4. **Przygotowanie planu**: W ramach przygotowanego `implementation_plan.md` zawrzyj wszystkie niezbędne modyfikacje w plikach i poproś użytkownika o zgodę na ich realizację. 
 - pamiętaj o podstawowych zasadach programowania, utrzymuj małe pliki, nowe funkcjonalności staraj się lokować w nowe moduły, style, które można użyć ponownie wydzielaj do osobnych plików
+- używaj już gotowych styli jeśli istnieją, np. przyciski;
 
 5. **Implementacja**: Po akceptacji przystąp do modyfikacji plików w projekcie. Podążaj za spójnymi konwencjami językowymi oraz istniejącą architekturą UI aplikacji (np. pop-upy, stylowanie okienek modalnych, modułowość kontrolerów).
 

@@ -583,10 +583,21 @@
                         </select>
                     </div>
 
-                    <button id="refresh-btn" class="btn btn-primary">
-                        <span class="btn-icon">🔄</span>
-                        Odśwież
-                    </button>
+                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                        <button id="refresh-btn" class="btn btn-primary">
+                            <span class="btn-icon">🔄</span>
+                            Odśwież
+                        </button>
+                        <button id="import-gpx-btn" class="btn btn-secondary" title="Wczytaj pomocniczą trasę GPX na mapę">
+                            <span class="btn-icon">📁</span>
+                            Importuj GPX
+                        </button>
+                        <button id="remove-gpx-btn" class="btn btn-secondary" style="display: none;" title="Usuń pomocniczą trasę z mapy">
+                            <span class="btn-icon">🗑️</span>
+                            Usuń trasę GPX
+                        </button>
+                        <input type="file" id="gpx-file-input" accept=".gpx" style="display: none;">
+                    </div>
 
 
 
@@ -807,6 +818,7 @@
     <script src="features/confirmation-modal/confirmation-modal.js"></script>
     <script src="features/smoothness-editor/smoothness-editor.js"></script>
     <script src="features/map/map.js"></script>
+    <script src="features/gpx-import/gpx-import.js"></script>
     <script src="js/app.js"></script>
     <script src="features/image-modal/image-modal.js"></script>
 </body>
