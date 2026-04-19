@@ -57,8 +57,8 @@ class GpxImporter {
                 this.fileInput.value = '';
             } catch (error) {
                 console.error("Błąd podczas odczytu pliku GPX:", error);
-                if (window.app && window.app.showMessage) {
-                    window.app.showMessage("Błędny plik GPX lub problem z jego parsowaniem.", "error");
+                if (window.asphaltApp && window.asphaltApp.showMessage) {
+                    window.asphaltApp.showMessage("Błędny plik GPX lub problem z jego parsowaniem.", "error");
                 }
             }
         };
@@ -82,8 +82,8 @@ class GpxImporter {
         let targetPts = trkpts.length > 0 ? trkpts : rtepts;
         
         if (targetPts.length === 0) {
-            if (window.app && window.app.showMessage) {
-                window.app.showMessage("Nie znaleziono żadnych punktów śladu (trkpt lub rtept) w pilku GPX.", "warning");
+            if (window.asphaltApp && window.asphaltApp.showMessage) {
+                window.asphaltApp.showMessage("Nie znaleziono żadnych punktów śladu (trkpt lub rtept) w pilku GPX.", "warning");
             }
             return;
         }
@@ -133,8 +133,8 @@ class GpxImporter {
         this.importBtn.style.display = 'none';
         this.removeBtn.style.display = 'inline-flex';
         
-        if (window.app && window.app.showMessage) {
-            window.app.showMessage("Pomocniczy ślad GPX został pomyślnie załadowany.", "success");
+        if (window.asphaltApp && window.asphaltApp.showMessage) {
+            window.asphaltApp.showMessage("Pomocniczy ślad GPX został pomyślnie załadowany.", "success");
         }
     }
 

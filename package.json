@@ -4,7 +4,9 @@
   "description": "**Społecznościowa mapa jakości nawierzchni dróg w Polsce** — tworzona przez rowerzystów dla rowerzystów na bazie danych [OpenStreetMap](https://www.openstreetmap.org).",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/volago/asphalt-premium#readme",
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "happy-dom": "^20.8.9",
     "jsdom": "^29.0.2",
     "vitest": "^4.1.4"
