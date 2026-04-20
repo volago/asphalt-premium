@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Asfalt Premium E2E Test">
+  <trk>
+    <name>E2E Test Track</name>
+    <trkseg>
+      <trkpt lat="52.2297" lon="21.0122"></trkpt>
+      <trkpt lat="52.2300" lon="21.0150"></trkpt>
+      <trkpt lat="52.2310" lon="21.0170"></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

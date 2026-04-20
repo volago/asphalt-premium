@@ -583,10 +583,21 @@
                         </select>
                     </div>
 
-                    <button id="refresh-btn" class="btn btn-primary">
-                        <span class="btn-icon">🔄</span>
-                        Odśwież
-                    </button>
+                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                        <button id="refresh-btn" class="btn btn-primary">
+                            <span class="btn-icon">🔄</span>
+                            Odśwież
+                        </button>
+                        <button id="import-gpx-btn" class="btn btn-secondary" title="Wczytaj pomocniczą trasę GPX na mapę">
+                            <span class="btn-icon">📁</span>
+                            Importuj GPX
+                        </button>
+                        <button id="remove-gpx-btn" class="btn btn-secondary" style="display: none;" title="Usuń pomocniczą trasę z mapy">
+                            <span class="btn-icon">🗑️</span>
+                            Usuń trasę GPX
+                        </button>
+                        <input type="file" id="gpx-file-input" accept=".gpx" style="display: none;">
+                    </div>
 
 
 
@@ -758,8 +769,8 @@
 
     <!-- News (Releases) Modal -->
     <div id="news-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Nowości">
-        <div class="modal">
-            <div class="modal-header">
+        <div class="modal" style="width: 100%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0;">
                 <div class="modal-title">
                     <i class="fas fa-bolt" style="color: #f59e0b; font-size: 1.1rem;"></i>
                     <h2>Co nowego?</h2>
@@ -768,7 +779,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="news-modal-body">
+            <div class="modal-body" id="news-modal-body" style="overflow-y: auto; overflow-x: hidden;">
                 <!-- Content rendered dynamically from RELEASES.MD -->
             </div>
         </div>
@@ -807,6 +818,7 @@
     <script src="features/confirmation-modal/confirmation-modal.js"></script>
     <script src="features/smoothness-editor/smoothness-editor.js"></script>
     <script src="features/map/map.js"></script>
+    <script src="features/gpx-import/gpx-import.js"></script>
     <script src="js/app.js"></script>
     <script src="features/image-modal/image-modal.js"></script>
 </body>

@@ -128,6 +128,11 @@ class AsfaltPremiumApp {
         this.initSidebar();
         this.initMap();
 
+        // Initialize GPX Importer
+        if (typeof GpxImporter !== 'undefined') {
+            this.gpxImporter = new GpxImporter(this.mapManager);
+        }
+
         // Pass OAuth instances to map manager
         // Pass OAuth and Overpass instances to map manager
         if (this.mapManager) {

@@ -40,7 +40,7 @@ class NewsManager {
      */
     parseReleasesMarkdown(text) {
         const lines   = text.split(/\r?\n/);
-        const VERSION = /^\s*([\d]+\.[\d]+\.[\d]+(?:[\w.-]*)?)\s*$/;
+        const VERSION = /^\s*([\d]+\.[\d]+\.[\d]+(?:[\w.-]*)?)/;
         const entries = [];
         let current   = null;
 

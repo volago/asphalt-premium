@@ -79,6 +79,15 @@
 - Wybierz jakość i zapisz — wszystkie odcinki zostaną zaktualizowane w jednym changesetcie
 - Aby odznaczyć odcinek, kliknij na niego ponownie z wciśniętym **Ctrl**
 
+## 🗺️ Import pomocniczego śladu GPX
+
+Aby ułatwić ocenę jakości dróg po powrocie z wycieczki rowerowej, możesz zaimportować zapisany ślad GPX:
+
+1. W lewym panelu bocznym kliknij przycisk **"Importuj GPX"**.
+2. Wybierz plik z dysku (`.gpx`).
+3. Ślad zostanie nałożony na mapę w postaci szerokiego, ciemnego pasa z wysoką przezroczystością, tak by nie zasłaniał elementów do edytowania. Mapa automatycznie przybliży się do dodanego elementu.
+4. Po zakończeniu oceny odcinków kliknij **"Usuń trasę GPX"**, by wyczyścić mapę.
+
 ## 📊 Statystyki
 
 Panel boczny pokazuje automatycznie wygenerowane statystyki dla załadowanego regionu:

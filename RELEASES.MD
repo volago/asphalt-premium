@@ -1,3 +1,6 @@
+1.3.0 (2026-04-19)
+Feature: Dodano funkcję "Importuj GPX". Umożliwia wczytanie pliku GPX z wbudowaną trasą, nakładając go na mapę w postaci szerokiego czarnego pasa z wysoką przezroczystością jako warstwę pomocniczą (nieklikalną), aby ułatwić i przyśpieszyć proces oceny fragmentów dróg OSM po odbytej wycieczce.
+
 1.2.1 (2026-04-06)
 Fix: Zapis drogi o tej samej jakości (x -> x) jest blokowany z informacyjnym komunikatem. W oknie potwierdzenia zapisu dla wielu odcinków wyświetlana jest teraz informacja, ile z nich zostanie pominięte (bo już mają wybraną wartość).
 
