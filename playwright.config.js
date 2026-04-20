@@ -11,6 +11,11 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:8081',
     trace: 'on-first-retry',
   },
+  webServer: {
+    command: 'npx serve -l 8081 .',
+    url: 'http://127.0.0.1:8081',
+    reuseExistingServer: !process.env.CI,
+  },
   projects: [
     {
       name: 'chromium',
