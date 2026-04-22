@@ -1,4 +1,4 @@
-1.2.2 (2026-04-17)
+1.3.1 (2026-04-23)
 Fix: Zapytania Overpass filtrują teraz wyłącznie drogi o nawierzchni utwardzonej (asphalt, concrete, paved). Drogi gruntowe i tłuczniowe nie są już wyświetlane, eliminując ryzyko przypisania błędnych wartości smoothness (np. excellent/good) do dróg nieasfaltowych w OSM.
 
 1.3.0 (2026-04-19)
