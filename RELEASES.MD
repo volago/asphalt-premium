@@ -1,5 +1,5 @@
 1.3.1 (2026-04-23)
-Fix: Zapytania Overpass filtrują teraz wyłącznie drogi o nawierzchni utwardzonej (asphalt, concrete, paved). Drogi gruntowe i tłuczniowe nie są już wyświetlane, eliminując ryzyko przypisania błędnych wartości smoothness (np. excellent/good) do dróg nieasfaltowych w OSM.
+Fix: Zapytania Overpass filtrują teraz wyłącznie drogi asfaltowe (surface=asphalt). Drogi betonowe, paved oraz gruntowe nie są już wyświetlane.
 
 1.3.0 (2026-04-19)
 Feature: Dodano funkcję "Importuj GPX". Umożliwia wczytanie pliku GPX z wbudowaną trasą, nakładając go na mapę w postaci szerokiego czarnego pasa z wysoką przezroczystością jako warstwę pomocniczą (nieklikalną), aby ułatwić i przyśpieszyć proces oceny fragmentów dróg OSM po odbytej wycieczce.
