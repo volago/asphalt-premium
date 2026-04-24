@@ -31,12 +31,23 @@ const SmoothnessEditor = (() => {
     /**
      * Build the smoothness options gallery HTML.
      * @param {string|null} currentSmoothness - Currently set smoothness value
+     * @param {Object} [options]
+     * @param {boolean} [options.showHistory=false] - Whether to show the history date skeleton
      * @returns {string} HTML string
      */
-    function render(currentSmoothness) {
+    function render(currentSmoothness, options = {}) {
+        const showHistory = options.showHistory === true;
         const mainOptions = CONFIG.SMOOTHNESS_OPTIONS.filter(opt =>
             ['excellent', 'good', 'intermediate', 'bad', 'very_bad'].includes(opt.value)
         );
+
+        // Preserve previous history content so nothing blinks on road switch
+        const prevHistoryEl = document.getElementById('smoothness-history-date');
+        const preservedHistory = prevHistoryEl ? prevHistoryEl.innerHTML : 'Ostatnia zmiana: ';
+
+        const historyHtml = showHistory
+            ? `<div class="smoothness-history-date" id="smoothness-history-date">${preservedHistory}</div>`
+            : '';
 
         let html = `
             <div class="smoothness-editor">
@@ -47,6 +58,7 @@ const SmoothnessEditor = (() => {
                 <div class="smoothness-editor-info">
                     Wybierz jakość nawierzchni tej drogi. Twoja ocena zostanie zapisana w OpenStreetMap.
                 </div>
+                ${historyHtml}
         `;
 
         html += '<div class="smoothness-gallery">';
@@ -116,13 +128,48 @@ const SmoothnessEditor = (() => {
      *
      * @param {Object} opts
      * @param {string|null}  opts.currentSmoothness - Initial value (pre-selects matching option)
+     * @param {number|string} [opts.wayId]          - OSM way ID (for history fetch)
+     * @param {boolean}      [opts.showHistory]     - Whether to fetch and display history date
      * @param {Array}        opts.selectedRoads     - Array of selected road objects from MapManager
      * @param {Object}       opts.osmApi            - OSMAPIClient instance
      * @param {Object}       opts.oauth             - OSMOAuth instance
      * @param {Function}     opts.onSaveSuccess     - Called with { updatedIds, newValue } after save
      */
-    function init({ currentSmoothness, selectedRoads, osmApi, oauth, onSaveSuccess }) {
+    function init({ currentSmoothness, wayId, showHistory, selectedRoads, osmApi, oauth, onSaveSuccess }) {
         _selectedValue = currentSmoothness || null;
+
+        // Async: fetch exact smoothness change date from OSM history
+        if (showHistory && wayId && typeof WayHistoryService !== 'undefined') {
+            const fetchedForWayId = wayId;
+            const currentEl = document.getElementById('smoothness-history-date');
+            let isResolved = false;
+
+            // Fallback: after 1s with no result, show 'brak danych'
+            setTimeout(() => {
+                if (isResolved) return;
+                const el = document.getElementById('smoothness-history-date');
+                if (el && el.dataset.wayId !== String(fetchedForWayId)) return; // stale
+                if (el) el.innerHTML = `Ostatnia zmiana: <strong>brak danych</strong>`;
+            }, 1000);
+
+            WayHistoryService.getSmoothnessChangeDate(wayId).then(result => {
+                isResolved = true;
+                const el = document.getElementById('smoothness-history-date');
+                if (!el || !document.body.contains(el)) return;
+
+                if (result) {
+                    el.innerHTML = `Ostatnia zmiana: <strong>${Utils.formatDate(result.date)}</strong> <strong>${result.user}</strong>`;
+                } else {
+                    el.innerHTML = `Ostatnia zmiana: <strong>brak danych</strong>`;
+                }
+            }).catch(() => {
+                isResolved = true;
+                const el = document.getElementById('smoothness-history-date');
+                if (el && document.body.contains(el)) {
+                    el.innerHTML = `Ostatnia zmiana: <strong>brak danych</strong>`;
+                }
+            });
+        }
 
         // Option click → update _selectedValue + toggle Save button
         const options = document.querySelectorAll('.smoothness-option');
@@ -237,6 +284,11 @@ const SmoothnessEditor = (() => {
                 'success',
                 6000
             );
+
+            // Invalidate history cache so next click shows the fresh date
+            if (typeof WayHistoryService !== 'undefined') {
+                wayIds.forEach(id => WayHistoryService.invalidate(id));
+            }
 
             onSaveSuccess({ updatedIds: wayIds, newValue: _selectedValue });
 

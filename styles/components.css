@@ -2888,4 +2888,26 @@ a.btn-help-link:active {
         margin-top: 0;
     }
 }
+
+/* ==========================================
+   SMOOTHNESS HISTORY DATE
+   ========================================== */
+
+.smoothness-history-date {
+    font-size: var(--font-size-xs);
+    color: var(--medium-gray);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: #f8fafc;
+    border-radius: var(--border-radius-sm);
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.smoothness-history-date strong {
+    color: var(--dark-gray);
+    font-weight: 700;
+}
 
