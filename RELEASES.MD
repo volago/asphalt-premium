@@ -1,3 +1,6 @@
+1.4.0 (2026-04-24)
+Feature: Po kliknięciu na odcinek drogi widoczna jest teraz data ostatniej modyfikacji jakości nawierzchni.
+
 1.3.1 (2026-04-23)
 Fix: Zapytania Overpass filtrują teraz wyłącznie drogi asfaltowe (surface=asphalt). Drogi betonowe, paved oraz gruntowe nie są już wyświetlane.
 

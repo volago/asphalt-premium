@@ -804,7 +804,7 @@ class MapManager {
 
         content.innerHTML = `
             <div class="road-info-scrollable">
-                ${SmoothnessEditor.render(smoothness)}
+                ${SmoothnessEditor.render(smoothness, { showHistory: !properties.isMulti })}
             </div>
             ${SmoothnessEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
         `;
@@ -815,6 +815,8 @@ class MapManager {
         // Pass selectedRoads and API refs to SmoothnessEditor via init()
         SmoothnessEditor.init({
             currentSmoothness: smoothness,
+            wayId:             properties.firstOsmId,
+            showHistory:       !properties.isMulti,
             selectedRoads:     this.selectedRoads,
             osmApi:            this.osmApi,
             oauth:             this.oauth,
