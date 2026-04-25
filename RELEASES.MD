@@ -1,3 +1,6 @@
+1.5.0 (2026-04-25)
+Feature: Podczas importu śladu GPX można teraz zaznaczyć opcję "Wczytaj drogi w obszarze śladu". Po jej zaznaczeniu aplikacja automatycznie pobiera drogi z Overpass API w obszarze bounding box śladu i wyświetla je na mapie — bez konieczności ręcznego wyboru województwa czy zoomu.
+
 1.4.0 (2026-04-24)
 Feature: Po kliknięciu na odcinek drogi widoczna jest teraz data ostatniej modyfikacji jakości nawierzchni.
 
