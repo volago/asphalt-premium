@@ -83,10 +83,20 @@
 
 Aby ułatwić ocenę jakości dróg po powrocie z wycieczki rowerowej, możesz zaimportować zapisany ślad GPX:
 
-1. W lewym panelu bocznym kliknij przycisk **"Importuj GPX"**.
+1. W lewym panelu bocznym kliknij przycisk **„Importuj GPX"**.
 2. Wybierz plik z dysku (`.gpx`).
 3. Ślad zostanie nałożony na mapę w postaci szerokiego, ciemnego pasa z wysoką przezroczystością, tak by nie zasłaniał elementów do edytowania. Mapa automatycznie przybliży się do dodanego elementu.
-4. Po zakończeniu oceny odcinków kliknij **"Usuń trasę GPX"**, by wyczyścić mapę.
+4. Po zakończeniu oceny odcinków kliknij **„Usuń trasę GPX"**, by wyczyścić mapę.
+
+### 🚗 Automatyczne ładowanie dróg w obszarze śladu
+
+Jeśli interesujące Cię drogi nie są jeszcze załadowane na mapie (np. nie wybrałeś województwa), możesz pobrać je automatycznie razem ze śladem GPX:
+
+1. Przed kliknięciem „Importuj GPX" zaznacz opcję **„Wczytaj drogi w obszarze śladu"**.
+2. Wczytaj plik GPX jak zwykle.
+3. Po narysowaniu śladu aplikacja automatycznie pobierze drogi z obszaru obejmującego całą trasę i wyświetli je na mapie.
+
+> ⚠️ **Uwaga:** Dla bardzo długich tras (kilkaset km) pobieranie dróg może zająć chwilę lub zwrócić dużo wyników. W takim przypadku rozważ ładowanie danych po województwach.
 
 ## 📊 Statystyki
 

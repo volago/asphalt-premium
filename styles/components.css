@@ -48,6 +48,30 @@
     cursor: not-allowed;
 }
 
+/* GPX roads toggle checkbox */
+.gpx-roads-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--secondary-gray);
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 2px;
+}
+
+.gpx-roads-toggle input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--primary-blue);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.gpx-roads-toggle:hover {
+    color: var(--dark-gray);
+}
+
 /* ==========================================
    BUTTONS
    ========================================== */

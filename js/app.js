@@ -131,6 +131,10 @@ class AsfaltPremiumApp {
         // Initialize GPX Importer
         if (typeof GpxImporter !== 'undefined') {
             this.gpxImporter = new GpxImporter(this.mapManager);
+            this.gpxImporter.setOverpassClient(
+                this.overpass,
+                (data) => this.displayRoads(data)
+            );
         }
 
         // Pass OAuth instances to map manager

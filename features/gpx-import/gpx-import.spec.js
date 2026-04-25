@@ -1,70 +1,119 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 
-test.describe('Import pliku GPX', () => {
-  test('wczytanie i usunięcie pliku gpx zmienia prawidłowo interfejs uzytkownika i widok mapy', async ({ page }) => {
-    
-    // 1. Otwarcie instancji strony i akceptacja popupu (jeśli się pojawia)
-    await page.goto('/');
-
-    // Popup włącza się z 600ms timeoutem w app.js, więc musimy na niego poczekać
-    const welcomePopup = page.locator('#welcome-start-btn');
+// Pomocnik: zamknij welcome popup jeśli się pojawi
+async function dismissWelcomePopup(page) {
+    const welcomeBtn = page.locator('#welcome-start-btn');
     try {
-        await welcomePopup.waitFor({ state: 'visible', timeout: 2000 });
-        await welcomePopup.click();
-        
-        // Wait for removal animation to complete (250ms in app.js + buffer)
+        await welcomeBtn.waitFor({ state: 'visible', timeout: 2000 });
+        await welcomeBtn.click();
         await page.waitForTimeout(300);
-    } catch (e) {
-        // ignorujemy brak popupu
+    } catch {
+        // popup nieobecny — ignorujemy
     }
-    // Poczekaj na wejście mapy i warstw Leafleta
-    await page.waitForSelector('.leaflet-container');
+}
 
-    // Zapamiętaj obecny srodek (bounds lub center)
-    const initialCenter = await page.evaluate(() => {
-        const center = window.asphaltApp.mapManager.map.getCenter();
-        return { lat: center.lat, lng: center.lng };
+test.describe('Import pliku GPX', () => {
+    test('wczytanie i usunięcie pliku gpx zmienia prawidłowo interfejs uzytkownika i widok mapy', async ({ page }) => {
+        await page.goto('/');
+        await dismissWelcomePopup(page);
+        await page.waitForSelector('.leaflet-container');
+
+        const initialCenter = await page.evaluate(() => {
+            const center = window.asphaltApp.mapManager.map.getCenter();
+            return { lat: center.lat, lng: center.lng };
+        });
+
+        const importBtn = page.locator('#import-gpx-btn');
+        const removeBtn = page.locator('#remove-gpx-btn');
+
+        await expect(importBtn).toBeVisible();
+        await expect(removeBtn).toBeHidden();
+
+        const filePath = path.resolve('features/gpx-import/test.gpx');
+        await page.setInputFiles('#gpx-file-input', filePath);
+
+        await expect(importBtn).toBeHidden();
+        await expect(removeBtn).toBeVisible();
+        await expect(page.locator('.toast-notification.alert-success')).toBeVisible();
+
+        const hasLayer = await page.evaluate(() => window.asphaltApp.gpxImporter.gpxLayer !== null);
+        expect(hasLayer).toBeTruthy();
+
+        const newCenter = await page.evaluate(() => {
+            const center = window.asphaltApp.mapManager.map.getCenter();
+            return { lat: center.lat, lng: center.lng };
+        });
+
+        // GPX jest blisko Warszawy (52.23), widok powinien się zmienić
+        expect(newCenter.lat).not.toBeCloseTo(initialCenter.lat, 4);
+
+        await removeBtn.click();
+
+        await expect(importBtn).toBeVisible();
+        await expect(removeBtn).toBeHidden();
+
+        const isLayerRemoved = await page.evaluate(() => window.asphaltApp.gpxImporter.gpxLayer === null);
+        expect(isLayerRemoved).toBeTruthy();
+    });
+});
+
+test.describe('Checkbox "Wczytaj drogi w obszarze śladu"', () => {
+    test('Checkbox jest widoczny obok przycisku importu GPX', async ({ page }) => {
+        await page.goto('/');
+        await dismissWelcomePopup(page);
+        await page.waitForSelector('.leaflet-container');
+
+        const checkbox = page.locator('#load-gpx-roads-checkbox');
+        const label = page.locator('#load-gpx-roads-label');
+
+        await expect(label).toBeVisible();
+        await expect(checkbox).toBeVisible();
+        await expect(checkbox).not.toBeChecked();
     });
 
-    const importBtn = page.locator('#import-gpx-btn');
-    const removeBtn = page.locator('#remove-gpx-btn');
-    
-    // Upewniamy się, że poprawne przyciski są widoczne
-    await expect(importBtn).toBeVisible();
-    await expect(removeBtn).toBeHidden();
+    test('Checkbox można zaznaczyć i odznaczyć', async ({ page }) => {
+        await page.goto('/');
+        await dismissWelcomePopup(page);
+        await page.waitForSelector('.leaflet-container');
 
-    // 2. Wczytujemy plik
-    // Ponieważ wejście plikowe to <input type="file" id="gpx-file-input">
-    const filePath = path.resolve('features/gpx-import/test.gpx');
-    await page.setInputFiles('#gpx-file-input', filePath);
+        const checkbox = page.locator('#load-gpx-roads-checkbox');
 
-    // 3. Po wczytaniu weryfikacja
-    await expect(importBtn).toBeHidden();
-    await expect(removeBtn).toBeVisible();
-    await expect(page.locator('.toast-notification.alert-success')).toBeVisible(); // Powinniśmy mieć wyświetlony toast success
-    
-    // Zamiast szukać elementu DOM SVG, weryfikujemy czy GpxImporter przypisał poprawnie warstwę do swojego stanu.
-    const hasLayer = await page.evaluate(() => window.asphaltApp.gpxImporter.gpxLayer !== null);
-    expect(hasLayer).toBeTruthy();
+        await checkbox.check();
+        await expect(checkbox).toBeChecked();
 
-    const newCenter = await page.evaluate(() => {
-        const center = window.asphaltApp.mapManager.map.getCenter();
-        return { lat: center.lat, lng: center.lng };
+        await checkbox.uncheck();
+        await expect(checkbox).not.toBeChecked();
     });
-    
-    // Sprawdzamy czy zmiana center zadziałała, poniewaz GPX jest blisko Warszawy (52.23)
-    expect(newCenter.lat).not.toBeCloseTo(initialCenter.lat, 4);
 
-    // 4. Skasowanie śladu
-    await removeBtn.click();
+    test('Label checkboxa chowa się po wczytaniu śladu GPX', async ({ page }) => {
+        await page.goto('/');
+        await dismissWelcomePopup(page);
+        await page.waitForSelector('.leaflet-container');
 
-    // 5. Powrót to stanu wejściowego
-    await expect(importBtn).toBeVisible();
-    await expect(removeBtn).toBeHidden();
-    
-    // Upewniamy się, że warstwa została wyczyszczona
-    const isLayerRemoved = await page.evaluate(() => window.asphaltApp.gpxImporter.gpxLayer === null);
-    expect(isLayerRemoved).toBeTruthy();
-  });
+        const label = page.locator('#load-gpx-roads-label');
+        await expect(label).toBeVisible();
+
+        const filePath = path.resolve('features/gpx-import/test.gpx');
+        await page.setInputFiles('#gpx-file-input', filePath);
+
+        // Po załadowaniu śladu label powinien być ukryty
+        await expect(label).toBeHidden();
+    });
+
+    test('Label checkboxa wraca po usunięciu śladu GPX', async ({ page }) => {
+        await page.goto('/');
+        await dismissWelcomePopup(page);
+        await page.waitForSelector('.leaflet-container');
+
+        const label = page.locator('#load-gpx-roads-label');
+        const removeBtn = page.locator('#remove-gpx-btn');
+
+        const filePath = path.resolve('features/gpx-import/test.gpx');
+        await page.setInputFiles('#gpx-file-input', filePath);
+        await expect(label).toBeHidden();
+
+        await removeBtn.click();
+        await expect(label).toBeVisible();
+    });
 });

@@ -4,7 +4,7 @@ description: Implementuje issue z Github
 
 Wykonaj poniższe kroki, aby poprawnie zaimplementować kolejną z zaplanowanych funkcjonalności:
 
-1. Sprawdź czy w parametrze workflow użytkownik podał numer albo link do issue. Jeśli nie, to napisz, że jest to wymagane i zakończ działanie.
+1. Sprawdź czy w parametrze workflow użytkownik podał numer albo link do issue. Jeśli nie, to napisz, że jest to wymagane i zakończ działanie. Zapoznaj się dokładnie z issue - jego treścią i komentarzami. Jeśli w issue są jakiekolwiek propozycje rozwiązań, to podejdź do nich krytycznie, proponując też najlepsze według Ciebie alternatywy.
 
 2. Jeśli coś jest dla Ciebie niezrozumiałe, to nie wahaj się dopytać i ustalić szczegóły.
 
