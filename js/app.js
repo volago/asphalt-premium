@@ -133,7 +133,7 @@ class AsfaltPremiumApp {
             this.gpxImporter = new GpxImporter(this.mapManager);
             this.gpxImporter.setOverpassClient(
                 this.overpass,
-                (data) => this.displayRoads(data)
+                (data) => this.displayRoads(data, false)
             );
         }
 
@@ -717,7 +717,7 @@ class AsfaltPremiumApp {
        MAP DISPLAY
        ========================================== */
 
-    displayRoads(geoJsonData) {
+    displayRoads(geoJsonData, showStatistics = true) {
         if (!this.mapManager) {
             console.error('Map manager not initialized');
             return;
@@ -730,8 +730,12 @@ class AsfaltPremiumApp {
             this.closeMobileFilterModal();
         }
 
-        // Update statistics
-        this.updateRoadStatistics(geoJsonData, roadCounts);
+        // Update statistics only for full voivodeship data.
+        // Area/bbox loads (e.g. GPX trace area) do not update statistics
+        // to avoid misleading partial data being shown.
+        if (showStatistics) {
+            this.updateRoadStatistics(geoJsonData, roadCounts);
+        }
 
         return roadCounts;
     }
