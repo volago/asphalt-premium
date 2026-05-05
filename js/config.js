@@ -51,6 +51,12 @@ const CONFIG = {
             weight: 3,
             opacity: 0.6,
             dashArray: null
+        },
+        no_surface: {
+            color: '#2563eb',
+            weight: 2,
+            opacity: 0.5,
+            dashArray: '3, 6'
         }
     },
 
@@ -300,6 +306,17 @@ const CONFIG = {
             description: 'Całkowicie nieprzejezdna nawierzchnia.',
             image: 'impassable.jpg',
             common: false
+        }
+    ],
+
+    // Surface options for road surface editing
+    SURFACE_OPTIONS: [
+        {
+            value: 'asphalt',
+            label: 'Asfaltowa',
+            labelEn: 'Asphalt',
+            description: 'Droga o nawierzchni asfaltowej — gładki, twardy materiał.',
+            image: 'excellent.jpg'
         }
     ]
 };

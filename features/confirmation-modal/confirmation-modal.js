@@ -8,6 +8,7 @@
  *
  * Usage:
  *   const confirmed = await ConfirmationModal.show({ wayId, oldValue, newValue, skippedCount });
+ *   const confirmed = await ConfirmationModal.show({ wayId, oldValue, newValue, skippedCount, tagType: 'surface' });
  */
 const ConfirmationModal = {
 
@@ -16,12 +17,13 @@ const ConfirmationModal = {
      *
      * @param {Object} options
      * @param {string|number} options.wayId       - Road ID or label (e.g. "Wiele odcinków (3)")
-     * @param {string}        options.oldValue    - Previous smoothness value (or 'brak danych')
-     * @param {string}        options.newValue    - New smoothness value to save
+     * @param {string}        options.oldValue    - Previous tag value (or 'brak danych')
+     * @param {string}        options.newValue    - New tag value to save
      * @param {number}        [options.skippedCount=0] - Number of roads skipped (already have that value)
+     * @param {string}        [options.tagType='smoothness'] - 'smoothness' or 'surface'
      * @returns {Promise<boolean>} Resolves true if user confirmed, false otherwise
      */
-    show({ wayId, oldValue, newValue, skippedCount = 0 }) {
+    show({ wayId, oldValue, newValue, skippedCount = 0, tagType = 'smoothness' }) {
         return new Promise((resolve) => {
             const modal     = document.getElementById('confirmationModal');
             const title     = document.getElementById('confirmationModalTitle');
@@ -39,7 +41,7 @@ const ConfirmationModal = {
             title.textContent = 'Potwierdź zapisanie zmian';
 
             // Build body content
-            body.innerHTML = this._buildBodyHTML(wayId, oldValue, newValue, skippedCount);
+            body.innerHTML = this._buildBodyHTML(wayId, oldValue, newValue, skippedCount, tagType);
 
             // Show modal
             modal.style.display = 'flex';
@@ -65,9 +67,13 @@ const ConfirmationModal = {
      * Build the HTML body for the confirmation dialog.
      * @private
      */
-    _buildBodyHTML(wayId, oldValue, newValue, skippedCount) {
-        const oldOption = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === oldValue);
-        const newOption = CONFIG.SMOOTHNESS_OPTIONS.find(opt => opt.value === newValue);
+    _buildBodyHTML(wayId, oldValue, newValue, skippedCount, tagType = 'smoothness') {
+        const isSurface = tagType === 'surface';
+        const optionsList = isSurface ? CONFIG.SURFACE_OPTIONS : CONFIG.SMOOTHNESS_OPTIONS;
+        const tagLabel = isSurface ? 'rodzaj nawierzchni' : 'jakość nawierzchni';
+
+        const oldOption = optionsList.find(opt => opt.value === oldValue);
+        const newOption = optionsList.find(opt => opt.value === newValue);
 
         let html = '<p>Czy na pewno chcesz zapisać następujące zmiany w OpenStreetMap?</p>';
 
@@ -86,8 +92,8 @@ const ConfirmationModal = {
 
         if (oldValue && oldValue !== 'brak danych') {
             const warningMsg = oldValue === 'Różne wartości dla zaznaczonych dróg'
-                ? 'Zaznaczone drogi mają już przypisaną przynajmniej jedną wartość jakości nawierzchni.'
-                : 'Ta droga już ma przypisaną jakość nawierzchni.';
+                ? `Zaznaczone drogi mają już przypisaną przynajmniej jedną wartość ${tagLabel}.`
+                : `Ta droga już ma przypisaną ${tagLabel}.`;
 
             html += `
                 <div class="warning">

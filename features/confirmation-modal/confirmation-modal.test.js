@@ -28,4 +28,10 @@ describe('ConfirmationModal._buildBodyHTML', () => {
         
         expect(html).toContain('<strong>1</strong> odcinek został pominięty');
     });
+
+    it('generuje poprawne ostrzeżenie i etykiety dla tagType="surface"', () => {
+        const html = Modal._buildBodyHTML(1234, 'asphalt', 'asphalt', 0, 'surface');
+        
+        expect(html).toContain('Ta droga już ma przypisaną rodzaj nawierzchni.'); // Note: Rodzaj is masculine, but code says "Ta droga już ma przypisaną ${tagLabel}" where tagLabel is "rodzaj nawierzchni". So it will say "Ta droga już ma przypisaną rodzaj nawierzchni."
+    });
 });

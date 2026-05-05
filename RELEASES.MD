@@ -1,3 +1,6 @@
+1.6.0 (2026-05-05)
+Feature: Dodano możliwość ustawiania rodzaju nawierzchni (surface=asphalt) na drogach trzeciorzędnych i niesklasyfikowanych. Drogi bez tagu surface wyświetlane są niebieskimi przerywanymi liniami. Po kliknięciu na taką drogę otwiera się panel boczny z opcją oznaczenia drogi jako asfaltowej. Obsługuje zaznaczanie wielu odcinków i zapis hurtowy. Drogi asfaltowe i drogi bez nawierzchni nie mogą być zaznaczane jednocześnie.
+
 1.5.0 (2026-04-25)
 Feature: Podczas importu śladu GPX można teraz zaznaczyć opcję "Wczytaj drogi w obszarze śladu". Po jej zaznaczeniu aplikacja automatycznie pobiera drogi z Overpass API w obszarze bounding box śladu i wyświetla je na mapie — bez konieczności ręcznego wyboru województwa czy zoomu.
 

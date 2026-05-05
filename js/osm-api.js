@@ -396,5 +396,84 @@ class OSMAPIClient {
             throw error;
         }
     }
+
+    /**
+     * Update surface tag for one or multiple ways in one changeset
+     * @param {number|Array<number>} wayIds - Way ID or Array of Way IDs
+     * @param {string} surfaceValue - New surface value (e.g. 'asphalt')
+     * @param {string} comment - Optional custom comment
+     * @returns {Promise<Object>} Result with success status, changesetId, and array of updates
+     */
+    async updateSurface(wayIds, surfaceValue, comment = null) {
+        let changesetId = null;
+
+        // Ensure wayIds is an array
+        const ids = Array.isArray(wayIds) ? wayIds : [wayIds];
+
+        try {
+            console.log(`Updating surface for ways ${ids.join(', ')} to: ${surfaceValue}`);
+
+            // Create changeset
+            const changesetComment = comment || (ids.length === 1
+                ? `Updated surface to ${surfaceValue}`
+                : `Updated surface to ${surfaceValue} for multiple ways`);
+
+            changesetId = await this.createChangeset(changesetComment, {
+                'source': 'survey',
+                'description': 'Road surface type update via Asfalt Premium'
+            });
+
+            const results = [];
+
+            // Update each way
+            for (const wayId of ids) {
+                // Get current way data
+                const wayData = await this.getWayDetails(wayId);
+
+                // Store old surface value
+                const oldSurface = wayData.tags.surface || null;
+
+                // Update surface tag
+                wayData.tags.surface = surfaceValue;
+
+                // Update way
+                const newVersion = await this.updateWay(wayId, wayData, changesetId);
+
+                results.push({
+                    wayId: wayId,
+                    newVersion: newVersion,
+                    oldSurface: oldSurface,
+                    newSurface: surfaceValue
+                });
+            }
+
+            // Close changeset
+            await this.closeChangeset(changesetId);
+
+            return {
+                success: true,
+                changesetId: changesetId,
+                updates: results,
+                wayId: ids.length === 1 ? ids[0] : undefined,
+                newVersion: ids.length === 1 ? results[0].newVersion : undefined,
+                oldSurface: ids.length === 1 ? results[0].oldSurface : undefined,
+                newSurface: surfaceValue
+            };
+
+        } catch (error) {
+            console.error('Failed to update surface:', error);
+
+            // Try to close changeset if it was created
+            if (changesetId) {
+                try {
+                    await this.closeChangeset(changesetId);
+                } catch (closeError) {
+                    console.error('Failed to close changeset after error:', closeError);
+                }
+            }
+
+            throw error;
+        }
+    }
 }
 
