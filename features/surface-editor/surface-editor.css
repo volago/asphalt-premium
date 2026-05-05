@@ -1,0 +1,33 @@
+/* ==========================================
+   SURFACE-EDITOR.CSS - Surface editor styles
+   Asfalt Premium
+   ========================================== */
+
+/* The SurfaceEditor reuses smoothness-gallery and smoothness-option
+   classes defined in components.css. Only editor-specific overrides 
+   are placed here. */
+
+.surface-editor {
+    padding: var(--spacing-md);
+}
+
+.surface-editor h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.surface-editor h4 i {
+    color: #2563eb;
+}
+
+.surface-editor-info {
+    font-size: var(--font-size-sm);
+    color: var(--secondary-gray);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}

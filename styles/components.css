@@ -375,6 +375,19 @@
     background-color: #2563eb;
 }
 
+.legend-line.no_surface {
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+        90deg,
+        #2563eb 0px,
+        #2563eb 3px,
+        transparent 3px,
+        transparent 9px
+    );
+    background-size: 9px 3px;
+    background-repeat: repeat-x;
+}
+
 .legend-item span {
     font-size: var(--font-size-xs);
     color: var(--secondary-gray);

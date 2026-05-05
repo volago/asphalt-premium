@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="features/tip-panel/tip-panel.css">
     <link rel="stylesheet" href="features/confirmation-modal/confirmation-modal.css">
     <link rel="stylesheet" href="features/map/map.css">
+    <link rel="stylesheet" href="features/surface-editor/surface-editor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -645,6 +646,14 @@
                             <div class="legend-line unknown"></div>
                             <span>Brak danych smoothness</span>
                         </div>
+                        <div class="legend-item" data-road-type="no_surface">
+                            <button class="eye-toggle active" data-type="no_surface" title="Pokaż/ukryj drogi bez nawierzchni">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
+                            <div class="legend-line no_surface"></div>
+                            <span>Brak danych surface</span>
+                        </div>
                     </div>
 
                     <!-- Statistics -->
@@ -823,6 +832,7 @@
     <script src="features/confirmation-modal/confirmation-modal.js"></script>
     <script src="features/osm-history/way-history.js"></script>
     <script src="features/smoothness-editor/smoothness-editor.js"></script>
+    <script src="features/surface-editor/surface-editor.js"></script>
     <script src="features/map/map.js"></script>
     <script src="features/gpx-import/gpx-import.js"></script>
     <script src="js/app.js"></script>

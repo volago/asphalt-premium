@@ -15,7 +15,8 @@ class MapManager {
             excellent: true,
             good: true,
             poor: true,
-            unknown: true
+            unknown: true,
+            no_surface: true
         };
         this.oauth = null;
         this.osmApi = null;
@@ -295,6 +296,7 @@ class MapManager {
             good: 0,
             poor: 0,
             unknown: 0,
+            no_surface: 0,
             total: 0
         };
 
@@ -306,8 +308,10 @@ class MapManager {
                     this.roadsLayer.addLayer(road);
 
                     // Update statistics
-                    const styleType = this.getRoadStyleType(feature.properties.smoothness);
-                    roadCounts[styleType]++;
+                    const styleType = this.getRoadStyleType(feature.properties.smoothness, feature.properties.surface);
+                    if (roadCounts[styleType] !== undefined) {
+                        roadCounts[styleType]++;
+                    }
                     roadCounts.total++;
                 }
             }
@@ -333,7 +337,7 @@ class MapManager {
         const latLngs = coordinates.map(coord => [coord[1], coord[0]]);
 
         // Determine road style
-        const styleType = this.getRoadStyleType(properties.smoothness);
+        const styleType = this.getRoadStyleType(properties.smoothness, properties.surface);
         const style = this.getRoadStyle(styleType);
 
         // Create invisible wider polyline for better click detection
@@ -376,7 +380,9 @@ class MapManager {
         return road;
     }
 
-    getRoadStyleType(smoothness) {
+    getRoadStyleType(smoothness, surface) {
+        // Roads without surface tag get a distinct style
+        if (!surface) return 'no_surface';
         if (!smoothness) return 'unknown';  // Blue for roads without smoothness
         return CONFIG.SMOOTHNESS_MAPPING[smoothness] || 'poor';
     }
@@ -393,6 +399,9 @@ class MapManager {
 
     createRoadTooltip(properties) {
         const name = properties.name || 'Droga bez nazwy';
+        if (!properties.surface) {
+            return `${name} (brak danych surface)`;
+        }
         const smoothness = properties.smoothness || 'brak danych';
         return `${name} (${smoothness})`;
     }
@@ -517,8 +526,18 @@ class MapManager {
      */
     selectRoad(road, e) {
         const isMultiSelect = e && e.originalEvent && (e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+        const clickedIsNoSurface = road.styleType === 'no_surface';
         
         if (isMultiSelect) {
+            // Block mixed selection: no_surface roads cannot be mixed with asphalt roads
+            if (this.selectedRoads.length > 0) {
+                const firstIsNoSurface = this.selectedRoads[0].styleType === 'no_surface';
+                if (firstIsNoSurface !== clickedIsNoSurface) {
+                    Toast.show('Nie można jednocześnie zaznaczać dróg asfaltowych i dróg bez nawierzchni.', 'warning');
+                    return;
+                }
+            }
+
             const index = this.selectedRoads.indexOf(road);
             if (index > -1) {
                 // Deselect
@@ -685,12 +704,22 @@ class MapManager {
 
         const isMulti = this.selectedRoads.length > 1;
         const firstProps = this.selectedRoads[0].feature.properties;
+        const isNoSurface = this.selectedRoads[0].styleType === 'no_surface';
 
         // Calculate common smoothness
         let commonSmoothness = firstProps.smoothness;
         for (let i = 1; i < this.selectedRoads.length; i++) {
             if (this.selectedRoads[i].feature.properties.smoothness !== commonSmoothness) {
                 commonSmoothness = 'mixed';
+                break;
+            }
+        }
+
+        // Calculate common surface
+        let commonSurface = firstProps.surface;
+        for (let i = 1; i < this.selectedRoads.length; i++) {
+            if (this.selectedRoads[i].feature.properties.surface !== commonSurface) {
+                commonSurface = 'mixed';
                 break;
             }
         }
@@ -707,8 +736,10 @@ class MapManager {
             name: name,
             osm_id: osmId,
             smoothness: commonSmoothness === 'mixed' ? null : commonSmoothness,
+            surface: commonSurface === 'mixed' ? null : commonSurface,
             highway: isMulti ? 'wiele typów dróg' : (firstProps.highway || 'nieznany typ'),
             isMulti: isMulti,
+            isNoSurface: isNoSurface,
             firstOsmId: firstProps.osm_id
         };
 
@@ -786,6 +817,7 @@ class MapManager {
     renderFullEditor(sidebar, content, properties) {
         const name = properties.name || 'Droga bez nazwy';
         const smoothness = properties.smoothness || null;
+        const surface = properties.surface || null;
         const osmId = properties.osm_id;
 
         // Show standard header
@@ -802,29 +834,52 @@ class MapManager {
             }
         }
 
-        content.innerHTML = `
-            <div class="road-info-scrollable">
-                ${SmoothnessEditor.render(smoothness, { showHistory: !properties.isMulti })}
-            </div>
-            ${SmoothnessEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
-        `;
+        // Decide which editor to show based on road type
+        if (properties.isNoSurface) {
+            // Surface editor for roads without surface tag
+            content.innerHTML = `
+                <div class="road-info-scrollable">
+                    ${SurfaceEditor.render(surface)}
+                </div>
+                ${SurfaceEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
+            `;
 
-        // Initialize close button if not already done
-        this.initRoadInfoSidebar();
+            this.initRoadInfoSidebar();
 
-        // Pass selectedRoads and API refs to SmoothnessEditor via init()
-        SmoothnessEditor.init({
-            currentSmoothness: smoothness,
-            wayId:             properties.firstOsmId,
-            showHistory:       !properties.isMulti,
-            selectedRoads:     this.selectedRoads,
-            osmApi:            this.osmApi,
-            oauth:             this.oauth,
-            onSaveSuccess:     ({ updatedIds, newValue }) => {
-                updatedIds.forEach(id => this.updateRoadLocally(id, newValue, false));
-                this.showRoadInfo();
-            }
-        });
+            SurfaceEditor.init({
+                currentSurface: surface,
+                selectedRoads:  this.selectedRoads,
+                osmApi:         this.osmApi,
+                oauth:          this.oauth,
+                onSaveSuccess:  ({ updatedIds, newValue }) => {
+                    updatedIds.forEach(id => this.updateRoadSurfaceLocally(id, newValue, false));
+                    this.showRoadInfo();
+                }
+            });
+        } else {
+            // Smoothness editor for asphalt roads (existing behavior)
+            content.innerHTML = `
+                <div class="road-info-scrollable">
+                    ${SmoothnessEditor.render(smoothness, { showHistory: !properties.isMulti })}
+                </div>
+                ${SmoothnessEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
+            `;
+
+            this.initRoadInfoSidebar();
+
+            SmoothnessEditor.init({
+                currentSmoothness: smoothness,
+                wayId:             properties.firstOsmId,
+                showHistory:       !properties.isMulti,
+                selectedRoads:     this.selectedRoads,
+                osmApi:            this.osmApi,
+                oauth:             this.oauth,
+                onSaveSuccess:     ({ updatedIds, newValue }) => {
+                    updatedIds.forEach(id => this.updateRoadLocally(id, newValue, false));
+                    this.showRoadInfo();
+                }
+            });
+        }
 
         // Re-init tech info icon as header was touched
         this.initTechInfoIcon(properties);
@@ -954,7 +1009,7 @@ class MapManager {
         properties.smoothness = newSmoothness;
 
         // Calculate new style
-        const newStyleType = this.getRoadStyleType(newSmoothness);
+        const newStyleType = this.getRoadStyleType(newSmoothness, properties.surface);
         const newStyle = this.getRoadStyle(newStyleType);
 
         // Update the road style type
@@ -980,6 +1035,49 @@ class MapManager {
         }
 
         console.log(`✓ Road ${wayId} updated locally with smoothness: ${newSmoothness} (style: ${newStyleType})`);
+    }
+
+    /**
+     * Update road surface locally after save
+     * @param {number} wayId - Way ID
+     * @param {string} newSurface - New surface value
+     * @param {boolean} refreshUI - Whether to refresh the road info panel
+     */
+    updateRoadSurfaceLocally(wayId, newSurface, refreshUI = true) {
+        const road = this.selectedRoads ? this.selectedRoads.find(r => r.feature.properties.osm_id === wayId) : null;
+        if (!road) return;
+
+        // Update the road properties
+        const properties = road.feature.properties;
+        properties.surface = newSurface;
+
+        // Calculate new style (now that surface is set, style depends on smoothness)
+        const newStyleType = this.getRoadStyleType(properties.smoothness, newSurface);
+        const newStyle = this.getRoadStyle(newStyleType);
+
+        // Update the road style type
+        road.styleType = newStyleType;
+
+        // Update the visible line style
+        if (road._visibleLine) {
+            road._visibleLine.setStyle(newStyle);
+
+            // If the road is selected, reapply selection style
+            const selectedStyle = {
+                color: '#8b5cf6',
+                weight: 4,
+                opacity: 1,
+                dashArray: null
+            };
+            road._visibleLine.setStyle(selectedStyle);
+        }
+
+        // Update the road info panel only if refreshUI is true
+        if (refreshUI) {
+            this.showRoadInfo();
+        }
+
+        console.log(`✓ Road ${wayId} updated locally with surface: ${newSurface} (style: ${newStyleType})`);
     }
 
 

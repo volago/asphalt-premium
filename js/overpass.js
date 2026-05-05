@@ -89,8 +89,9 @@ rel
   ["name"~"${searchPattern}"];
 map_to_area->.voiv_area;
 
-// Query for roads (tertiary and unclassified) with asphalt surface only
+// Query for roads (tertiary and unclassified) with asphalt surface only.
 // Filtering by surface=asphalt prevents showing concrete, paved and unpaved roads.
+// Note: roads without surface tag are loaded separately via bbox query (local loading only).
 (
   // Roads WITH smoothness data AND asphalt surface
   way["highway"="tertiary"]["smoothness"]["surface"="asphalt"](area.voiv_area);
@@ -133,6 +134,10 @@ out geom;
   // Roads WITHOUT smoothness but WITH asphalt surface (for coverage analysis - will be blue)
   way["highway"="tertiary"][!"smoothness"]["surface"="asphalt"];
   way["highway"="unclassified"][!"smoothness"]["surface"="asphalt"];
+
+  // Roads WITHOUT surface tag (for surface editing - will be purple dashed)
+  way["highway"="tertiary"][!"surface"];
+  way["highway"="unclassified"][!"surface"];
 );
 out geom;
         `.trim();
@@ -373,7 +378,8 @@ out geom;
         properties.ref = tags.ref || null;
         properties.operator = tags.operator || null;
 
-        // NO surface inference - only explicit smoothness data
+        // Surface data (for surface editing feature)
+        properties.surface = tags.surface || null;
 
         return properties;
     }

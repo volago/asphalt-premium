@@ -29,7 +29,8 @@
   - 👁️ Doskonała jakość (czarna ciągła)
   - 👁️ Dobra jakość (czarna przerywana)
   - 👁️ Słaba jakość (czerwona)
-  - 👁️ Brak danych (niebieska)
+  - 👁️ Brak danych smoothness (niebieska)
+  - 👁️ Brak danych surface (fioletowa przerywana)
 
 ## 🔍 Przeglądanie szczegółów drogi
 
@@ -78,6 +79,19 @@
 - W panelu bocznym zobaczysz liczbę zaznaczonych odcinków
 - Wybierz jakość i zapisz — wszystkie odcinki zostaną zaktualizowane w jednym changesetcie
 - Aby odznaczyć odcinek, kliknij na niego ponownie z wciśniętym **Ctrl**
+
+## 🛤️ Edycja rodzaju nawierzchni (surface)
+
+Drogi bez informacji o rodzaju nawierzchni (tag `surface`) wyświetlane są jako **niebieskie przerywane linie**. Możesz oznaczyć je jako asfaltowe:
+
+1. **Kliknij na drogę niebieską przerywaną** — otworzy się panel edycji nawierzchni (zamiast edycji jakości).
+2. **Kliknij opcję „Asfaltowa"** — zaznacz, że droga ma nawierzchnię asfaltową.
+3. **Kliknij „Zapisz"** — potwierdź zmiany w oknie dialogowym.
+4. Po zapisie droga zmieni styl na odpowiedni kolor (niebieski — brak danych smoothness, bo nie miała jeszcze oceny jakości).
+
+> ⚠️ **Uwaga:** Nie można jednocześnie zaznaczać dróg asfaltowych (do edycji smoothness) i dróg bez nawierzchni (do edycji surface). Zaznaczenie jednego typu blokuje drugi. Aby przełączyć się, odznacz wszystkie drogi (kliknij w puste miejsce na mapie).
+
+> 💡 **Multi-select:** Działa tak samo jak dla smoothness — przytrzymaj **Ctrl** i klikaj niebieskie przerywane drogi, aby oznaczyć wiele odcinków jako asfaltowe jednocześnie.
 
 ## 🗺️ Import pomocniczego śladu GPX
 
