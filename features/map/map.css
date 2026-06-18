@@ -49,3 +49,47 @@
     pointer-events: none;
     user-select: none;
 }
+
+/* ==========================================
+   DESELECT CONTROL (Mobile multi-select)
+   ========================================== */
+
+.deselect-control {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .deselect-control {
+        display: block;
+        margin-top: 10px !important;
+        margin-right: 10px !important;
+    }
+
+    .btn-deselect {
+        background: var(--white, #fff);
+        color: #6d28d9;
+        border: 2px solid #8b5cf6;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: var(--font-family, 'Inter', sans-serif);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+        transition: all 0.15s ease;
+    }
+
+    .btn-deselect:active {
+        background: #8b5cf6;
+        color: #fff;
+        transform: scale(0.96);
+    }
+
+    .btn-deselect i {
+        font-size: 13px;
+    }
+}

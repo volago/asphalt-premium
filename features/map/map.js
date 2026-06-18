@@ -23,6 +23,7 @@ class MapManager {
         this.overpassApi = null;
         this.selectedSmoothnessValue = null;
         this.mobileFilterControl = null;
+        this.deselectControl = null;
         this.loadedWayIds = new Set(); // Track loaded way IDs to avoid duplicates
     }
 
@@ -226,6 +227,8 @@ class MapManager {
             if (!e.originalEvent.defaultPrevented) {
                 // Don't deselect when Ctrl/Cmd is held (multi-select mode)
                 if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) return;
+                // On mobile, don't clear on map click (too easy to tap accidentally)
+                if (this.isMobileViewport()) return;
                 this.clearSelection();
             }
         });
@@ -525,7 +528,9 @@ class MapManager {
      * @param {Event} e - Click event
      */
     selectRoad(road, e) {
-        const isMultiSelect = e && e.originalEvent && (e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+        const isDesktopMultiSelect = e && e.originalEvent && (e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+        // On mobile, every click is additive (multi-select) since there's no Ctrl key
+        const isMultiSelect = isDesktopMultiSelect || this.isMobileViewport();
         const clickedIsNoSurface = road.styleType === 'no_surface';
         
         if (isMultiSelect) {
@@ -568,6 +573,7 @@ class MapManager {
                 } else {
                     this.showRoadInfo();
                 }
+                this.updateDeselectControl();
                 return;
             } else {
                 // Add to selection
@@ -607,6 +613,9 @@ class MapManager {
         // Show road info sidebar
         this.showRoadInfo();
 
+        // Show/update deselect control on mobile
+        this.updateDeselectControl();
+
         console.log('Road selected. Total selected:', this.selectedRoads.length);
     }
 
@@ -641,6 +650,8 @@ class MapManager {
             this.selectedRoads = [];
             TipPanel.dismiss('multiselect', false);
         }
+        // Always remove deselect control (safe even if already removed)
+        this.removeDeselectControl();
     }
 
     /**
@@ -846,13 +857,18 @@ class MapManager {
 
             this.initRoadInfoSidebar();
 
+            // Snapshot selectedRoads at render time — fixes race condition (issue #5):
+            // if user clicks another road while async save is in progress, the callback
+            // still holds references to the original road objects.
+            const surfaceRoadsSnapshot = [...this.selectedRoads];
+
             SurfaceEditor.init({
                 currentSurface: surface,
-                selectedRoads:  this.selectedRoads,
+                selectedRoads:  surfaceRoadsSnapshot,
                 osmApi:         this.osmApi,
                 oauth:          this.oauth,
                 onSaveSuccess:  ({ updatedIds, newValue }) => {
-                    updatedIds.forEach(id => this.updateRoadSurfaceLocally(id, newValue, false));
+                    updatedIds.forEach(id => this.updateRoadSurfaceLocally(id, newValue, false, surfaceRoadsSnapshot));
                     this.showRoadInfo();
                 }
             });
@@ -867,15 +883,20 @@ class MapManager {
 
             this.initRoadInfoSidebar();
 
+            // Snapshot selectedRoads at render time — fixes race condition (issue #5):
+            // if user clicks another road while async save is in progress, the callback
+            // still holds references to the original road objects.
+            const smoothnessRoadsSnapshot = [...this.selectedRoads];
+
             SmoothnessEditor.init({
                 currentSmoothness: smoothness,
                 wayId:             properties.firstOsmId,
                 showHistory:       !properties.isMulti,
-                selectedRoads:     this.selectedRoads,
+                selectedRoads:     smoothnessRoadsSnapshot,
                 osmApi:            this.osmApi,
                 oauth:             this.oauth,
                 onSaveSuccess:     ({ updatedIds, newValue }) => {
-                    updatedIds.forEach(id => this.updateRoadLocally(id, newValue, false));
+                    updatedIds.forEach(id => this.updateRoadLocally(id, newValue, false, smoothnessRoadsSnapshot));
                     this.showRoadInfo();
                 }
             });
@@ -1000,8 +1021,21 @@ class MapManager {
             }
         });
     }
-    updateRoadLocally(wayId, newSmoothness, refreshUI = true) {
-        const road = this.selectedRoads ? this.selectedRoads.find(r => r.feature.properties.osm_id === wayId) : null;
+    /**
+     * Update road smoothness locally after a successful OSM save.
+     *
+     * @param {number|string} wayId         - OSM way ID
+     * @param {string}        newSmoothness
+     * @param {boolean}       [refreshUI=true]
+     * @param {Array}         [roadsSnapshot] - Snapshot of selectedRoads from save-start;
+     *                                          ensures correct update even when user switches
+     *                                          road during async save (issue #5).
+     */
+    updateRoadLocally(wayId, newSmoothness, refreshUI = true, roadsSnapshot = null) {
+        // Prefer the snapshot (captured before async operations) so the update
+        // still works even if this.selectedRoads was replaced by a later road selection.
+        const searchIn = roadsSnapshot || this.selectedRoads || [];
+        const road = searchIn.find(r => r.feature.properties.osm_id === wayId) || null;
         if (!road) return;
 
         // Update the road properties
@@ -1043,8 +1077,21 @@ class MapManager {
      * @param {string} newSurface - New surface value
      * @param {boolean} refreshUI - Whether to refresh the road info panel
      */
-    updateRoadSurfaceLocally(wayId, newSurface, refreshUI = true) {
-        const road = this.selectedRoads ? this.selectedRoads.find(r => r.feature.properties.osm_id === wayId) : null;
+    /**
+     * Update road surface locally after a successful OSM save.
+     *
+     * @param {number|string} wayId       - OSM way ID
+     * @param {string}        newSurface
+     * @param {boolean}       [refreshUI=true]
+     * @param {Array}         [roadsSnapshot] - Snapshot of selectedRoads from save-start;
+     *                                          ensures correct update even when user switches
+     *                                          road during async save (issue #5).
+     */
+    updateRoadSurfaceLocally(wayId, newSurface, refreshUI = true, roadsSnapshot = null) {
+        // Prefer the snapshot (captured before async operations) so the update
+        // still works even if this.selectedRoads was replaced by a later road selection.
+        const searchIn = roadsSnapshot || this.selectedRoads || [];
+        const road = searchIn.find(r => r.feature.properties.osm_id === wayId) || null;
         if (!road) return;
 
         // Update the road properties
@@ -1086,11 +1133,94 @@ class MapManager {
        ========================================== */
 
     showMultiSelectTip() {
+        // On mobile, multi-select is automatic – no need to show Ctrl tip
+        if (this.isMobileViewport()) return;
+
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const keyLabel = isMac ? '⌘ Cmd' : 'Ctrl';
         TipPanel.show('multiselect',
             `Przytrzymaj <kbd>${keyLabel}</kbd> i klikaj drogi, aby zaznaczyć wiele odcinków naraz i edytować je hurtowo.`
         );
+    }
+
+    /* ==========================================
+       MOBILE MULTI-SELECT SUPPORT
+       ========================================== */
+
+    /**
+     * Check if the current viewport is mobile-sized
+     * @returns {boolean}
+     */
+    isMobileViewport() {
+        return window.innerWidth <= 768;
+    }
+
+    /**
+     * Add or update the deselect control button on the map.
+     * Visible only on mobile when roads are selected.
+     */
+    addDeselectControl() {
+        if (!this.map || this.deselectControl) return;
+
+        const DeselectControl = L.Control.extend({
+            options: { position: 'topright' },
+            onAdd: () => {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control deselect-control');
+                const button = L.DomUtil.create('button', 'btn-deselect', container);
+                button.type = 'button';
+                button.id = 'btn-deselect-roads';
+                button.innerHTML = `<i class="fas fa-times-circle"></i> <span>Odznacz</span>`;
+
+                L.DomEvent.disableClickPropagation(button);
+                L.DomEvent.on(button, 'click', (e) => {
+                    L.DomEvent.stop(e);
+                    this.clearSelection();
+                });
+
+                return container;
+            }
+        });
+
+        this.deselectControl = new DeselectControl();
+        this.map.addControl(this.deselectControl);
+    }
+
+    /**
+     * Update the deselect control: show/hide and refresh the counter.
+     */
+    updateDeselectControl() {
+        if (!this.isMobileViewport()) return;
+
+        const count = this.selectedRoads.length;
+
+        if (count === 0) {
+            this.removeDeselectControl();
+            return;
+        }
+
+        // Create control if it doesn't exist yet
+        if (!this.deselectControl) {
+            this.addDeselectControl();
+        }
+
+        // Update label text
+        const btn = document.getElementById('btn-deselect-roads');
+        if (btn) {
+            const label = count === 1
+                ? 'Odznacz'
+                : `Odznacz (${count})`;
+            btn.innerHTML = `<i class="fas fa-times-circle"></i> <span>${label}</span>`;
+        }
+    }
+
+    /**
+     * Remove the deselect control from the map.
+     */
+    removeDeselectControl() {
+        if (this.map && this.deselectControl) {
+            this.map.removeControl(this.deselectControl);
+            this.deselectControl = null;
+        }
     }
 
 

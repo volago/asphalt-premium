@@ -1,3 +1,6 @@
+1.7.0 (2026-06-10)
+Feature: Na urządzeniach mobilnych zaznaczanie odcinków dróg jest teraz addytywne — każde kliknięcie dodaje kolejny odcinek do zaznaczenia (bez potrzeby przytrzymywania Ctrl). Kliknięcie w mapę poza drogą nie czyści zaznaczenia, by uniknąć przypadkowych dotknięć. Na mapie pojawia się przycisk „Wyczyść zaznaczenie" umożliwiający ręczne wyczyszczenie. Zachowanie na desktopie nie ulega zmianie.
+
 1.6.0 (2026-05-05)
 Feature: Dodano możliwość ustawiania rodzaju nawierzchni (surface=asphalt) na drogach trzeciorzędnych i niesklasyfikowanych. Drogi bez tagu surface wyświetlane są niebieskimi przerywanymi liniami. Po kliknięciu na taką drogę otwiera się panel boczny z opcją oznaczenia drogi jako asfaltowej. Obsługuje zaznaczanie wielu odcinków i zapis hurtowy. Drogi asfaltowe i drogi bez nawierzchni nie mogą być zaznaczane jednocześnie.
 
