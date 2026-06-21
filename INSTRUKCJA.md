@@ -14,7 +14,7 @@
 
 3. **Ładowanie danych:**
    - **Metoda A (Województwa):** Wybierz województwo z listy. Dane załadują się automatycznie, a mapa dopasuje się do granic regionu.
-   - **Metoda B (Lokalnie):** Przesuń mapę w interesujące Cię miejsce (wymagany zoom > 11) i kliknij przycisk „Wczytaj drogi" widoczny na mapie.
+   - **Metoda B (Lokalnie):** Przesuń mapę w interesujące Cię miejsce i kliknij przycisk „Wczytaj drogi" widoczny na mapie. Wymagany zoom: **≥ 13** na desktopie, **≥ 11** na urządzeniu mobilnym.
    - **Odświeżanie:** Kliknij „Odśwież" w panelu bocznym. Pozycja mapy zostanie zachowana.
    - **Cache:** Dane są zapisywane lokalnie (cache 3 dni) dla szybkiego dostępu.
 
@@ -23,14 +23,18 @@
    - Przeciągaj mapę aby przesuwać widok
    - Drogi stają się bardziej widoczne przy większym przybliżeniu (zoom > 7)
 
+5. **Moja lokalizacja:**
+   - Kliknij przycisk 🎯 (crosshairs) w prawym dolnym rogu mapy, aby wycentrować widok na swojej pozycji GPS
+   - Na mapie pojawi się niebieska pulsująca kropka z okręgiem dokładności
+
 ## 👁️ Kontrola widoczności warstw
 
 - **Ikony oka w legendzie** — kliknij aby pokazać/ukryć drogi danego typu:
   - 👁️ Doskonała jakość (czarna ciągła)
   - 👁️ Dobra jakość (czarna przerywana)
   - 👁️ Słaba jakość (czerwona)
-  - 👁️ Brak danych smoothness (niebieska)
-  - 👁️ Brak danych surface (fioletowa przerywana)
+  - 👁️ Brak danych smoothness (niebieska ciągła)
+  - 👁️ Brak danych surface (niebieska przerywana)
 
 ## 🔍 Przeglądanie szczegółów drogi
 
@@ -38,8 +42,7 @@
 2. **Otworzy się panel boczny** z informacjami:
    - Nazwa drogi
    - Obecna jakość nawierzchni
-   - Typ drogi (highway tag)
-   - OSM ID
+   - Ikona ℹ️ przy nazwie — kliknij, aby zobaczyć szczegóły techniczne (typ drogi `highway`, wartość `smoothness`, OSM ID)
 3. **Widoczne markery** — fioletowe punkty na początku i końcu odcinka
 4. **Podświetlenie** — wybrana droga jest zaznaczona na fioletowo
 5. **Zamknięcie panelu** — kliknij ✕ lub kliknij w puste miejsce na mapie
@@ -60,6 +63,7 @@
    - W galerii kliknij na odpowiednią opcję (5 głównych opcji)
    - Każda opcja ma: obraz przykładowy, nazwę i opis
    - Dostępne opcje: Doskonała, Dobra, Średnia, Słaba, Bardzo słaba
+   - Pod galerią widoczna jest **data i autor ostatniej zmiany** tagu `smoothness` pobrana z historii OSM
 
 4. **Zapisz zmiany:**
    - Kliknij przycisk „Zapisz"
@@ -79,6 +83,15 @@
 - W panelu bocznym zobaczysz liczbę zaznaczonych odcinków
 - Wybierz jakość i zapisz — wszystkie odcinki zostaną zaktualizowane w jednym changesetcie
 - Aby odznaczyć odcinek, kliknij na niego ponownie z wciśniętym **Ctrl**
+
+### 📱 Na urządzeniach mobilnych
+
+Na telefonie i tablecie multi-select działa **automatycznie** — każde kliknięcie drogi dodaje ją do zaznaczenia (nie ma klawisza Ctrl):
+
+- Po zaznaczeniu pierwszej drogi pojawia się przycisk **„Odznacz"** w prawym górnym rogu mapy
+- Liczba zaznaczonych odcinków widoczna jest na przycisku (np. „Odznacz (3)")
+- Panel edycji wysuwa się od dołu ekranu — dotknij „Edytuj", aby rozwinąć pełny edytor
+- Kliknięcie „Odznacz" czyści całe zaznaczenie
 
 ## 🛤️ Edycja rodzaju nawierzchni (surface)
 
@@ -116,6 +129,23 @@ Jeśli interesujące Cię drogi nie są jeszcze załadowane na mapie (np. nie wy
 
 Panel boczny pokazuje automatycznie wygenerowane statystyki dla załadowanego regionu:
 
-- Procent dróg bez oceny jakości (niebieskie)
+- Procent dróg bez oceny jakości (niebieskie — brak tagu `smoothness`)
+- Procent dróg bez danych o nawierzchni (niebieskie przerywane — brak tagu `surface`)
 - Rozkład procentowy poszczególnych ocen jakości
 - Liczby aktualizują się po każdym załadowaniu danych
+
+## 🆕 Co nowego (Nowości)
+
+W prawym górnym rogu toolbara (lub w menu mobilnym) widoczny jest przycisk **„Co nowego"**:
+
+- Czerwona kropka 🔴 oznacza, że dostępna jest nowa wersja od ostatniego odwiedzenia
+- Kliknięcie otwiera modal z listą wersji i opisem zmian (plik `RELEASES.MD`)
+- Po otwarciu modalu kropka znika — aplikacja zapamiętuje ostatnio widzianą wersję w `localStorage`
+
+## 💡 Porady kontekstowe
+
+Aplikacja wyświetla jednorazowe porady w formie małego panelu w rogu ekranu (tylko na desktopie):
+
+- **Porada multi-select** — pojawia się po pierwszym kliknięciu drogi i przypomina o skrócie Ctrl/⌘
+- Kliknięcie ✕ ukrywa poradę na czas sesji
+- Kliknięcie „Nie pokazuj więcej" trwale usuwa poradę (zapamiętywane w `localStorage`)
