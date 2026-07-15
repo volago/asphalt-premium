@@ -536,6 +536,8 @@ class AsfaltPremiumApp {
         const goToMapBtn = document.getElementById('go-to-map-btn');
         const mobileCloseBtn = document.getElementById('mobile-filter-close');
         const mobileOverlay = document.getElementById('mobile-filter-overlay');
+        const municipalitySelect = document.getElementById('municipality-select');
+        const municipalityGroup = document.getElementById('municipality-group');
 
         // Sidebar toggle functionality
         if (toggleBtn) {
@@ -561,13 +563,36 @@ class AsfaltPremiumApp {
 
         // Voivodeship selection
         if (voivodeshipSelect) {
-            voivodeshipSelect.addEventListener('change', (e) => {
+            voivodeshipSelect.addEventListener('change', async (e) => {
                 this.currentVoivodeship = e.target.value;
                 if (this.currentVoivodeship) {
                     this.loadCachedData();
+                    await this.loadMunicipalities(this.currentVoivodeship);
                 } else {
                     // Hide statistics when no voivodeship selected
                     this.hideStatistics();
+                    if (municipalityGroup) municipalityGroup.style.display = 'none';
+                    if (this.mapManager) this.mapManager.clearMunicipalityBoundary();
+                }
+            });
+        }
+
+        // Municipality selection
+        if (municipalitySelect) {
+            municipalitySelect.addEventListener('change', async (e) => {
+                const jptKodJe = e.target.value;
+                if (jptKodJe && this.gminyGeoJson && this.mapManager) {
+                    // Find the feature
+                    const feature = this.gminyGeoJson.features.find(f => f.properties.terc === jptKodJe);
+                    if (feature) {
+                        this.mapManager.drawMunicipalityBoundary(feature);
+                    } else {
+                        this.showMessage('Nie znaleziono granic wybranej gminy', 'warning');
+                    }
+                } else {
+                    if (this.mapManager) {
+                        this.mapManager.clearMunicipalityBoundary();
+                    }
                 }
             });
         }
@@ -710,6 +735,66 @@ class AsfaltPremiumApp {
         } finally {
             this.showLoading(false);
             this.setRefreshButtonState(true);
+        }
+    }
+
+    async loadMunicipalities(voivodeshipKey) {
+        const municipalitySelect = document.getElementById('municipality-select');
+        const municipalityGroup = document.getElementById('municipality-group');
+        
+        if (!municipalitySelect || !municipalityGroup) return;
+
+        // Reset dropdown
+        municipalitySelect.innerHTML = '<option value="">Wybierz gminę</option>';
+        municipalitySelect.disabled = true;
+        
+        if (this.mapManager) {
+            this.mapManager.clearMunicipalityBoundary();
+        }
+
+        try {
+            const voivodeshipData = CONFIG.VOIVODESHIPS[voivodeshipKey];
+            if (!voivodeshipData || !voivodeshipData.terytCode) return;
+
+            // Load static geojson if not loaded
+            if (!this.gminyGeoJson) {
+                try {
+                    const response = await fetch('assets/data/gminy.geojson');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    this.gminyGeoJson = await response.json();
+                } catch (e) {
+                    console.warn('Nie można załadować pliku gminy.geojson. Upewnij się, że uruchomiłeś skrypt pobierający.', e);
+                    municipalityGroup.style.display = 'none';
+                    return;
+                }
+            }
+            
+            // Filter features by TERYT code of voivodeship (first 2 digits)
+            const municipalities = this.gminyGeoJson.features
+                .filter(f => f.properties && f.properties.terc && f.properties.terc.startsWith(voivodeshipData.terytCode))
+                .map(f => ({
+                    id: f.properties.terc,
+                    name: f.properties.name
+                }))
+                .sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+            
+            if (municipalities && municipalities.length > 0) {
+                municipalities.forEach(mun => {
+                    const option = document.createElement('option');
+                    option.value = mun.id;
+                    option.textContent = mun.name;
+                    municipalitySelect.appendChild(option);
+                });
+                municipalitySelect.disabled = false;
+                municipalityGroup.style.display = 'block';
+            } else {
+                municipalityGroup.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Failed to load municipalities:', error);
+            municipalityGroup.style.display = 'none';
         }
     }
 
