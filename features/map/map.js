@@ -7,6 +7,7 @@ class MapManager {
     constructor() {
         this.map = null;
         this.roadsLayer = null;
+        this.municipalityLayer = null;
         this.currentBounds = null;
         this.selectedRoads = [];
         this.selectedRoadMarkers = [];
@@ -68,6 +69,9 @@ class MapManager {
 
         // Initialize roads layer
         this.roadsLayer = L.featureGroup().addTo(this.map);
+
+        // Initialize municipality layer
+        this.municipalityLayer = L.featureGroup().addTo(this.map);
 
         // Restore map state from localStorage
         this.restoreMapState();
@@ -516,6 +520,43 @@ class MapManager {
         ];
 
         this.fitToBounds(bounds);
+    }
+
+    /* ==========================================
+       MUNICIPALITY BOUNDARY MANAGEMENT
+       ========================================== */
+
+    drawMunicipalityBoundary(geoJsonData) {
+        if (!this.municipalityLayer || !this.map) return;
+
+        this.clearMunicipalityBoundary();
+
+        if (!geoJsonData) return;
+
+        const style = {
+            color: '#ff8c00', // Dark orange
+            weight: 3,
+            opacity: 0.8,
+            fillColor: '#ff8c00',
+            fillOpacity: 0.1,
+            dashArray: '5, 5',
+            interactive: false // So it doesn't block road clicks
+        };
+
+        const layer = L.geoJSON(geoJsonData, { style: style });
+        this.municipalityLayer.addLayer(layer);
+
+        // Fit map to the newly drawn boundary
+        const bounds = layer.getBounds();
+        if (bounds.isValid()) {
+            this.fitToBounds(bounds);
+        }
+    }
+
+    clearMunicipalityBoundary() {
+        if (this.municipalityLayer) {
+            this.municipalityLayer.clearLayers();
+        }
     }
 
     /* ==========================================
