@@ -1175,3 +1175,6 @@ body {
     transform: none;
     box-shadow: none;
 }
+/* Dodany styl dla intermediate */
+.mobile-quality-line.intermediate { background-color: #f97316; }
+

@@ -45,9 +45,6 @@ Nowe feature'y należy zatem implementować z poszanowaniem choć podstawowych z
    ```bash
    # Node.js (zalecany port 8081)
    npx http-server -p 8081
-
-   # Alternatywnie Python:
-   python -m http.server 8081
    ```
 
 3. **Otwórz aplikację w przeglądarce:**

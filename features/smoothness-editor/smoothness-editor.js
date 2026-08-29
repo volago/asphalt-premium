@@ -69,7 +69,8 @@ const SmoothnessEditor = (() => {
             let qualityClass = 'unknown';
             if (option.value === 'excellent') qualityClass = 'excellent';
             else if (option.value === 'good') qualityClass = 'good';
-            else if (['intermediate', 'bad', 'very_bad'].includes(option.value)) qualityClass = 'poor';
+            else if (option.value === 'intermediate') qualityClass = 'intermediate';
+            else if (['bad', 'very_bad'].includes(option.value)) qualityClass = 'poor';
 
             html += `
                 <div class="smoothness-option ${selected}" data-value="${option.value}">

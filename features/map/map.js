@@ -11,10 +11,10 @@ class MapManager {
         this.currentBounds = null;
         this.selectedRoads = [];
         this.selectedRoadMarkers = [];
-        this.hasShownMultiSelectHint = false;
         this.layerVisibility = {
             excellent: true,
             good: true,
+            intermediate: true,
             poor: true,
             unknown: true,
             no_surface: true
@@ -301,6 +301,7 @@ class MapManager {
         let roadCounts = {
             excellent: 0,
             good: 0,
+            intermediate: 0,
             poor: 0,
             unknown: 0,
             no_surface: 0,
