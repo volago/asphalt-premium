@@ -11,10 +11,10 @@ class MapManager {
         this.currentBounds = null;
         this.selectedRoads = [];
         this.selectedRoadMarkers = [];
-        this.hasShownMultiSelectHint = false;
         this.layerVisibility = {
             excellent: true,
             good: true,
+            intermediate: true,
             poor: true,
             unknown: true,
             no_surface: true
@@ -301,6 +301,7 @@ class MapManager {
         let roadCounts = {
             excellent: 0,
             good: 0,
+            intermediate: 0,
             poor: 0,
             unknown: 0,
             no_surface: 0,
@@ -534,11 +535,12 @@ class MapManager {
         if (!geoJsonData) return;
 
         const style = {
-            color: '#ff8c00', // Dark orange
+            color: '#ffea76ff', // Lighter true yellow
             weight: 3,
-            opacity: 0.8,
-            fillColor: '#ff8c00',
-            fillOpacity: 0.1,
+            opacity: 0.9,
+            fill: true,
+            fillColor: '#ffe867ff',
+            fillOpacity: 0.15,
             dashArray: '5, 5',
             interactive: false // So it doesn't block road clicks
         };

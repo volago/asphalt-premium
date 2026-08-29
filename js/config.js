@@ -40,6 +40,12 @@ const CONFIG = {
             opacity: 0.8,
             dashArray: '5, 5'
         },
+        intermediate: {
+            color: '#f97316',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: null
+        },
         poor: {
             color: '#dc2626',
             weight: 3,
@@ -180,7 +186,7 @@ const CONFIG = {
     SMOOTHNESS_MAPPING: {
         'excellent': 'excellent',
         'good': 'good',
-        'intermediate': 'poor',
+        'intermediate': 'intermediate',
         'bad': 'poor',
         'very_bad': 'poor',
         'horrible': 'poor',

@@ -211,6 +211,13 @@
                                         </div>
                                     </div>
                                     <div class="quality-item">
+                                        <div class="quality-line intermediate"></div>
+                                        <div class="quality-content">
+                                            <h4>Średnia jakość</h4>
+                                            <p>Nierówności i wstrząsy</p>
+                                        </div>
+                                    </div>
+                                    <div class="quality-item">
                                         <div class="quality-line poor"></div>
                                         <div class="quality-content">
                                             <h4>Słaba jakość</h4>
@@ -637,13 +644,21 @@
                             <div class="legend-line good"></div>
                             <span>Dobra</span>
                         </div>
+                        <div class="legend-item" data-road-type="intermediate">
+                            <button class="eye-toggle active" data-type="intermediate" title="Pokaż/ukryj drogi średnie">
+                                <i class="fas fa-eye eye-visible"></i>
+                                <i class="fas fa-eye-slash eye-hidden"></i>
+                            </button>
+                            <div class="legend-line intermediate"></div>
+                            <span>Średnia</span>
+                        </div>
                         <div class="legend-item" data-road-type="poor">
                             <button class="eye-toggle active" data-type="poor" title="Pokaż/ukryj drogi słabe">
                                 <i class="fas fa-eye eye-visible"></i>
                                 <i class="fas fa-eye-slash eye-hidden"></i>
                             </button>
                             <div class="legend-line poor"></div>
-                            <span>Średnia, Słaba, Bardzo słaba</span>
+                            <span>Słaba, Bardzo słaba</span>
                         </div>
                         <div class="legend-item" data-road-type="unknown">
                             <button class="eye-toggle active" data-type="unknown" title="Pokaż/ukryj drogi bez danych">
@@ -678,6 +693,10 @@
                             <div class="stat-item">
                                 <div class="legend-line good"></div>
                                 <span class="sidebar-stat-number" id="good-percent">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <div class="legend-line intermediate"></div>
+                                <span class="sidebar-stat-number" id="intermediate-percent">-</span>
                             </div>
                             <div class="stat-item">
                                 <div class="legend-line poor"></div>
@@ -737,11 +756,19 @@
                             </div>
 
                             <div class="legend-info-item">
+                                <div class="legend-info-line intermediate"></div>
+                                <div class="legend-info-details">
+                                    <h5>Średnia jakość</h5>
+                                    <p class="legend-info-tag"><code>smoothness=intermediate</code></p>
+                                    <p class="legend-info-desc">Nierówności, robi się nieprzyjemnie</p>
+                                </div>
+                            </div>
+
+                            <div class="legend-info-item">
                                 <div class="legend-info-line poor"></div>
                                 <div class="legend-info-details">
-                                    <h5>Średnia, Słaba, Bardzo słaba</h5>
+                                    <h5>Słaba, Bardzo słaba</h5>
                                     <p class="legend-info-tag">
-                                        <code>smoothness=intermediate</code><br>
                                         <code>smoothness=bad</code><br>
                                         <code>smoothness=very_bad</code>
                                     </p>

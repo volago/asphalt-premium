@@ -1,3 +1,6 @@
+1.8.0 (2026-08-29)
+Feature: Wyodrębniono jakość dróg `intermediate` jako samodzielną kategorię (Średnia jakość). Otrzymała ona dedykowany pomarańczowy styl na mapie i w interfejsie oraz osobny pasek procentowy w statystykach.
+
 1.7.0 (2026-06-10)
 Feature: Na urządzeniach mobilnych zaznaczanie odcinków dróg jest teraz addytywne — każde kliknięcie dodaje kolejny odcinek do zaznaczenia (bez potrzeby przytrzymywania Ctrl). Kliknięcie w mapę poza drogą nie czyści zaznaczenia, by uniknąć przypadkowych dotknięć. Na mapie pojawia się przycisk „Wyczyść zaznaczenie" umożliwiający ręczne wyczyszczenie. Zachowanie na desktopie nie ulega zmianie.
 

@@ -2947,4 +2947,10 @@ a.btn-help-link:active {
     color: var(--dark-gray);
     font-weight: 700;
 }
-
+
+/* Dodany styl dla intermediate */
+.legend-line.intermediate { background-color: #f97316; }
+.quality-line.intermediate { background-color: #f97316; }
+.smoothness-option-line.intermediate { background-color: #f97316; }
+.legend-info-line.intermediate { background-color: #f97316; }
+
