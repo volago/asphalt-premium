@@ -38,6 +38,7 @@ globalThis.CONFIG = {
     ROAD_STYLES: {
         excellent:  { color: '#00ff00', weight: 3, opacity: 0.8, dashArray: null },
         good:       { color: '#88ff00', weight: 3, opacity: 0.8, dashArray: null },
+        intermediate: { color: '#ffa500', weight: 3, opacity: 0.8, dashArray: null },
         poor:       { color: '#ff0000', weight: 3, opacity: 0.8, dashArray: null },
         unknown:    { color: '#0000ff', weight: 3, opacity: 0.8, dashArray: null },
         no_surface: { color: '#aaaaaa', weight: 3, opacity: 0.5, dashArray: '5,5' },
@@ -45,7 +46,7 @@ globalThis.CONFIG = {
     SMOOTHNESS_MAPPING: {
         excellent: 'excellent',
         good: 'good',
-        intermediate: 'poor',
+        intermediate: 'intermediate',
         bad: 'poor',
         very_bad: 'poor',
     },

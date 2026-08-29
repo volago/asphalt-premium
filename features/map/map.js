@@ -535,11 +535,12 @@ class MapManager {
         if (!geoJsonData) return;
 
         const style = {
-            color: '#ff8c00', // Dark orange
+            color: '#ffea76ff', // Lighter true yellow
             weight: 3,
-            opacity: 0.8,
-            fillColor: '#ff8c00',
-            fillOpacity: 0.1,
+            opacity: 0.9,
+            fill: true,
+            fillColor: '#ffe867ff',
+            fillOpacity: 0.15,
             dashArray: '5, 5',
             interactive: false // So it doesn't block road clicks
         };
