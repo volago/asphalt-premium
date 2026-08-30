@@ -58,6 +58,12 @@ const CONFIG = {
             opacity: 0.6,
             dashArray: null
         },
+        other_surface: {
+            color: '#dc2626',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 5'
+        },
         no_surface: {
             color: '#2563eb',
             weight: 2,

@@ -1,3 +1,6 @@
+1.9.0 (2026-08-29)
+Feature: Dodano wizualizację i filtry dla dróg o innej nawierzchni niż asfaltowa (np. kostka brukowa, drogi gruntowe). Pojawiają się na mapie jako czerwona przerywana linia.
+
 1.8.0 (2026-08-29)
 Feature: Wyodrębniono jakość dróg `intermediate` jako samodzielną kategorię (Średnia jakość). Otrzymała ona dedykowany pomarańczowy styl na mapie i w interfejsie oraz osobny pasek procentowy w statystykach.
 

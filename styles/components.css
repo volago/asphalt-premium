@@ -2954,3 +2954,19 @@ a.btn-help-link:active {
 .smoothness-option-line.intermediate { background-color: #f97316; }
 .legend-info-line.intermediate { background-color: #f97316; }
 
+/* Styl dla other_surface (inne nawierzchnie) */
+.legend-line.other_surface,
+.legend-info-line.other_surface {
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+        90deg,
+        var(--red) 0px,
+        var(--red) 6px,
+        transparent 6px,
+        transparent 12px
+    );
+    background-size: 12px 3px;
+    background-repeat: repeat-x;
+}
+.quality-line.other_surface { background-color: var(--red); }
+.smoothness-option-line.other_surface { background-color: var(--red); }

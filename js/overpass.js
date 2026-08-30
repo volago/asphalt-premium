@@ -100,6 +100,10 @@ map_to_area->.voiv_area;
   // Roads WITHOUT smoothness but WITH asphalt surface (for coverage analysis - will be blue)
   way["highway"="tertiary"][!"smoothness"]["surface"="asphalt"](area.voiv_area);
   way["highway"="unclassified"][!"smoothness"]["surface"="asphalt"](area.voiv_area);
+
+  // Roads WITH surface other than asphalt (will be red dashed)
+  way["highway"="tertiary"]["surface"]["surface"!="asphalt"](area.voiv_area);
+  way["highway"="unclassified"]["surface"]["surface"!="asphalt"](area.voiv_area);
 );
 out geom;
         `.trim();
@@ -138,6 +142,10 @@ out geom;
   // Roads WITHOUT surface tag (for surface editing - will be purple dashed)
   way["highway"="tertiary"][!"surface"];
   way["highway"="unclassified"][!"surface"];
+
+  // Roads WITH surface other than asphalt (will be red dashed)
+  way["highway"="tertiary"]["surface"]["surface"!="asphalt"];
+  way["highway"="unclassified"]["surface"]["surface"!="asphalt"];
 );
 out geom;
         `.trim();
