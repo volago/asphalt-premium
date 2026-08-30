@@ -17,6 +17,7 @@ class MapManager {
             intermediate: true,
             poor: true,
             unknown: true,
+            other_surface: true,
             no_surface: true
         };
         this.oauth = null;
@@ -304,6 +305,7 @@ class MapManager {
             intermediate: 0,
             poor: 0,
             unknown: 0,
+            other_surface: 0,
             no_surface: 0,
             total: 0
         };
@@ -391,6 +393,10 @@ class MapManager {
     getRoadStyleType(smoothness, surface) {
         // Roads without surface tag get a distinct style
         if (!surface) return 'no_surface';
+        
+        // Roads with surface other than asphalt
+        if (surface !== 'asphalt') return 'other_surface';
+        
         if (!smoothness) return 'unknown';  // Blue for roads without smoothness
         return CONFIG.SMOOTHNESS_MAPPING[smoothness] || 'poor';
     }
