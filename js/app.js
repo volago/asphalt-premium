@@ -896,7 +896,6 @@ class AsfaltPremiumApp {
         const goodPercent = totalRoads > 0 ? (roadCounts.good / totalRoads) * 100 : 0;
         const intermediatePercent = totalRoads > 0 ? (roadCounts.intermediate / totalRoads) * 100 : 0;
         const poorPercent = totalRoads > 0 ? (roadCounts.poor / totalRoads) * 100 : 0;
-        const otherSurfacePercent = totalRoads > 0 ? (roadCounts.other_surface / totalRoads) * 100 : 0;
         const unknownPercent = totalRoads > 0 ? (roadCounts.unknown / totalRoads) * 100 : 0;
 
         // Update UI elements
@@ -911,10 +910,6 @@ class AsfaltPremiumApp {
         document.getElementById('good-percent').textContent = `${goodPercent.toFixed(1)}%`;
         document.getElementById('intermediate-percent').textContent = `${intermediatePercent.toFixed(1)}%`;
         document.getElementById('poor-percent').textContent = `${poorPercent.toFixed(1)}%`;
-        const otherSurfaceEl = document.getElementById('other-surface-percent');
-        if (otherSurfaceEl) {
-            otherSurfaceEl.textContent = `${otherSurfacePercent.toFixed(1)}%`;
-        }
 
         // Show statistics
         statsElement.style.display = 'block';
