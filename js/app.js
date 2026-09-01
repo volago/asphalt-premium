@@ -891,12 +891,14 @@ class AsfaltPremiumApp {
             feature.properties && feature.properties.smoothness
         ).length;
 
-        // Calculate counts and percentages
-        const excellentPercent = totalRoads > 0 ? (roadCounts.excellent / totalRoads) * 100 : 0;
-        const goodPercent = totalRoads > 0 ? (roadCounts.good / totalRoads) * 100 : 0;
-        const intermediatePercent = totalRoads > 0 ? (roadCounts.intermediate / totalRoads) * 100 : 0;
-        const poorPercent = totalRoads > 0 ? (roadCounts.poor / totalRoads) * 100 : 0;
-        const unknownPercent = totalRoads > 0 ? (roadCounts.unknown / totalRoads) * 100 : 0;
+        // Calculate counts and percentages (only for asphalt roads shown in stats)
+        const totalStatsRoads = roadCounts.excellent + roadCounts.good + roadCounts.intermediate + roadCounts.poor + roadCounts.unknown;
+
+        const excellentPercent = totalStatsRoads > 0 ? (roadCounts.excellent / totalStatsRoads) * 100 : 0;
+        const goodPercent = totalStatsRoads > 0 ? (roadCounts.good / totalStatsRoads) * 100 : 0;
+        const intermediatePercent = totalStatsRoads > 0 ? (roadCounts.intermediate / totalStatsRoads) * 100 : 0;
+        const poorPercent = totalStatsRoads > 0 ? (roadCounts.poor / totalStatsRoads) * 100 : 0;
+        const unknownPercent = totalStatsRoads > 0 ? (roadCounts.unknown / totalStatsRoads) * 100 : 0;
 
         // Update UI elements
         const unknownElement = document.getElementById('unknown-roads');
