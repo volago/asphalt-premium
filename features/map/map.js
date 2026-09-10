@@ -279,6 +279,19 @@ class MapManager {
         this.map.on('locationerror', (e) => {
             Toast.show('Nie udało się ustalić Twojej lokalizacji: ' + e.message, 'warning');
         });
+
+        // Context Menu (Right Click)
+        this.map.on('contextmenu', (e) => {
+            this.showContextMenu(e);
+        });
+
+        // Hide context menu when clicking anywhere else
+        this.map.on('click', () => {
+            this.hideContextMenu();
+        });
+        this.map.on('movestart', () => {
+            this.hideContextMenu();
+        });
     }
 
     /* ==========================================
@@ -1434,6 +1447,67 @@ class MapManager {
                 this.updateLoadButtonState(button);
             }
         }
+    }
+
+    /* ==========================================
+       CONTEXT MENU
+       ========================================== */
+
+    showContextMenu(e) {
+        if (!this.map) return;
+        
+        this.hideContextMenu(); // Ensure any existing menu is hidden
+
+        // Create the container
+        this.contextMenu = L.DomUtil.create('div', 'custom-context-menu');
+        
+        // Prevent map clicks when clicking the menu
+        L.DomEvent.disableClickPropagation(this.contextMenu);
+        L.DomEvent.on(this.contextMenu, 'contextmenu', L.DomEvent.stopPropagation);
+
+        // Google Street View URL with coordinates
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
+
+        // Create item
+        const item = L.DomUtil.create('a', 'custom-context-menu-item', this.contextMenu);
+        item.href = streetViewUrl;
+        item.target = '_blank';
+        item.rel = 'noopener noreferrer';
+        item.innerHTML = '<i class="fas fa-street-view"></i> Google Streetview';
+        
+        // Hide menu after click
+        L.DomEvent.on(item, 'click', () => {
+            this.hideContextMenu();
+        });
+
+        // Position the menu
+        const containerPoint = this.map.mouseEventToContainerPoint(e.originalEvent);
+        this.contextMenu.style.position = 'absolute';
+        this.contextMenu.style.left = containerPoint.x + 'px';
+        this.contextMenu.style.top = containerPoint.y + 'px';
+
+        // Add to map container
+        this.map.getContainer().appendChild(this.contextMenu);
+        
+        // Adjust position if it goes off-screen
+        const menuRect = this.contextMenu.getBoundingClientRect();
+        const mapRect = this.map.getContainer().getBoundingClientRect();
+        
+        if (containerPoint.x + menuRect.width > mapRect.width) {
+            this.contextMenu.style.left = (containerPoint.x - menuRect.width) + 'px';
+        }
+        if (containerPoint.y + menuRect.height > mapRect.height) {
+            this.contextMenu.style.top = (containerPoint.y - menuRect.height) + 'px';
+        }
+    }
+
+    hideContextMenu() {
+        if (this.contextMenu && this.contextMenu.parentNode) {
+            this.contextMenu.parentNode.removeChild(this.contextMenu);
+        }
+        this.contextMenu = null;
     }
 
     saveMapState() {
