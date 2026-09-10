@@ -1,5 +1,5 @@
 1.10.0 (2026-09-10)
-Feature: Dodano menu kontekstowe na mapie. Po kliknięciu prawym przyciskiem myszy na mapie, pojawia się opcja otwarcia widoku Google Street View w wybranym miejscu, co ułatwia i przyspiesza weryfikację jakości nawierzchni przez użytkowników.
+Feature: Dodano menu kontekstowe na mapie (dostępne pod prawym przyciskiem myszy). Oprócz skrótu do Google Street View, menu pozwala opcjonalnie wczytać drogi osiedlowe (`highway=residential`) na aktualnym widoku mapy (od przybliżenia min. zoom 13). Drogi te są oznaczane brązową przerywaną linią i można je łatwo konwertować na drogi niesklasyfikowane (`highway=unclassified`) bezpośrednio z panelu w aplikacji.
 
 1.9.0 (2026-08-29)
 Feature: Dodano wizualizację i filtry dla dróg o innej nawierzchni niż asfaltowa (np. kostka brukowa, drogi gruntowe). Pojawiają się na mapie jako czerwona przerywana linia.

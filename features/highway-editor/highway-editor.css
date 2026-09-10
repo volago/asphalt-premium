@@ -1,0 +1,28 @@
+/* ==========================================
+   HIGHWAY-EDITOR.CSS - Highway Editor specific styles
+   ========================================== */
+
+.highway-editor {
+    padding: 0;
+}
+
+.highway-editor h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: var(--primary-blue, #2563eb);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.highway-editor-info {
+    font-size: 13px;
+    color: var(--secondary-gray, #6b7280);
+    margin-bottom: 15px;
+    line-height: 1.4;
+    padding: 10px;
+    background-color: var(--light-bg, #f3f4f6);
+    border-radius: 6px;
+    border-left: 3px solid #8b4513;
+}

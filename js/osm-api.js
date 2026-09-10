@@ -475,5 +475,83 @@ class OSMAPIClient {
             throw error;
         }
     }
-}
 
+    /**
+     * Update highway tag for one or multiple ways in one changeset
+     * @param {number|Array<number>} wayIds - Way ID or Array of Way IDs
+     * @param {string} highwayValue - New highway value (e.g. 'unclassified')
+     * @param {string} comment - Optional custom comment
+     * @returns {Promise<Object>} Result with success status, changesetId, and array of updates
+     */
+    async updateHighway(wayIds, highwayValue, comment = null) {
+        let changesetId = null;
+
+        // Ensure wayIds is an array
+        const ids = Array.isArray(wayIds) ? wayIds : [wayIds];
+
+        try {
+            console.log(`Updating highway for ways ${ids.join(', ')} to: ${highwayValue}`);
+
+            // Create changeset
+            const changesetComment = comment || (ids.length === 1
+                ? `Updated highway to ${highwayValue}`
+                : `Updated highway to ${highwayValue} for multiple ways`);
+
+            changesetId = await this.createChangeset(changesetComment, {
+                'source': 'survey',
+                'description': 'Road class update via Asfalt Premium'
+            });
+
+            const results = [];
+
+            // Update each way
+            for (const wayId of ids) {
+                // Get current way data
+                const wayData = await this.getWayDetails(wayId);
+
+                // Store old highway value
+                const oldHighway = wayData.tags.highway || null;
+
+                // Update highway tag
+                wayData.tags.highway = highwayValue;
+
+                // Update way
+                const newVersion = await this.updateWay(wayId, wayData, changesetId);
+
+                results.push({
+                    wayId: wayId,
+                    newVersion: newVersion,
+                    oldHighway: oldHighway,
+                    newHighway: highwayValue
+                });
+            }
+
+            // Close changeset
+            await this.closeChangeset(changesetId);
+
+            return {
+                success: true,
+                changesetId: changesetId,
+                updates: results,
+                wayId: ids.length === 1 ? ids[0] : undefined,
+                newVersion: ids.length === 1 ? results[0].newVersion : undefined,
+                oldHighway: ids.length === 1 ? results[0].oldHighway : undefined,
+                newHighway: highwayValue
+            };
+
+        } catch (error) {
+            console.error('Failed to update highway:', error);
+
+            // Try to close changeset if it was created
+            if (changesetId) {
+                try {
+                    await this.closeChangeset(changesetId);
+                } catch (closeError) {
+                    console.error('Failed to close changeset after error:', closeError);
+                }
+            }
+
+            throw error;
+        }
+    }
+}

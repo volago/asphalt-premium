@@ -67,7 +67,9 @@ Procent dróg **bez** oceny jakości (`smoothness`) w poszczególnych województ
 
 🎯 **Cel projektu**: zmniejszyć te wartości poprzez zachęcenie społeczności do dodawania ocen jakości dróg!
 
-📊 **[Zobacz aktualne statystyki changesetów →](https://resultmaps.neis-one.org/osm-changesets?comment=Asfalt_Premium)**
+📊 **[ Zobacz aktualne statystyki changesetów →](https://resultmaps.neis-one.org/osm-changesets?comment=Asfalt_Premium)**
+
+📊 [Statystyki aplikacji](https://volago.goatcounter.com/)
 
 ---
 
