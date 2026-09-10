@@ -1,3 +1,6 @@
+1.10.0 (2026-09-10)
+Feature: Dodano menu kontekstowe na mapie. Po kliknięciu prawym przyciskiem myszy na mapie, pojawia się opcja otwarcia widoku Google Street View w wybranym miejscu, co ułatwia i przyspiesza weryfikację jakości nawierzchni przez użytkowników.
+
 1.9.0 (2026-08-29)
 Feature: Dodano wizualizację i filtry dla dróg o innej nawierzchni niż asfaltowa (np. kostka brukowa, drogi gruntowe). Pojawiają się na mapie jako czerwona przerywana linia.
 
