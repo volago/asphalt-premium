@@ -71,6 +71,9 @@ class MapManager {
         // Initialize roads layer
         this.roadsLayer = L.featureGroup().addTo(this.map);
 
+        // Initialize residential roads layer
+        this.residentialRoadsLayer = L.featureGroup().addTo(this.map);
+
         // Initialize municipality layer
         this.municipalityLayer = L.featureGroup().addTo(this.map);
 
@@ -509,6 +512,9 @@ class MapManager {
         if (this.roadsLayer) {
             this.roadsLayer.clearLayers();
         }
+        if (this.residentialRoadsLayer) {
+            this.residentialRoadsLayer.clearLayers();
+        }
     }
 
     /* ==========================================
@@ -908,7 +914,30 @@ class MapManager {
         }
 
         // Decide which editor to show based on road type
-        if (properties.isNoSurface) {
+        if (properties.highway === 'residential') {
+            // Highway editor for residential roads
+            content.innerHTML = `
+                <div class="road-info-scrollable">
+                    ${HighwayEditor.render(properties.highway)}
+                </div>
+                ${HighwayEditor.renderActions(properties, this.oauth && this.oauth.isAuthenticated())}
+            `;
+
+            this.initRoadInfoSidebar();
+
+            const highwayRoadsSnapshot = [...this.selectedRoads];
+
+            HighwayEditor.init({
+                currentHighway: properties.highway,
+                selectedRoads:  highwayRoadsSnapshot,
+                osmApi:         this.osmApi,
+                oauth:          this.oauth,
+                onSaveSuccess:  ({ updatedIds, newValue }) => {
+                    updatedIds.forEach(id => this.updateRoadHighwayLocally(id, newValue, false, highwayRoadsSnapshot));
+                    this.showRoadInfo();
+                }
+            });
+        } else if (properties.isNoSurface) {
             // Surface editor for roads without surface tag
             content.innerHTML = `
                 <div class="road-info-scrollable">
@@ -1189,6 +1218,42 @@ class MapManager {
         console.log(`✓ Road ${wayId} updated locally with surface: ${newSurface} (style: ${newStyleType})`);
     }
 
+    updateRoadHighwayLocally(wayId, newHighway, refreshUI = true, roadsSnapshot = null) {
+        const searchIn = roadsSnapshot || this.selectedRoads || [];
+        const road = searchIn.find(r => r.feature.properties.osm_id === wayId) || null;
+        if (!road) return;
+
+        const properties = road.feature.properties;
+        properties.highway = newHighway;
+
+        const newStyleType = this.getRoadStyleType(properties.smoothness, properties.surface);
+        const newStyle = this.getRoadStyle(newStyleType);
+
+        road.styleType = newStyleType;
+
+        if (road._visibleLine) {
+            road._visibleLine.setStyle(newStyle);
+
+            const selectedStyle = {
+                color: '#8b5cf6',
+                weight: 4,
+                opacity: 1,
+                dashArray: null
+            };
+            road._visibleLine.setStyle(selectedStyle);
+        }
+
+        if (this.residentialRoadsLayer && this.residentialRoadsLayer.hasLayer(road)) {
+            this.residentialRoadsLayer.removeLayer(road);
+            this.roadsLayer.addLayer(road);
+        }
+
+        if (refreshUI) {
+            this.showRoadInfo();
+        }
+
+        console.log(`✓ Road ${wayId} updated locally with highway: ${newHighway} (style: ${newStyleType})`);
+    }
 
     /* ==========================================
        TIP PANEL (Multi-select hint)
@@ -1449,6 +1514,65 @@ class MapManager {
         }
     }
 
+    async loadResidentialRoadsInViewport() {
+        if (!this.map || !this.overpassApi) return;
+
+        const zoom = this.map.getZoom();
+        if (zoom < CONFIG.MAP.MIN_LOAD_ZOOM) {
+            Toast.show(`Zbyt duże oddalenie, aby wczytać drogi osiedlowe. Przybliż mapę (min. zoom: ${CONFIG.MAP.MIN_LOAD_ZOOM}).`);
+            return;
+        }
+
+        try {
+            this.isLoading = true;
+            Toast.show('Wczytuję drogi osiedlowe (residential)...', 'info');
+
+            const bounds = this.map.getBounds();
+            const bbox = [
+                bounds.getWest(),
+                bounds.getSouth(),
+                bounds.getEast(),
+                bounds.getNorth()
+            ];
+
+            const geoJson = await this.overpassApi.fetchResidentialRoadsInBBox(bbox);
+
+            let addedCount = 0;
+            const features = geoJson.features || [];
+
+            for (const feature of features) {
+                const id = feature.properties.osm_id;
+                feature.properties.highway = 'residential';
+                
+                const loadedId = 'res_' + id;
+                if (this.loadedWayIds.has(loadedId)) continue;
+
+                const layer = this.createRoadLayer(feature);
+                layer.styleType = 'residential';
+                const style = this.getRoadStyle('residential');
+                layer._visibleLine.setStyle({ ...style, opacity: 1 });
+                
+                this.residentialRoadsLayer.addLayer(layer);
+                this.loadedWayIds.add(loadedId);
+                addedCount++;
+            }
+
+            console.log(`Loaded ${addedCount} new residential roads.`);
+
+            if (addedCount === 0) {
+                Toast.show('Nie znaleziono nowych dróg osiedlowych w tym obszarze.', 'info');
+            } else {
+                Toast.show(`Wczytano ${addedCount} dróg osiedlowych.`, 'success');
+            }
+
+        } catch (error) {
+            console.error('Error loading residential roads:', error);
+            Toast.show('Wystąpił błąd podczas wczytywania dróg osiedlowych: ' + error.message, 'error', 6000);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
     /* ==========================================
        CONTEXT MENU
        ========================================== */
@@ -1470,16 +1594,27 @@ class MapManager {
         const lng = e.latlng.lng;
         const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
 
-        // Create item
-        const item = L.DomUtil.create('a', 'custom-context-menu-item', this.contextMenu);
-        item.href = streetViewUrl;
-        item.target = '_blank';
-        item.rel = 'noopener noreferrer';
-        item.innerHTML = '<i class="fas fa-street-view"></i> Google Streetview';
+        // Create Google Street View item
+        const itemStreetView = L.DomUtil.create('a', 'custom-context-menu-item', this.contextMenu);
+        itemStreetView.href = streetViewUrl;
+        itemStreetView.target = '_blank';
+        itemStreetView.rel = 'noopener noreferrer';
+        itemStreetView.innerHTML = '<i class="fas fa-street-view"></i> Google Streetview';
         
         // Hide menu after click
-        L.DomEvent.on(item, 'click', () => {
+        L.DomEvent.on(itemStreetView, 'click', () => {
             this.hideContextMenu();
+        });
+
+        // Create Load Residential Roads item
+        const itemResidential = L.DomUtil.create('a', 'custom-context-menu-item', this.contextMenu);
+        itemResidential.href = '#';
+        itemResidential.innerHTML = '<i class="fas fa-home"></i> Wczytaj drogi osiedlowe';
+        
+        L.DomEvent.on(itemResidential, 'click', (ev) => {
+            ev.preventDefault();
+            this.hideContextMenu();
+            this.loadResidentialRoadsInViewport();
         });
 
         // Position the menu

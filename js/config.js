@@ -69,6 +69,12 @@ const CONFIG = {
             weight: 2,
             opacity: 0.5,
             dashArray: '3, 6'
+        },
+        residential: {
+            color: '#8b4513',
+            weight: 3,
+            opacity: 0.8,
+            dashArray: '5, 5'
         }
     },
 

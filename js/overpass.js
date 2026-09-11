@@ -64,6 +64,30 @@ class OverpassAPI {
         }
     }
 
+    /**
+     * Fetch residential roads data for a given bounding box
+     * @param {Array} bbox - [west, south, east, north]
+     * @returns {Promise<Object>} GeoJSON FeatureCollection
+     */
+    async fetchResidentialRoadsInBBox(bbox) {
+        console.log(`Fetching residential roads for bbox: ${bbox.join(',')}`);
+
+        const query = this.buildResidentialRoadsQueryForBBox(bbox);
+
+        try {
+            const data = await this.executeQuery(query);
+            const geoJson = this.convertToGeoJSON(data);
+
+            console.log(`Fetched ${geoJson.features.length} residential roads from OverpassAPI BBox`);
+
+            return geoJson;
+
+        } catch (error) {
+            console.error('Failed to fetch residential roads from OverpassAPI BBox:', error);
+            throw new Error(`OverpassAPI request failed: ${error.message}`);
+        }
+    }
+
     /* ==========================================
        QUERY BUILDING
        ========================================== */
@@ -151,6 +175,29 @@ out geom;
         `.trim();
 
         console.log('Generated Overpass query for BBox:', bbox);
+        console.log('Query:', query);
+
+        return query;
+    }
+
+    /**
+     * Build Overpass QL query for residential roads within a bounding box
+     * @param {Array} bbox - [west, south, east, north]
+     * @returns {string} Overpass QL query
+     */
+    buildResidentialRoadsQueryForBBox(bbox) {
+        const [west, south, east, north] = bbox;
+
+        const query = `
+[out:json][timeout:25][bbox:${south},${west},${north},${east}];
+
+(
+  way["highway"="residential"];
+);
+out geom;
+        `.trim();
+
+        console.log('Generated Overpass query for Residential BBox:', bbox);
         console.log('Query:', query);
 
         return query;
