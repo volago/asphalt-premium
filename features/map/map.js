@@ -803,6 +803,15 @@ class MapManager {
             }
         }
         
+        // Calculate common highway
+        let commonHighway = firstProps.highway;
+        for (let i = 1; i < this.selectedRoads.length; i++) {
+            if (this.selectedRoads[i].feature.properties.highway !== commonHighway) {
+                commonHighway = 'mixed';
+                break;
+            }
+        }
+        
         let name = firstProps.name || 'Droga bez nazwy';
         let osmId = firstProps.osm_id;
         
@@ -816,7 +825,7 @@ class MapManager {
             osm_id: osmId,
             smoothness: commonSmoothness === 'mixed' ? null : commonSmoothness,
             surface: commonSurface === 'mixed' ? null : commonSurface,
-            highway: isMulti ? 'wiele typów dróg' : (firstProps.highway || 'nieznany typ'),
+            highway: commonHighway === 'mixed' ? 'wiele typów dróg' : (commonHighway || 'nieznany typ'),
             isMulti: isMulti,
             isNoSurface: isNoSurface,
             firstOsmId: firstProps.osm_id
